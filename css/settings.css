@@ -1,0 +1,33 @@
+body {
+  font-family: Arial, sans-serif;
+  padding: 20px;
+  background: #f9f9f9;
+}
+h1 {
+  color: #333;
+}
+form {
+  background: #fff;
+  padding: 15px;
+  border: 1px solid #ccc;
+  max-width: 500px;
+  margin-bottom: 20px;
+}
+input, select, button {
+  width: 100%;
+  padding: 8px;
+  margin: 5px 0;
+}
+button {
+  background: #28a745;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+}
+button:hover {
+  background: #1e7e34;
+}
+.dark-mode {
+  background: #222;
+  color: #eee;
+}

@@ -130,7 +130,7 @@ code {
         flex-direction: column;
         justify-content: center;
         align-items: center;
-        background: rgba(0, 0, 0, 0.1);
+        background: rgba(0, 0, 0, 0.1),url(background.jpeg);
     }
    #loginForm{
     right:90px;
