@@ -6,14 +6,14 @@ function checkAccess(allowedRoles) {
   if (!user) {
     // Not logged in
     alert("You must log in first.");
-    window.location.href = "login.html";
+    window.location.href = "index.html";
     return;
   }
 
   if (!allowedRoles.includes(user.role)) {
     // Role not allowed
     alert("Access denied! You don't have permission to view this page.");
-    window.location.href = "login.html";
+    window.location.href = "index.html";
     return;
   }
 

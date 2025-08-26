@@ -18,7 +18,7 @@ function db() {
         payment: "Cheque",
         total: 225000
       },
-      // Add more sales here ...
+      
     ],
 
     // other db properties...
@@ -35,6 +35,6 @@ function requireRole(allowedRoles) {
 
   if (!allowedRoles.includes(currentUser.role)) {
     alert("Access denied: insufficient permissions.");
-    window.location.href = "login.html";
+    window.location.href = "index.html";
   }
 }
