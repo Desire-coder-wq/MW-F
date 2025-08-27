@@ -1,5 +1,5 @@
 
-// Simulated users database
+
 const users = [
   { username: "admin", password: "admin54", role: "admin" },
   { username: "manager1", password: "manager54", role: "manager" },
@@ -36,11 +36,10 @@ function handleLogin(event) {
     return;
   }
 
-  // Success message
   messageDiv.style.color = 'green';
   messageDiv.textContent = `Welcome, ${user.role.charAt(0).toUpperCase() + user.role.slice(1)} ${user.username}! Redirecting...`;
 
-  // Redirect based on role with slight delay (optional)
+  
   setTimeout(() => {
     if (role === 'attendant') {
       window.location.href = `${attendant-dashboard.html}`;
@@ -49,10 +48,9 @@ function handleLogin(event) {
     } else if (role === 'admin') {
       window.location.href = 'admin-dashboard.html';
     }
-  }, 1000); // 1 second delay so the welcome message is seen
+  }, 1000); 
 }
 
-// Attach event listener after DOM loaded
 window.addEventListener('DOMContentLoaded', () => {
   const loginForm = document.getElementById('loginForm');
   if (loginForm) {

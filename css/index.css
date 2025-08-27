@@ -1,18 +1,33 @@
-/* styles.css */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
-
 body, html {
   height: 100%;
   margin: 0;
+  padding: 0;
   font-family: 'Inter', sans-serif;
-  background: #f0f2f5;
+  background:floralwhite;
   display: flex;
   justify-content: center;
   align-items: center;
+  min-height: 100vh;
 }
 
-.centered-page {
+.bg-cover {
+  background: url('../background.jpeg') no-repeat center center;
+  background-size: cover;
+  width: 50vw;
   height: 100vh;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.card-container {
+  width: 50vw;       
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color:burlywood; 
+  box-sizing: border-box;
+  padding: 2rem;
 }
 
 .card {
@@ -20,9 +35,11 @@ body, html {
   padding: 2.5rem 3rem;
   border-radius: 12px;
   box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-  width: 320px;
+  width: 100%;
+  max-width: 400px;
   box-sizing: border-box;
 }
+
 
 h1 {
   margin-top: 0;
@@ -96,42 +113,3 @@ code {
   font-weight: 600;
   color: red;
 }
-   body, html {
-      height: 100%;
-      margin: 0;
-      padding: 0;
-
-    }
-
-    .bg-cover {
-      background: url(background.jpeg) no-repeat center center;
-      background-size: cover;
-      width: 100vw;
-      min-height:100vh ;
-      position: fixed;
-      top: 0;
-      left: 0;
-      z-index: -1;
-    }
-    /* Make sure the card container fills the viewport */
-    .card-container {
-      height: 100vh;
-      width: 100vw;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-        /* Make sure the card container fills the viewport if you want */
-    .card.fullscreen-card{
-        width: 100vw;
-        height: 100vh;
-        border-radius: 0;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        background: rgba(0, 0, 0, 0.1),url(background.jpeg);
-    }
-   #loginForm{
-    right:90px;
-   }

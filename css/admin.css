@@ -1,51 +1,61 @@
+/* admin.css - Professional styling */
 
-/* style.css */
 body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background: #f4f7fa;
+  background: linear-gradient(135deg, #1f3c88, #2980b9); /* blue gradient background */
   margin: 0;
   padding: 0;
-  color: #333;
+  color: #ecf0f1; /* light text for dark background */
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 h1 {
   text-align: center;
-  margin: 40px 0 20px 0;
-  font-weight: 700;
-  color: #2c3e50;
+  margin: 60px 0 30px 0;
+  font-weight: 800;
+  font-size: 2.8rem;
+  color: #ecf0f1;
+  text-shadow: 0 2px 6px rgba(0,0,0,0.4);
 }
 
 ul {
   max-width: 400px;
-  margin: 0 auto 40px auto;
+  width: 100%;
+  margin: 0 auto 50px auto;
   padding: 0;
   list-style: none;
 }
 
 ul li {
-  background: white;
-  margin-bottom: 15px;
-  padding: 15px 20px;
-  border-radius: 8px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-  transition: background-color 0.3s ease;
+  background: rgba(255, 255, 255, 0.1); /* semi-transparent white */
+  margin-bottom: 20px;
+  padding: 18px 25px;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  transition: background-color 0.4s ease, box-shadow 0.4s ease;
+  cursor: pointer;
 }
 
 ul li:hover {
-  background-color: #2980b9;
+  background-color: #3498db; /* bright blue highlight */
+  box-shadow: 0 8px 20px rgba(52, 152, 219, 0.6);
 }
 
 ul li a {
-  color: #34495e;
+  color: #ecf0f1;
   text-decoration: none;
-  font-size: 18px;
+  font-size: 1.20rem;
   display: block;
+  font-weight: 700;
+  letter-spacing: 0.03rem;
   transition: color 0.3s ease;
-  font-weight: 600;
 }
 
 ul li:hover a {
-  color: white;
+  color: #fff;
 }
 
 .logout-link {
@@ -53,17 +63,29 @@ ul li:hover a {
   text-align: center;
   max-width: 400px;
   margin: 0 auto 40px auto;
-  padding: 12px 0;
+  padding: 14px 0;
   background: #e74c3c;
   color: white;
-  font-weight: 600;
+  font-weight: 700;
   text-decoration: none;
-  border-radius: 8px;
-  box-shadow: 0 4px 10px rgba(231, 76, 60, 0.4);
+  border-radius: 10px;
+  box-shadow: 0 6px 15px rgba(231, 76, 60, 0.6);
   transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  cursor: pointer;
 }
 
 .logout-link:hover {
   background-color: #c0392b;
-  box-shadow: 0 6px 15px rgba(192, 57, 43, 0.6);
+  box-shadow: 0 8px 20px rgba(192, 57, 43, 0.8);
+}
+
+/* Responsive tweaking */
+@media (max-width: 480px) {
+  h1 {
+    font-size: 2rem;
+    margin: 40px 20px 20px 20px;
+  }
+  ul {
+    max-width: 90%;
+  }
 }
