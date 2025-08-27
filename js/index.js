@@ -1,59 +1,30 @@
+app.post('/submit', (req, res) => {
+  const { name, email, message } = req.body;
+  console.log(name, email, message);
+  res.send("Form data received!");
+});
 
 
-const users = [
-  { username: "admin", password: "admin54", role: "admin" },
-  { username: "manager1", password: "manager54", role: "manager" },
-  { username: "attendant1", password: "attendant54", role: "attendant" }
-];
 
-function handleLogin(event) {
-  event.preventDefault(); // prevent default form submission
+function typeWriter(elementId, text, speed = 100) {
+  let i = 0;
+  const el = document.getElementById(elementId);
+  el.textContent = '';
 
-  const form = event.target;
-  const username = form.username.value.trim();
-  const password = form.password.value;
-  const role = form.role.value;
-  const messageDiv = document.getElementById('message');
-  
-  messageDiv.textContent = '';
-  
-  if (!username || !password || !role) {
-    messageDiv.style.color = 'red';
-    messageDiv.textContent = "All fields are required.";
-    return;
-  }
-
-  // Verify credentials
-  const user = users.find(u =>
-    u.username === username &&
-    u.password === password &&
-    u.role === role
-  );
-
-  if (!user) {
-    messageDiv.style.color = 'red';
-    messageDiv.textContent = "Invalid login credentials. Check username, password, and role.";
-    return;
-  }
-
-  messageDiv.style.color = 'green';
-  messageDiv.textContent = `Welcome, ${user.role.charAt(0).toUpperCase() + user.role.slice(1)} ${user.username}! Redirecting...`;
-
-  
-  setTimeout(() => {
-    if (role === 'attendant') {
-      window.location.href = `${attendant-dashboard.html}`;
-    } else if (role === 'manager') {
-      window.location.href = 'manager-dashboard.html';
-    } else if (role === 'admin') {
-      window.location.href = 'admin-dashboard.html';
+  function typing() {
+    if (i < text.length) {
+      el.textContent += text.charAt(i);
+      i++;
+      setTimeout(typing, speed);
     }
-  }, 1000); 
+  }
+
+  typing();
 }
 
-window.addEventListener('DOMContentLoaded', () => {
-  const loginForm = document.getElementById('loginForm');
-  if (loginForm) {
-    loginForm.addEventListener('submit', handleLogin);
-  }
-});
+window.onload = () => {
+  typeWriter('heading', 'Welcome to MAYONDO WOOD & FURNITURE', 100);
+  setTimeout(() => {
+    typeWriter('paragraph', 'THE BEST FURNITURE COMPANY WITH BEST QUALITY PRODUCTS', 50);
+  }, 100 * 35);
+};
