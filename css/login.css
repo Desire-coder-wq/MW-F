@@ -11,7 +11,7 @@ body, html {
 }
 
 .bg-cover {
-  background: url('../background.jpeg') no-repeat center center;
+  background: url('/images/background.jpeg') no-repeat center center;
   background-size: cover;
   width: 50vw;
   height: 100vh;

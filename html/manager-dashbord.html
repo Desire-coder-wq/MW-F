@@ -1,21 +1,21 @@
-!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>MWF — Dashboard</title>
-<link rel="stylesheet" href="css/dash.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="/css/management.css">
 </head>
-<body>
+<body onload="checkAccess(['admin'])">
 <header id="topbar"></header>
 <main class="container">
-<h1>Dashboard</h1>
+  <h1>Admin Dashboard</h1>
 <section class="kpi-grid" id="kpis"></section>
 <section class="grid">
-<a class="tile" href="add-stock.html">📦 Add / Update Stock</a>
-<a class="tile" href="sales-entry.html">🧾 Sales Entry</a>
-<a class="tile" href="sales-report.html">📊 Sales Report</a>
-<a class="tile" href="user-management.html">👤 User Management</a>
+<a class="tile" href="add-stock.html"> Add / Update Stock</a>
+<a class="tile" href="sales-entry.html"> Sales Entry</a>
+<a class="tile" href="sales-report.html">Sales Report</a>
+<a class="tile" href="user-management.html"> User Management</a>
 </section>
 </main>
 <script src="assets/js/data.js"></script>
@@ -35,5 +35,10 @@ k.innerHTML = `
 <div class="kpi"><div class="kpi-num">UGX ${revenue.toLocaleString()}</div><div class="kpi-label">Revenue (All-time)</div></div>
 `;
 </script>
+  <footer>
+    <div class="container">
+      <p>&copy; 2025 Mayondo Wood & Furniture Ltd</p>
+    </div>
+  </footer>
 </body>
-</html>
+</html> 

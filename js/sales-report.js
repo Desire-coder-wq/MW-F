@@ -78,14 +78,4 @@ function renderReport(formData = null) {
 
   tableHtml += `</tbody>`;
 
-  // Insert table HTML
-  const reportTable = document.getElementById("reportTable");
-  reportTable.innerHTML = tableHtml;
 
-  // Insert totals
-  const totalsDiv = document.getElementById("reportTotals");
-  totalsDiv.innerHTML = `
-    <div>Total Quantity: ${totalQuantity}</div>
-    <div>Total Revenue: ${formatUGX(totalRevenue)}</div>
-  `;
-}

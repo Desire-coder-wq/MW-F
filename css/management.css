@@ -1,44 +1,111 @@
+
 body {
-  font-family: Arial, sans-serif;
-  background: #f9f9f9;
-  padding: 20px;
+     background: linear-gradient(135deg, rgb(228, 216, 199), rgb(232, 176, 103));
 }
-h1 {
+
+/* Basic container styling */
+.container {
+  max-width: 900px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+
+}
+
+/* Header / Topbar */
+#topbar {
+  background-color: #4beb59;
+  color: white;
+  padding: 1rem 0;
+  text-align: center;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+/* KPI Grid */
+.kpi-grid {
+  display: flex;
+  justify-content: space-around;
+  margin-bottom: 2rem;
+}
+
+.kpi {
+  background: #f5f8ff;
+  border-radius: 10px;
+  padding: 1.5rem 2rem;
+  flex: 1;
+  margin: 0 0.5rem;
+  text-align: center;
+  box-shadow: 0 2px 6px rgb(0 0 0 / 0.1);
+  transition: background 0.3s ease;
+}
+
+.kpi:hover {
+  background: #e1e8ff;
+}
+
+.kpi-num {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #5fe75f;
+  margin-bottom: 0.25rem;
+}
+
+.kpi-label {
+  font-weight: 600;
   color: #333;
 }
-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-bottom: 20px;
-  background: #fff;
+
+/* Tiles grid */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1rem;
 }
-table, th, td {
-  border: 1px solid #ccc;
+
+.tile {
+  background-color: #51e04a;
+  color: white;
+  text-decoration: none;
+  padding: 1.2rem 1rem;
+  border-radius: 10px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.3s ease;
+  user-select: none;
 }
-th, td {
-  padding: 10px;
-  text-align: left;
+
+.tile:hover {
+  background-color: #0056b3;
 }
-th {
-  background: #f0f0f0;
+
+.tile:active {
+  background-color: #004494;
 }
-form {
-  background: #fff;
-  padding: 15px;
-  border: 1px solid #ccc;
-  max-width: 400px;
+
+/* Responsive adjustments */
+@media (max-width: 480px) {
+  .kpi-grid {
+    flex-direction: column;
+  }
+  .kpi {
+    margin: 0.5rem 0;
+  }
+  .grid {
+    grid-template-columns: 1fr 1fr;
+  }
 }
-input, select, button {
-  width: 100%;
-  padding: 8px;
-  margin: 5px 0;
-}
-button {
-  background: #007BFF;
-  color: #fff;
-  border: none;
-  cursor: pointer;
-}
-button:hover {
-  background: #0056b3;
+
+/* ===== Footer ===== */
+footer {
+  background: linear-gradient(135deg, rgb(59, 224, 59), rgb(171, 229, 171));
+  color:#ff7200;
+  text-align: center;
+  padding: 1rem 0;
+  font-size: 0.9rem;
+  transition: background-color var(--transition-speed), color var(--transition-speed);
 }
