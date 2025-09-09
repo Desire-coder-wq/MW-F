@@ -1,0 +1,85 @@
+doctype html
+html
+  head
+    meta(charset='UTF-8')
+    title= title
+    link(rel='stylesheet' href='/css/sales-entry.css')
+  body
+    .container
+      h1 Sales Entry Form
+      form#salesForm(action='/sales' method='post')
+        label
+          | Sales Agent:
+          input(type='text' name='salesAgent' required)
+        label
+          | Customer:
+          input(type='text' name='customer' required)
+        label
+          | Product:
+          select(name='productId' required)
+            option(value='') -- Select Product --
+            option(value='123') Wood
+            option(value='456') Timber
+        label
+          | Quantity:
+          input(type='number' name='quantity' min='1' required)
+        label
+          | Transport:
+          input(type='text' name='transport' required)
+        label
+          | Payment:
+          select(name='payment' required)
+            option(value='') -- Select Payment --
+            option(value='cash') Cash
+            option(value='credit') Credit
+            option(value='mobile') Mobile Money
+        label
+          input(type='checkbox' name='discount')
+          | Apply 5% Discount?
+        label
+          | Date:
+          input(type='date' name='date' required)
+        label
+          | Unit Price:
+          input(type='number' name='price' min='0' step='0.01' required)
+        button(type='submit') Save Entry
+
+      hr
+
+      h2 Sales Records
+      table#salesTable(border='1' cellpadding='5')
+        thead
+          tr
+            th Sales Agent
+            th Customer
+            th Product
+            th Quantity
+            th Unit Price
+            th Transport
+            th Payment
+            th Discount
+            th Subtotal
+            th Total
+            th Date
+        tbody
+          if sales.length === 0
+            tr
+              td(colspan="11") No sales yet
+          else
+            each sale in sales
+              tr
+                td= sale.salesAgent
+                td= sale.customer
+                td= sale.productId
+                td= sale.quantity
+                td= sale.price
+                td= sale.transport
+                td= sale.payment
+                td= sale.discount ? "Yes" : "No"
+                - const subtotal = sale.quantity * sale.price
+                - const total = sale.discount ? subtotal * 0.95 : subtotal
+                td= subtotal.toFixed(2)
+                td= total.toFixed(2)
+                td= new Date(sale.date).toDateString()
+
+    script(src='/sales-entry.js')

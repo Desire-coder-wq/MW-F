@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>MWF — Sales Report</title>
+<link rel="stylesheet" href="/css/sales-report.css" />
+</head>
+<body>
+<header id="topbar"></header>
+<main class="container">
+<h1>Sales Report</h1>
+<form id="filterForm" class="grid">
+<label>From<input type="date" name="from" /></label>
+<label>To<input type="date" name="to" /></label>
+<label>Sales Agent<input name="agent" placeholder="optional" /></label>
+<label>Payment<select name="payment">
+<option value="">Any</option><option>Cash</option><option>Cheque</option><option>Bank Overdraft</option>
+</select></label>
+<button type="submit">Filter</button>
+</form>
+<table id="reportTable" class="table"></table>
+<div class="totals" id="reportTotals"></div>
+</main>
+<script src="assets/js/data.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/sales-report.js"></script>
+<script>
+requireRole(['Admin','Manager']); renderTopbar('Sales Report');
+renderReport();
+document.getElementById('filterForm').addEventListener('submit', (e)=>{e.preventDefault(); renderReport(new FormData(e.target));});
+</script>
+</body>
+</html>

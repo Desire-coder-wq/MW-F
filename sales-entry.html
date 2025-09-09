@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Sales Entry</title>
+  <link rel="stylesheet" href="/css/sales-entry.css">
+</head>
+<body>
+  <div class="container">
+    <h1>Sales Entry Form</h1>
+    <form id="salesForm" action="/sales-entry" method="post" >
+      <input type="hidden" id="saleId"> <!-- Hidden input for editing -->
+      <label>
+        Customer:
+        <input type="text" id="customer" name="customer" required>
+      </label>
+      <label>
+        Product:
+        <input type="text" id="product" name="product" required>
+      </label>
+      <label>
+        Quantity:
+        <input type="number" id="quantity" name="quantity" min="1" required>
+      </label>
+      <label>
+        Date:
+        <input type="date" id="date" name="date" required>
+      </label>
+      <button type="submit">Save Entry</button>
+    </form>
+
+    <h2>Sales Records</h2>
+    <table id="salesTable">
+      <thead>
+        <tr>
+          <th>Customer</th>
+          <th>Product</th>
+          <th>Quantity</th>
+          <th>Date</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <script src="/public/js/sales-entry.js"></script>
+</body>
+</html>

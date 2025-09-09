@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Logout Page</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+
+    body {
+      font-family: 'Poppins', sans-serif;
+       background: linear-gradient(135deg, rgb(228, 216, 199), rgb(232, 176, 103));
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      color: burlywood;
+    }
+    
+    .logout-container {
+      background: rgba(0, 0, 0, 0.5);
+      padding: 40px 60px;
+      border-radius: 12px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+      text-align: center;
+      max-width: 320px;
+    }
+
+    h1 {
+      margin-bottom: 20px;
+      font-weight: 600;
+    }
+
+    .logout-btn {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: #ff4757;
+      border: none;
+      border-radius: 50px;
+      padding: 12px 32px;
+      font-size: 18px;
+      font-weight: 600;
+      color: white;
+      cursor: pointer;
+      overflow: hidden;
+      box-shadow: 0 4px 15px rgba(255, 71, 87, 0.6);
+      transition: background 0.3s ease, transform 0.3s ease;
+    }
+
+    .logout-btn:hover {
+      background: #e84118;
+      transform: scale(1.05);
+    }
+
+    .logout-btn .icon {
+      margin-right: 10px;
+      width: 20px;
+      height: 20px;
+      background: url('https://img.icons8.com/ios-filled/50/ffffff/logout-rounded-left.png') no-repeat center center / contain;
+      transition: transform 0.4s ease;
+    }
+
+    .logout-btn:hover .icon {
+      transform: translateX(-8px) rotate(-360deg);
+    }
+
+    .logout-message {
+      margin-top: 25px;
+      font-size: 16px;
+      opacity: 0;
+      transition: opacity 0.4s ease;
+    }
+
+    .logout-message.show {
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+  <div class="logout-container">
+    <h1>Ready to Logout?</h1>
+    <button class="logout-btn" id="logoutBtn">
+      <div class="icon"></div>
+      Logout
+    </button>
+    <p class="logout-message" id="message">You have been logged out successfully.</p>
+  </div>
+
+  <script>
+    const logoutBtn = document.getElementById('logoutBtn');
+    const message = document.getElementById('message');
+
+    logoutBtn.addEventListener('click', () => {
+      // Simulate logout action (e.g. clear session)
+      // Show logout confirmation message
+      message.classList.add('show');
+
+      // Optionally disable the button after logout
+      logoutBtn.disabled = true;
+      logoutBtn.style.cursor = 'default';
+
+      // Change button text
+      logoutBtn.textContent = 'Logged Out';
+    });
+  </script>
+</body>
+</html>
