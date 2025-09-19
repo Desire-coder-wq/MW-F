@@ -1,10 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Logout Page</title>
-  <style>
+  
     @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
 
     body {
@@ -19,7 +13,7 @@
     }
     
     .logout-container {
-      background: rgba(0, 0, 0, 0.5);
+      background: rgba(10, 126, 27, 0.5);
       padding: 40px 60px;
       border-radius: 12px;
       box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
@@ -37,7 +31,7 @@
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      background: #ff4757;
+      background:burlywood;
       border: none;
       border-radius: 50px;
       padding: 12px 32px;
@@ -51,7 +45,7 @@
     }
 
     .logout-btn:hover {
-      background: #e84118;
+      background:green;
       transform: scale(1.05);
     }
 
@@ -77,34 +71,4 @@
     .logout-message.show {
       opacity: 1;
     }
-  </style>
-</head>
-<body>
-  <div class="logout-container">
-    <h1>Ready to Logout?</h1>
-    <button class="logout-btn" id="logoutBtn">
-      <div class="icon"></div>
-      Logout
-    </button>
-    <p class="logout-message" id="message">You have been logged out successfully.</p>
-  </div>
-
-  <script>
-    const logoutBtn = document.getElementById('logoutBtn');
-    const message = document.getElementById('message');
-
-    logoutBtn.addEventListener('click', () => {
-      // Simulate logout action (e.g. clear session)
-      // Show logout confirmation message
-      message.classList.add('show');
-
-      // Optionally disable the button after logout
-      logoutBtn.disabled = true;
-      logoutBtn.style.cursor = 'default';
-
-      // Change button text
-      logoutBtn.textContent = 'Logged Out';
-    });
-  </script>
-</body>
-</html>
+  

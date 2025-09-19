@@ -1,0 +1,46 @@
+doctype html
+html
+  head
+    meta(charset='UTF-8')
+    meta(name='viewport' content='width=device-width, initial-scale=1.0')
+    title Furniture Company - User Registration
+    link(rel='stylesheet' href='/css/register.css')
+  body
+    nav.navbar.navbar-expand-lg.bg-body-tertiary
+      .container-fluid
+        a.navbar-brand(href='#') FORMS
+        button.navbar-toggler(type='button' data-bs-toggle='collapse' data-bs-target='#navbarNav' aria-controls='navbarNav' aria-expanded='false' aria-label='Toggle navigation')
+          span.navbar-toggler-icon
+        #navbarNav.collapse.navbar-collapse
+          ul.navbar-nav.ms-auto
+            li.nav-item
+              a.nav-link(href='/') Home
+            li.nav-item
+              a.nav-link(href='/register') Signup
+            li.nav-item
+              a.nav-link(href='/login') login
+            li.nav-item
+              a.nav-link(href='/stock') stock
+    .container
+      .image-section
+        img(src='/images/background.jpeg' alt='Furniture Company')
+      .form-section
+        h2 User Registration
+        form#registerForm(action='/register' method='POST')
+          label(for='name') Full Name
+          input#name(type='text' name='name' placeholder='Enter  name' required='')
+          label(for='email') Email
+          input#email(type='email' name='email' placeholder='Enter email' required='')
+          label(for='password') Password
+          .password-wrapper
+            input#password(type='password' name='password' placeholder='Enter password' required='')
+            span.toggle-password(onclick='togglePassword()') &#x1F441;
+          label(for='role') Role
+          select#role(name='role' required)
+           option(value='' selected='' disabled='') -- Select Role --
+           option(value='Admin') Admin
+           option(value='Manager') Manager
+           option(value='Attendant') Attendant
+          button(type='submit') Register
+          p#error-message
+    script(src='register.js')

@@ -1,0 +1,75 @@
+meta(charset="UTF-8")
+meta(name="viewport", content="width=device-width,initial-scale=1")
+title Attendant Dashboard - MWF
+link(rel="stylesheet", href="/css/attendant.css")
+//  Wrapper for sidebar + main 
+.layout
+  //  Sidebar 
+  aside.sidebar
+    h2.logo Dashboard
+    nav
+      ul
+        li
+          a(href="/salesEntry") Record Sale
+        li
+          a(href="/salesList") Sales List
+        li
+          a(href="/add-stock") Add / Update Stock
+        li
+          a(href="/stockList") Stock Inventory
+        li
+          a(href="/sales-summary") Sales Summary
+        li
+          a(href="/profile") Profile
+        li
+          a(href="/logout") Logout
+  //  Main content 
+  main.main-content
+    header
+      .header-profile
+        img#headerProfilePic(src="/images/default-profile.png", alt="Profile Picture")
+        h1
+          | Welcome, 
+          span#attendantName Attendant
+        p Manage your daily tasks here
+    //  Cards 
+    section.cards
+      //  Card: Record Sale 
+      .card
+        h2 Record Sale
+        p Enter new sales transactions, including transport charges.
+        a.btn(href="/salesEntry") Go
+      //  Card: Sales List 
+      .card
+        h2 Sales List
+        p View all sales you have recorded so far.
+        a.btn(href="/salesList") Go
+      //  Card: Add / Update Stock 
+      .card
+        h2 Add / Update Stock
+        p Record new wood/furniture items or update quantities.
+        a.btn(href="/add-stock") Go
+      //  Card: Stock List 
+      .card
+        h2 Stock Inventory
+        p Check available wood/furniture stock in the warehouse.
+        a.btn(href="/stockList") Go
+      //  Card: Reports / Sales Summary 
+      .card
+        h2 Sales Summary
+        p Quick view of daily/weekly sales figures.
+        a.btn(href="/sales-summary") Go
+      //  Card: Profile 
+      .card
+        h2 Profile
+        p View or edit your account information.
+        a.btn(href="/profile") Go
+      //  Card: Logout 
+      .card
+        h2 Logout
+        p Sign out of the system safely.
+        a.btn.logout(href="/logout") Logout
+//  Footer 
+footer
+  .container
+    p © 2025 Mayondo Wood & Furniture Ltd

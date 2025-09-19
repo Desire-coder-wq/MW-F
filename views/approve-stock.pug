@@ -1,0 +1,67 @@
+doctype html
+html(lang="en")
+  head
+    meta(charset="UTF-8")
+    meta(name="viewport" content="width=device-width, initial-scale=1")
+    title MWF — Approve Stock
+    link(rel="stylesheet", href="/css/attendant-manage.css")
+  body
+    .layout
+      aside.sidebar
+        h2.logo Dashboard
+        nav
+          ul
+            li: a(href="/reports") Reports
+            li: a(href="/approve-stock", class="active") Approve Stock
+            li: a(href="/add-stock") Add Stock
+            li: a(href="/sales-reports") Sales Reports
+            li: a(href="/attendants") Attendants
+            li: a(href="#", id="editProfileBtn") Profile
+            li: a(href="/logout") Logout
+
+      main.main-content
+        header
+          h1 Approve Stock
+          p Review stock submissions from attendants and approve or reject them.
+
+        section.table-section
+          table
+            thead
+              tr
+                th Item
+                th Quantity
+                th Submitted By
+                th Date Submitted
+                th Status
+                th Actions
+            tbody
+              if stockRequests.length
+                each req in stockRequests
+                  tr
+                    td= req.item
+                    td= req.quantity
+                    td= req.submittedBy
+                    td= req.dateSubmitted.toLocaleString()
+                    td 
+                      span(class=req.status.toLowerCase())= req.status
+                    td
+                      if req.status == "Pending"
+                        form(action=`/stock-requests/${req._id}/approve`, method="POST", style="display:inline")
+                          button(type="submit" class="approve-btn") Approve
+                        form(action=`/stock-requests/${req._id}/reject`, method="POST", style="display:inline", onsubmit="return confirmReject()")
+                          button(type="submit" class="reject-btn") Reject
+                      else
+                        button.disabled(disabled)= req.status
+              else
+                tr
+                  td(colspan="6") loading submissions...
+
+    footer
+      .container
+        p &copy; 2025 Mayondo Wood & Furniture Ltd
+
+    script(src="/js/approve-stock.js")
+    script.
+      function confirmReject() {
+        return confirm("Are you sure you want to reject this stock request?");
+      }

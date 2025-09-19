@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Logout Page</title>
+    <link rel="stylesheet" href="/public/css/logout.css" />
+  </head>
+  <body>
+    <div class="logout-container">
+      <h1>Ready to Logout?</h1>
+      <button class="logout-btn" id="logoutBtn">
+        <div class="icon"></div>
+        Logout
+      </button>
+      <p class="logout-message" id="message">
+        You have been logged out successfully.
+      </p>
+    </div>
+
+    <script>
+      const logoutBtn = document.getElementById("logoutBtn");
+      const message = document.getElementById("message");
+
+      logoutBtn.addEventListener("click", () => {
+        // Simulate logout action (e.g. clear session)
+        // Show logout confirmation message
+        message.classList.add("show");
+
+        // Optionally disable the button after logout
+        logoutBtn.disabled = true;
+        logoutBtn.style.cursor = "default";
+
+        // Change button text
+        logoutBtn.textContent = "Logged Out";
+      });
+    </script>
+  </body>
+</html>

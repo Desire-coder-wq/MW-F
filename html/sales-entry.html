@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MWF - Sales Entry</title>
+  <link rel="stylesheet" href="/public/css/sales-entry.css">
+</head>
+<body>
+  <div class="layout">
+  
+
+    <!-- Main content -->
+    <div class="main-content">
+      <header>
+        <h1>Mayondo Wood and Furniture (MWF) Ltd</h1>
+        <h3>Sales Entry Form</h3>
+      </header>
+
+      <main>
+        <form action="/salesEntry" method="POST">
+          <fieldset>
+            <legend style="color:green">Customer Information</legend>
+            <label for="customerName">Customer Name:</label>
+            <input type="text" name="customerName" id="customerName" required>
+
+            <label for="salesAgent">Sales Agent:</label>
+            <input type="text" name="salesAgent" id="salesAgent" required>
+          </fieldset>
+
+          <fieldset>
+            <legend style="color:green">Product Information</legend>
+            <label for="productType">Product Type:</label>
+            <select name="productType" id="productType" required>
+              <option value="Wood">Wood</option>
+              <option value="Furniture">Furniture</option>
+            </select>
+
+            <label for="productName">Product Name:</label>
+            <input type="text" name="productName" id="productName" required>
+
+            <label for="quantity">Quantity:</label>
+            <input type="number" name="quantity" id="quantity" min="1" required>
+
+            <label for="price">Price per Unit (UGX):</label>
+            <input type="number" name="price" id="price" min="0" required>
+
+            <label for="date">Date of Sale:</label>
+            <input type="date" name="date" id="date" required>
+          </fieldset>
+
+          <fieldset>
+            <legend style="color:green">Payment Information</legend>
+            <label for="paymentType">Payment Method:</label>
+            <select name="paymentType" id="paymentType" required>
+              <option value="Cash">Cash</option>
+              <option value="Cheque">Cheque</option>
+              <option value="Bank Overdraft">Bank Overdraft</option>
+            </select>
+
+            <label for="transport">Transport Required? (adds 5% to total):</label>
+            <select name="transport" id="transport" required>
+              <option value="No">No</option>
+              <option value="Yes">Yes</option>
+            </select>
+          </fieldset>
+
+          <fieldset>
+            <legend style="color:green">Additional Notes</legend>
+            <textarea name="notes" id="notes" rows="3" placeholder="Any remarks..."></textarea>
+          </fieldset>
+
+          <button type="submit">Record Sale</button>
+        </form>
+      </main>
+      <br><br>
+
+      <!-- Footer -->
+      <footer>
+        <p>&copy; 2025 Mayondo Wood & Furniture Ltd</p>
+      </footer>
+    </div>
+  </div>
+</body>
+</html>

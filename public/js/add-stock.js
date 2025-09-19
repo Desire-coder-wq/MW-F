@@ -1,169 +1,107 @@
+let editId = null;
 
-// stock.js
+// Fetch stock from backend
+async function fetchStock() {
+  const res = await fetch("/api/stock");
+  return await res.json();
+}
 
-// Helper: Render the current stock in the table
-function renderStockTable() {
-  const { products } = db();
-
+// Render table
+async function renderStock() {
   const stockTable = document.getElementById("stockTable");
-  if (!stockTable) return;
+  const stock = await fetchStock();
 
-  if (products.length === 0) {
-    stockTable.innerHTML = "<tr><td colspan='9' style='text-align:center'>No stock available.</td></tr>";
+  if (!stock || stock.length === 0) {
+    stockTable.innerHTML = `<tr><td colspan="5" style="text-align:center;">No stock available</td></tr>`;
     return;
   }
 
-  let html = `
-    <thead>
-      <tr>
-        <th>Name</th>
-        <th>Type</th>
-        <th>Supplier</th>
-        <th>Quality</th>
-        <th>Color</th>
-        <th>Measurements</th>
-        <th>Cost Price (UGX)</th>
-        <th>Price (UGX)</th>
-        <th>Quantity</th>
-        <th>Date</th>
-      </tr>
-    </thead>
-    <tbody>
+  const headers = ["Product", "Quantity", "Unit Price", "Total Value", "Actions"];
+  const rows = stock.map(item => `
+    <tr data-id="${item._id}">
+      <td>${item.name}</td>
+      <td>${item.quantity}</td>
+      <td>${item.price.toLocaleString()} UGX</td>
+      <td>${(item.quantity * item.price).toLocaleString()} UGX</td>
+      <td>
+        <button class="editBtn">✏️ Edit</button>
+        <button class="deleteBtn">🗑️ Delete</button>
+      </td>
+    </tr>
+  `).join('');
+
+  stockTable.innerHTML = `
+    <thead><tr>${headers.map(h => `<th>${h}</th>`).join('')}</tr></thead>
+    <tbody>${rows}</tbody>
   `;
 
-  products.forEach(p => {
-    html += `
-      <tr>
-        <td>${p.name}</td>
-        <td>${p.type}</td>
-        <td>${p.supplier}</td>
-        <td>${p.quality}</td>
-        <td>${p.color || ""}</td>
-        <td>${p.measurements || ""}</td>
-        <td style="text-align:right;">${p.costPrice.toLocaleString()}</td>
-        <td style="text-align:right;">${p.price.toLocaleString()}</td>
-        <td style="text-align:right;">${p.quantity}</td>
-        <td>${new Date(p.date).toLocaleDateString()}</td>
-      </tr>
-    `;
+  // Add event listeners for edit/delete
+  document.querySelectorAll(".editBtn").forEach(btn => {
+    btn.addEventListener("click", e => {
+      const tr = e.target.closest("tr");
+      const id = tr.getAttribute("data-id");
+      const tds = tr.querySelectorAll("td");
+
+      editId = id;
+      document.getElementById("name").value = tds[0].innerText;
+      document.getElementById("quantity").value = tds[1].innerText;
+      document.getElementById("price").value = tds[2].innerText.replace(/,/g, '').replace(' UGX','');
+    });
   });
 
-  html += "</tbody>";
-  stockTable.innerHTML = html;
+  document.querySelectorAll(".deleteBtn").forEach(btn => {
+    btn.addEventListener("click", async e => {
+      const tr = e.target.closest("tr");
+      const id = tr.getAttribute("data-id");
+      if (confirm("Delete this stock item?")) {
+        try {
+          await fetch(`/stock/${id}`, { method: "DELETE" });
+          console.log("Deleted stock:", id);
+          renderStock();
+        } catch (err) {
+          console.error("Failed to delete stock", err);
+        }
+      }
+    });
+  });
 }
 
-// Handle stock form submission - add or update
-function saveStockForm(event) {
-  event.preventDefault();
+// Handle Add/Edit
+document.getElementById("stockForm").addEventListener("submit", async e => {
+  e.preventDefault();
+  
+  const name = document.getElementById("name").value;
+  const quantity = parseInt(document.getElementById("quantity").value, 10);
+  const price = parseFloat(document.getElementById("price").value);
 
-  const form = event.target;
-  const formData = new FormData(form);
+  try {
+    if (editId) {
+      // Edit mode
+      const res = await fetch(`/stock/${editId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, quantity, price })
+      });
+      const updated = await res.json();
+      console.log("Updated stock ✅", updated);
+      editId = null;
+    } else {
+      // Add mode
+      const res = await fetch("/stock", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, quantity, price })
+      });
+      const saved = await res.json();
+      console.log("Saved to DB ✅", saved);
+    }
 
-  const name = formData.get("name").trim();
-  const type = formData.get("type");
-  const supplier = formData.get("supplier").trim();
-  const quality = formData.get("quality").trim();
-  const color = formData.get("color").trim();
-  const measurements = formData.get("measurements").trim();
-  const costPrice = parseInt(formData.get("costPrice"), 10);
-  const price = parseInt(formData.get("price"), 10);
-  const quantity = parseInt(formData.get("quantity"), 10);
-  const date = formData.get("date");
-
-  if (!name || isNaN(costPrice) || isNaN(price) || isNaN(quantity)) {
-    alert("Please fill all required fields with valid data.");
-    return;
+    document.getElementById("stockForm").reset();
+    renderStock();
+  } catch (err) {
+    console.error("Failed to save/edit stock", err);
   }
+});
 
-  const { products } = db();
-
-  // Check if product already exists (by exact name)
-  const existingIndex = products.findIndex(p => p.name.toLowerCase() === name.toLowerCase());
-
-  if (existingIndex !== -1) {
-    // Update existing product
-    products[existingIndex] = {
-      ...products[existingIndex],
-      type,
-      supplier,
-      quality,
-      color,
-      measurements,
-      costPrice,
-      price,
-      quantity,
-      date
-    };
-    alert(`Updated stock for product "${name}".`);
-  } else {
-    // Add new product
-    const newProduct = {
-      id: products.length > 0 ? products[products.length - 1].id + 1 : 1,
-      name,
-      type,
-      supplier,
-      quality,
-      color,
-      measurements,
-      costPrice,
-      price,
-      quantity,
-      date
-    };
-    products.push(newProduct);
-    alert(`Added new product "${name}" to stock.`);
-  }
-
-  // Rerender stock table and reset form
-  renderStockTable();
-  form.reset();
-}
-
-function loadProducts() {
-  const data = localStorage.getItem('products');
-  return data ? JSON.parse(data) : [];
-}
-
-function saveProducts(products) {
-  localStorage.setItem('products', JSON.stringify(products));
-}
-
-function renderStockTable() {
-  const products = loadProducts();
-  // ...render products into table as before
-}
-
-function saveStockForm(event) {
-  event.preventDefault();
-  const form = event.target;
-  const formData = new FormData(form);
-
-  const name = formData.get("name").trim();
-  const supplier = formData.get("supplier").trim();
-  const quality = formData.get("quality").trim();
-  const costPrice = parseInt(formData.get("costPrice"), 10);
-  const price = parseInt(formData.get("price"), 10);
-  const quantity = parseInt(formData.get("quantity"), 10);
-  const date = formData.get("date");
-
-  if (!name || !supplier || !quality || isNaN(costPrice) || isNaN(price) || isNaN(quantity)) {
-    showNotification('Please fill all required fields correctly.', 'error');
-    return;
-  }
-
-  const products = loadProducts();
-  const index = products.findIndex(p => p.name.toLowerCase() === name.toLowerCase());
-
-  if (index !== -1) {
-    products[index] = { ...products[index], supplier, quality, costPrice, price, quantity, date };
-    showNotification(`Updated stock for "${name}".`, 'success');
-  } else {
-    const newProduct = { id: products.length + 1, name, supplier, quality, costPrice, price, quantity, date };
-    products.push(newProduct);
-    showNotification(`Added new product "${name}".`, 'success');
-  }
-
-  saveProducts(products);
-  renderStockTable();
-  form.reset();
-}
+// Initial table load
+renderStock();

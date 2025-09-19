@@ -1,0 +1,225 @@
+/* General Styling */
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: linear-gradient(135deg, rgb(228, 216, 199), rgb(232, 176, 103));
+}
+/* Whole navbar background */
+.navbar {
+  background-color: rgb(226, 232, 232) !important;  /* override Bootstrap default */
+  padding: 10px;
+}
+
+/* Collapse background */
+#navbarNav {
+  background-color: rgba(0, 0, 128, 0.452); /* semi-transparent navy */
+  padding: 10px;
+  border-radius: 8px;
+}
+
+/* Brand */
+.navbar-brand {
+  color: powderblue !important;
+  background-color: antiquewhite;
+  padding: 5px 10px;
+  border-radius: 6px;
+  font-weight: bold;
+}
+
+/* Navbar links */
+.nav-link {
+  color: black !important; /* default link text */
+  transition: 0.3s ease;
+  border-radius: 5px;
+  padding: 6px 12px;
+}
+
+/* Hover + focus */
+.nav-link:hover,
+.nav-link:focus {
+  color: white !important;
+  background-color: salmon !important;
+}
+
+/* Active link */
+.nav-link.active {
+  color: white !important;
+  background-color: salmon !important;
+}
+
+/* Navbar layout */
+.navbar-nav {
+  display: flex;
+  gap: 20px;
+}
+
+/* Toggler (hamburger menu) */
+.navbar-toggler {
+  border-color: black;
+}
+
+.navbar-toggler-icon {
+  background-image: url("data:image/svg+xml;charset=utf8,%3Csvg viewBox='0 0 30 30' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='black' stroke-width='2' stroke-linecap='round' stroke-miterlimit='10' d='M4 7h22M4 15h22M4 23h22'/%3E%3C/svg%3E");
+}
+/* Container Layout */
+.container {
+  display: flex;
+  height: 100vh;
+}
+
+/* Left Image Section */
+.image-section {
+  flex: 1;
+  background-color: #eee;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.image-section img {
+  width: 90%;
+  border-radius: 15px;
+  box-shadow: 0px 5px 20px rgba(0,0,0,0.2);
+}
+
+/* Right Form Section */
+.form-section {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 40px;
+  background: #ffffff;
+  box-shadow: -5px 0px 15px rgba(0,0,0,0.1);
+}
+
+h2 {
+  margin-bottom: 20px;
+  color: #4a3f35;
+  text-align: center;
+}
+
+label {
+  display: block;
+  margin-top: 10px;
+  font-weight: bold;
+  color: #333;
+}
+
+input, select {
+  width: 100%;
+  padding: 10px;
+  margin-top: 5px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  outline: none;
+}
+
+input:focus, select:focus {
+  border-color: #8B5E3C;
+}
+
+/* Password Eye Icon */
+.password-wrapper {
+  position: relative;
+}
+
+.toggle-password {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+}
+
+/* Button */
+button {
+  margin-top: 20px;
+  width: 100%;
+  padding: 12px;
+  border: none;
+  border-radius: 8px;
+  background: #8B5E3C;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #6c482d;
+}
+
+/* Error Message */
+#error-message {
+  margin-top: 10px;
+  color: red;
+  font-size: 14px;
+  text-align: center;
+}
+
+/* Reset */
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: linear-gradient(135deg, rgb(228, 216, 199), rgb(232, 176, 103));
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+/* Login box */
+.login-container {
+  background: #fff;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+  width: 320px;
+  text-align: center;
+}
+
+.login-container h2 {
+  margin-bottom: 20px;
+  color: #2c3e50;
+}
+
+/* Inputs */
+form label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 14px;
+  text-align: left;
+  color: #555;
+}
+
+form input {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 18px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.3s;
+}
+
+form input:focus {
+  border-color: #2c3e50;
+}
+
+/* Button */
+form button {
+  width: 100%;
+  padding: 12px;
+  background:goldenrod;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+form button:hover {
+  background: #1a252f;
+}

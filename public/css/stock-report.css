@@ -1,0 +1,67 @@
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+   background: linear-gradient(135deg, rgb(11, 136, 11), rgb(232, 176, 103));
+  margin: 0;
+  padding: 0;
+  color: #333;
+}
+
+header {
+  background: rgb(0, 128, 17);
+  color: white;
+  padding: 1rem;
+  text-align: center;
+}
+
+.summary {
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+  margin: 2rem;
+}
+
+.card {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  flex: 1;
+  text-align: center;
+}
+
+.card h2 {
+  color: #2980b9;
+  margin-bottom: 0.5rem;
+}
+
+.charts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 2rem;
+  margin: 2rem;
+}
+
+.chart-container {
+  background: white;
+  padding: 1rem;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+.back {
+  text-align: center;
+  margin: 2rem 0;
+}
+
+.back-btn {
+  background: #2980b9;
+  color: white;
+  padding: 0.6rem 1.2rem;
+  border-radius: 6px;
+  text-decoration: none;
+  transition: background 0.3s ease;
+}
+
+.back-btn:hover {
+  background: #1c5980;
+}

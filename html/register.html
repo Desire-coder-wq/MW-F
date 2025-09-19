@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Furniture Company - User Registration</title>
+    <link rel="stylesheet" href="/public/css/register.css" />
+  </head>
+  <body>
+    <div class="container">
+      <!-- Left side: Image -->
+      <div class="image-section">
+        <img src="/public/images/background.jpeg" alt="Furniture Company" />
+      </div>
+
+      <!-- Right side: Form -->
+      <div class="form-section">
+        <h2>User Registration</h2>
+
+        <form action="/submit" method="POST" id="registerForm">
+          <label for="name">Full Name</label>
+          <input
+            type="text"
+            id="name"
+            name="Name"
+            placeholder="Enter full name"
+            required
+          />
+
+          <label for="email">Email</label>
+          <input
+            type="email"
+            id="email"
+            name="Email"
+            placeholder="Enter email"
+            required
+          />
+
+          <label for="password">Password</label>
+          <div class="password-wrapper">
+            <input
+              type="password"
+              id="password"
+              name="Password"
+              placeholder="Enter password"
+              required
+            />
+            <span class="toggle-password" onclick="togglePassword()">👁</span>
+          </div>
+
+          <label for="role">Role</label>
+          <select id="role" required>
+            <option value="">-- Select Role --</option>
+            <option value="Manager">Manager</option>
+            <option value="Attendant">Attendant</option>
+          </select>
+
+          <button type="submit">Register</button>
+          <p id="error-message"></p>
+        </form>
+      </div>
+    </div>
+
+    <script src="/public/js/register.js"></script>
+  </body>
+</html>

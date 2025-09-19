@@ -1,0 +1,98 @@
+doctype html
+html(lang="en")
+  head
+    meta(charset="UTF-8")
+    meta(name="viewport" content="width=device-width, initial-scale=1")
+    title Sale Receipt
+    link(rel="stylesheet", href="/css/sales-entry.css")
+    style.
+      /* Receipt styling */
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+      }
+      header {
+        text-align: center;
+        margin-bottom: 20px;
+      }
+      section.sale-info {
+        border: 1px solid #333;
+        padding: 15px;
+        max-width: 600px;
+        margin: 0 auto 20px auto;
+        border-radius: 5px;
+        background-color: #f9f9f9;
+      }
+      section.sale-info p {
+        margin: 8px 0;
+        font-size: 16px;
+      }
+      section.sale-info strong {
+        width: 150px;
+        display: inline-block;
+      }
+      section.actions {
+        text-align: center;
+        margin-top: 20px;
+      }
+      .btn {
+        padding: 6px 12px;
+        background-color: #4CAF50;
+        color: white;
+        text-decoration: none;
+        border-radius: 3px;
+        margin: 0 5px;
+      }
+      @media print {
+        nav, .btn, section.actions {
+          display: none;
+        }
+        body {
+          margin: 0;
+        }
+      }
+
+  body
+    nav.topnav
+      ul
+        li: a(href="/dashboard") Dashboard
+        li: a(href="/sales") Sales Entry
+        li: a(href="/sales-list") Sales List
+        li: a(href="/logout", class="logout-btn") Logout
+
+    header
+      h1 Sale Receipt
+      p Ref: #{sale._id}
+
+    section.sale-info
+      p
+        strong Customer Name: 
+        = sale.customerName
+      p
+        strong Product Name: 
+        = sale.productName
+      p
+        strong Quantity: 
+        = sale.quantity
+      p
+        strong Price: 
+        = sale.price
+      p
+        strong Total: 
+        = sale.total ? sale.total.toLocaleString() : '0'
+      p
+        strong Transport: 
+        = sale.transport ? 'Yes (5%)' : 'No'
+      p
+        strong Payment Type: 
+        = sale.paymentType
+      p
+        strong Date: 
+        = new Date(sale.date).toDateString()
+      p
+        strong Sales Agent: 
+        = sale.salesAgent && sale.salesAgent.name ? sale.salesAgent.name : 'N/A'
+
+    section.actions
+      a.btn(href="/sales-list") Back to Sales List
+      button.btn(type="button", onclick="window.print()") Print Receipt

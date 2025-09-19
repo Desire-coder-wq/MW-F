@@ -44,3 +44,67 @@ function db() {
     ]
   };
 }
+
+// Modal open/close
+const profileModal = document.getElementById("profileModal");
+const editProfileBtn = document.getElementById("editProfileBtn");
+const profileCard = document.getElementById("profileCard");
+const closeModal = document.getElementById("closeModal");
+
+if (editProfileBtn) {
+  editProfileBtn.addEventListener("click", (e) => {
+    e.preventDefault();
+    profileModal.style.display = "flex";
+  });
+}
+
+if (profileCard) {
+  profileCard.addEventListener("click", () => {
+    profileModal.style.display = "flex";
+  });
+}
+
+if (closeModal) {
+  closeModal.addEventListener("click", () => {
+    profileModal.style.display = "none";
+  });
+}
+
+window.addEventListener("click", (e) => {
+  if (e.target === profileModal) {
+    profileModal.style.display = "none";
+  }
+});
+
+
+
+// Profile picture preview
+const profilePicInput = document.getElementById("profilePicInput");
+const profilePreview = document.getElementById("profilePreview");
+const deletePicBtn = document.getElementById("deletePicBtn");
+const changePicBtn = document.getElementById("changePicBtn");
+
+if (profilePicInput) {
+  profilePicInput.addEventListener("change", function () {
+    const file = this.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        profilePreview.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+  });
+}
+if (deletePicBtn) {
+  deletePicBtn.addEventListener("click", () => {
+    profilePreview.src = "/images/default-avatar.png"; // fallback image
+    profilePicInput.value = ""; // clear file input
+  });
+}
+
+if (changePicBtn) {
+  changePicBtn.addEventListener("click", () => {
+    profilePicInput.click(); // opens file dialog
+  });
+}

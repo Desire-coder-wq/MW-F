@@ -1,0 +1,65 @@
+doctype html
+html(lang="en")
+  head
+    meta(charset="UTF-8")
+    meta(name="viewport" content="width=device-width, initial-scale=1")
+    title MWF — Stock List
+    link(rel="stylesheet", href="/css/stockList.css")
+  body
+    nav.topnav
+      ul
+        li: a(href="/dashboard")  Dashboard
+        li: a(href="/sales-entry") Sales Entry
+        li: a(href="/receipt")  Receipt
+        li: a(href="/sales-report") Sales Report
+        li: a(href="/stock-report")  Stock Report
+        li: a(href="/stock-list", class="active")  Stock List
+        li: a(href="/logout", class="logout-btn")  Logout
+
+    header#topbar
+    main.container
+      h1  Stock List
+
+      table#stockTable.table
+        thead
+          tr
+            th #
+            th product
+            th type
+            th cost Price
+            th quantity
+            th supplier
+            th date
+            th quality
+            th color
+            th measurement
+            th total value
+            th actions
+        tbody
+          if stock.length
+            each item, i in stock
+              tr
+                td #{i + 1}
+                td #{item.prpduct}
+                td #{item.type}
+                td #{item.cost price}
+                td #{item.quantity * item.price}
+                td #{item.supplier}
+                td #{item.date}
+                td #{item.quality}
+                td #{item.color}
+                td #{item.measurement}
+                td #{item.quantity * item.price}
+                td
+                  a(href=`/stock?id=${item._id}`)  Edit
+                  form(action=`/api/stock/${item._id}?_method=DELETE`, method="POST", style="display:inline")
+                    button(type="submit")  Delete
+          else
+            tr
+              td(colspan="12") No stock data found.
+
+    script(src="/js/assets/js/auth.js")
+    script(src="/js/ui.js")
+    script.
+      requireAuth();
+      renderTopbar("Stock List");

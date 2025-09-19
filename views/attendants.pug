@@ -1,0 +1,56 @@
+doctype html
+html(lang="en")
+  head
+    meta(charset="UTF-8")
+    meta(name="viewport" content="width=device-width, initial-scale=1")
+    title MWF — Attendants
+    link(rel="stylesheet", href="/css/management.css")
+  body
+    .layout
+      aside.sidebar
+        h2.logo Dashboard
+        nav
+          ul
+            li: a(href="/reports") Reports
+            li: a(href="/approve-stock") Approve Stock
+            li: a(href="/add-stock") Add Stock
+            li: a(href="/sales-reports") Sales Reports
+            li: a(href="/attendants", class="active") Attendants
+            li: a(href="#", id="editProfileBtn") Profile
+            li: a(href="/logout") Logout
+
+      main.main-content
+        header
+          h1 Attendants Monitoring
+          p View attendants, their status, and monitor assigned tasks.
+
+        section.table-section
+          table
+            thead
+              tr
+                th Name
+                th Email
+                th Assigned Task
+                th Status
+                th Last Active
+                th Actions
+            tbody
+              if attendants.length
+                each att in attendants
+                  tr
+                    td= att.name
+                    td= att.email
+                    td= att.assignedTask
+                    td 
+                      span(class=att.status.toLowerCase() + "-status")= att.status
+                    td= att.lastActive.toLocaleString()
+                    td
+                      form(action=`/attendants/${att._id}/toggle`, method="POST", style="display:inline")
+                        button(type="submit")= att.status === "Active" ? "Disable" : "Enable"
+              else
+                tr
+                  td(colspan="6") No attendants found.
+
+    footer
+      .container
+        p &copy; 2025 Mayondo Wood & Furniture Ltd

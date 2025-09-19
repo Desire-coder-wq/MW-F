@@ -1,0 +1,33 @@
+meta(charset="UTF-8")
+meta(name="viewport", content="width=device-width,initial-scale=1")
+title Logout Page
+link(rel="stylesheet", href="/css/logout.css")
+.logout-container
+  h1 Ready to Logout?
+  button.logout-btn#logoutBtn
+    .icon
+    | 
+Logout
+
+  p.logout-message#message.
+    
+    You have been logged out successfully.
+    
+script.
+  
+  const logoutBtn = document.getElementById("logoutBtn");
+        const message = document.getElementById("message");
+  
+        logoutBtn.addEventListener("click", () => {
+          // Simulate logout action (e.g. clear session)
+          // Show logout confirmation message
+          message.classList.add("show");
+  
+          // Optionally disable the button after logout
+          logoutBtn.disabled = true;
+          logoutBtn.style.cursor = "default";
+  
+          // Change button text
+          logoutBtn.textContent = "Logged Out";
+        });
+  

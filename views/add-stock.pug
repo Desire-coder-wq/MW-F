@@ -1,0 +1,94 @@
+doctype html
+html(lang="en")
+  head
+    meta(charset="UTF-8")
+    meta(name="viewport" content="width=device-width, initial-scale=1")
+    title MWF — Stock Management
+    link(rel="stylesheet", href="/css/stock.css")
+  body
+    nav.topnav
+      ul
+        li: a(href="/dashboard")  Dashboard
+        li: a(href="/sales")  Sales Entry
+        li: a(href="/receipt") Receipt
+        li: a(href="/sales-report")  Sales Report
+        li: a(href="/stock-report")  Stock Report
+        li: a(href="/stock-list")  Stock List
+        li: a(href="/logout", class="logout-btn")  Logout
+
+    header#topbar
+    main.container
+      h1 Stock Management
+
+      form#stockForm.grid(action=stock ? `/stock/${stock._id}?_method=PUT` : "/stock", method="POST")
+        if stock
+          input(type="hidden", name="id", value=stock._id)
+
+        // Product Name Selector
+        label
+          | Product Name
+          select#name(name="productName", required)
+            option(value='' selected disabled) -- Select Product --
+            option(value='timber') Timber
+            option(value='poles') Poles
+            option(value='hard-wood') Hard-Wood
+            option(value='soft-wood') Soft-Wood
+            option(value='bed') Bed
+            option(value='sofa') Sofa
+            option(value='dining table') Dining Table
+            option(value='cupboards') Cupboards
+            option(value='drawers') Drawers
+
+        // Product Type Selector
+        label
+          | Product Type
+          select#type(name="productType", required)
+            option(value='' selected disabled) -- Select Type --
+            option(value='wood') Wood
+            option(value='furniture') Furniture
+
+        // Product Category Selector
+        label
+          | Product Category
+          select#category(name="category", required)
+            option(value='' selected disabled) -- Select Category --
+            option(value='raw material') Raw Material
+            option(value='finished goods') Finished Goods
+
+        // Quantity
+        label
+          | Quantity
+          input#quantity(type="number", name="quantity", min="0", required, placeholder="Enter quantity", value=stock ? stock.quantity : "")
+
+        // Unit Price
+        label
+          | Unit Price
+          input#price(type="number", name="price", min="0", required, placeholder="Enter unit price", value=stock ? stock.price : "")
+
+        // Supplier Name
+        label
+          | Supplier Name
+          input#supplier(type="text", name="supplier", required, placeholder="Enter supplier name", value=stock ? stock.supplier : "")
+
+        // Optional fields
+        label
+          | Quality
+          input#quality(type="text", name="quality", placeholder="Enter quality", value=stock ? stock.quality : "")
+
+        label
+          | Color (Optional)
+          input#color(type="text", name="color", placeholder="Enter color", value=stock ? stock.color : "")
+
+        label
+          | Measurements (Optional)
+          input#measurements(type="text", name="measurements", placeholder="Enter measurements", value=stock ? stock.measurements : "")
+
+        // Submit
+        button(type="submit") Save Item
+
+    //- script(src="/js/assets/js/auth.js")
+    //- script(src="/js/ui.js")
+    script.
+      requireAuth();
+      renderTopbar("Stock Management")
+

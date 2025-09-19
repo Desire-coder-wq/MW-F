@@ -1,0 +1,22 @@
+doctype html
+html
+  head
+    title Edit User
+    link(rel="stylesheet", href="/css/userEdit.css")  
+  body
+    h1 Edit User
+
+    form(action=`/users/update/${user._id}`, method="POST")
+      div
+        label(for="name") Name:
+        input(type="text", name="name", value=user.name)
+      div
+        label(for="email") Email:
+        input(type="email", name="email", value=user.email)
+      div
+        label(for="role") Role:
+        select(name="role")
+          option(value="manager", selected=(user.role==="manager")) Manager
+          option(value="attendant", selected=(user.role==="attendant")) Attendant
+
+      button(type="submit") Save Changes

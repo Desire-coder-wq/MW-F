@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Attendants - MWF</title>
+  <link rel="stylesheet" href="/public/css/attendant-manage.css">
+</head>
+<body>
+  <div class="layout">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <h2 class="logo">Dashboard</h2>
+      <nav>
+        <ul>
+          <li><a href="reports.html">Reports</a></li>
+          <li><a href="approve-stock.html">Approve Stock</a></li>
+          <li><a href="add-stock.html">Add Stock</a></li>
+          <li><a href="sales-reports.html">Sales Reports</a></li>
+          <li><a href="attendants.html" class="active">Attendants</a></li>
+          <li><a href="#" id="editProfileBtn">Profile</a></li>
+          <li><a href="logout.html">Logout</a></li>
+        </ul>
+      </nav>
+    </aside>
+
+    <!-- Main content -->
+    <main class="main-content">
+      <header>
+        <h1>Attendants Monitoring</h1>
+        <p>View attendants, their status, and monitor assigned tasks.</p>
+      </header>
+
+      <!-- Attendants table -->
+      <section class="table-section">
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Assigned Task</th>
+              <th>Last Task Update</th>
+              <th>Status</th>
+              <th>Last Active</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Filled dynamically -->
+          </tbody>
+        </table>
+      </section>
+    </main>
+  </div>
+
+  <footer>
+    <div class="container">
+      <p>&copy; 2025 Mayondo Wood & Furniture Ltd</p>
+    </div>
+  </footer>
+
+  <script>
+    // Fetch attendants from backend
+    document.addEventListener("DOMContentLoaded", () => {
+      const tbody = document.querySelector("tbody");
+
+      fetch("/attendants-data")
+        .then(res => res.json())
+        .then(data => {
+          tbody.innerHTML = "";
+
+          if (data.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="7">No attendants found.</td></tr>`;
+            return;
+          }
+
+          data.forEach(att => {
+            const row = document.createElement("tr");
+
+            row.innerHTML = `
+              <td>${att.name}</td>
+              <td>${att.email}</td>
+              <td>${att.assignedTask}</td>
+              <td>${att.lastTaskUpdate ? new Date(att.lastTaskUpdate).toLocaleString() : "Never"}</td>
+              <td><span class="${att.status.toLowerCase()}-status">${att.status}</span></td>
+              <td>${att.lastActive ? new Date(att.lastActive).toLocaleString() : "N/A"}</td>
+              <td>
+                <button onclick="toggleAttendant('${att._id}')">
+                  ${att.status === "Active" ? "Disable" : "Enable"}
+                </button>
+              </td>
+            `;
+
+            tbody.appendChild(row);
+          });
+        });
+    });
+
+    // Enable/Disable Attendant
+    function toggleAttendant(id) {
+      fetch(`/attendants/${id}/toggle`, { method: "POST" })
+        .then(() => location.reload());
+    }
+  </script>
+</body>
+</html>

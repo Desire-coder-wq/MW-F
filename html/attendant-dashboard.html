@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Attendant Dashboard - MWF</title>
+  <link rel="stylesheet" href="/public/css/attendant.css">
+</head>
+<body>
+  <!-- Wrapper for sidebar + main -->
+  <div class="layout">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <h2 class="logo">Dashboard</h2>
+      <nav>
+        <ul>
+          <li><a href="/salesEntry"> Record Sale</a></li>
+          <li><a href="/sales-list"> Sales List</a></li>
+          <li><a href="/add-stock">Add / Update Stock</a></li>
+          <li><a href="/stock-list"> Stock Inventory</a></li>
+          <li><a href="/sales-summary"> Sales Summary</a></li>
+          <li><a href="/profile"> Profile</a></li>
+          <li><a href="/logout"> Logout</a></li>
+        </ul>
+      </nav>
+    </aside>
+
+    <!-- Main content -->
+    <main class="main-content">
+      <header>
+        <div class="header-profile">
+          <img
+            id="headerProfilePic"
+            src="/public/images/default-profile.png"
+            alt="Profile Picture"
+          />
+          <h1>Welcome, <span id="attendantName">Attendant</span></h1>
+          <p>Manage your daily tasks here</p>
+        </div>
+      </header>
+
+      <!-- Cards -->
+      <section class="cards">
+        <!-- Card: Record Sale -->
+        <div class="card">
+          <h2> Record Sale</h2>
+          <p>Enter new sales transactions, including transport charges.</p>
+          <a href="/salesEntry" class="btn">Go</a>
+        </div>
+
+        <!-- Card: Sales List -->
+        <div class="card">
+          <h2> Sales List</h2>
+          <p>View all sales you have recorded so far.</p>
+          <a href="/sales-list" class="btn">Go</a>
+        </div>
+
+        <!-- Card: Add / Update Stock -->
+        <div class="card">
+          <h2> Add / Update Stock</h2>
+          <p>Record new wood/furniture items or update quantities.</p>
+          <a href="/add-stock" class="btn">Go</a>
+        </div>
+
+        <!-- Card: Stock List -->
+        <div class="card">
+          <h2> Stock Inventory</h2>
+          <p>Check available wood/furniture stock in the warehouse.</p>
+          <a href="/stock-list" class="btn">Go</a>
+        </div>
+
+        <!-- Card: Reports / Sales Summary -->
+        <div class="card">
+          <h2> Sales Summary</h2>
+          <p>Quick view of daily/weekly sales figures.</p>
+          <a href="/sales-summary" class="btn">Go</a>
+        </div>
+
+        <!-- Card: Profile -->
+        <div class="card">
+          <h2> Profile</h2>
+          <p>View or edit your account information.</p>
+          <a href="/profile" class="btn">Go</a>
+        </div>
+
+        <!-- Card: Logout -->
+        <div class="card">
+          <h2> Logout</h2>
+          <p>Sign out of the system safely.</p>
+          <a href="/logout" class="btn logout">Logout</a>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container">
+      <p>&copy; 2025 Mayondo Wood & Furniture Ltd</p>
+    </div>
+  </footer>
+</body>
+</html>

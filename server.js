@@ -1,95 +1,95 @@
-// 1.//Dependencies
-const express = require('express');
-const path = require('path');
-const mongoose = require('mongoose');
-const passport = require('passport');
-const expressSession  = require('express-session');
-const MongoStore = require('connect-mongo');
+require("dotenv").config(); // 1. Load env variables
 
-require('dotenv').config();
-//import model
-const UserModel = require("./models/userModel")
-//Import routes
-const classRoutes = require("./routes/classRoutes");
+// 2. Import dependencies
+const express = require("express");
+const morgan = require("morgan");
+const passport = require("passport");
+const LocalStrategy = require("passport-local").Strategy;
+const session = require("express-session");
+const cookieParser = require("cookie-parser");
+const methodOverride = require("method-override");
+const path = require("path");
+const mongoose = require("mongoose");
+const MongoStore = require("connect-mongo");
+
+// Import model
+const UserModel = require("./models/userModel");
+
+// Import routes
 const authRoutes = require("./routes/authRoutes");
 const stockRoutes = require("./routes/stockRoutes");
 const indexRoutes = require("./routes/indexRoutes");
 const salesRoutes = require("./routes/salesRoutes");
-// 2.//Instantiations
+const userRoutes = require("./routes/userRoutes");
+const reportRoutes = require("./routes/reportRoutes");
+const manageRoutes = require("./routes/manageRoutes");
+
+// 2. Instantiations
 const app = express();
+const port = process.env.PORT || 3000;
 
-const port =3000;
+// 3. Configurations
+// Verify MONGODB_URL exists
+if (!process.env.MONGODB_URL) {
+  console.error(" MONGODB_URL not found in .env");
+  process.exit(1);
+}
 
-// 3.//Configurations
-// settingup mongodb connections
+// Connect to MongoDB
 mongoose.connect(process.env.MONGODB_URL, {
   // useNewUrlParser: true,
-  // useUnifiedTopology: true
+  // useUnifiedTopology: true,
+  dbName: "mayondo_wood_and_furniture"
+})
+.then(() => {
+    console.log("✅ Successfully connected to MongoDB");
+
+    // 6. Bootstrapping Server - only after DB connection
+    app.listen(port, () => {
+        console.log(`Server running on port ${port}`);
+    });
+})
+.catch((err) => {
+    console.error("❌ MongoDB connection error:", err);
 });
 
-mongoose.connection
-  .on('open', () => {
-    console.log('Sucessfully connected to mongoose');
-  })
-  .on('error', (err) => {
-    console.log(`Connection error: ${err.message}`);
-  });
-// setting view engine to pug 
-app.set('view engine','pug')
+// Set view engine to Pug
+app.set('view engine','pug');
 app.set('views', path.join(__dirname, 'views'));
 
-// //routing (a path to something)
-// app.get('/', (req, res) => { 
-//   res.send('Homepage! Hello world.');
-// });
-
-// 4.//Middleware
-// app.use(express.static('public'));
-
+// Middleware
+app.use(morgan("dev")); // optional logging
 app.use(express.static(path.join(__dirname,'public')));
-//middle ware to parse form data and jason
-app.use(express.urlencoded({extended:true})) // helps to pass data from forms
+app.use(express.urlencoded({ extended:true }));
 app.use(express.json());
- //expression session configs
-app.use(expressSession({
-secret: process.env.SESSION_SECRET,
-resave:false,
-saveUninitialized: false,
-store:MongoStore.create({mongoUrl:process.env.MONGODB_URL}),
-cookie:{maxAge:24*60*60*1000}//oneday
-}))
+app.use("/public/uploads", express.static(path.join(__dirname, "public/uploads")));
 
-// passpor configs
-app.use(passport.initialize()) //looks out passport.authenticate
-app.use(passport.session()) //connects passort to the session created by 
+// Express session configs
+app.use(session({
+  secret: process.env.SESSION_SECRET || "defaultsecret",
+  resave: false,
+  saveUninitialized: false,
+  store: MongoStore.create({ mongoUrl: process.env.MONGODB_URL }),
+  cookie: { maxAge: 24 * 60 * 60 * 1000 } // 1 day
+}));
 
- //authenticate  with passport localstrategy
+// Passport configs
+app.use(passport.initialize());
+app.use(passport.session());
 passport.use(UserModel.createStrategy());
 passport.serializeUser(UserModel.serializeUser());
 passport.deserializeUser(UserModel.deserializeUser());
 
+// Using imported routes
+app.use('/', authRoutes);
+app.use('/', stockRoutes);
+app.use('/', indexRoutes);
+app.use('/', salesRoutes);
+app.use('/', userRoutes);
+app.use('/', reportRoutes);
+app.use('/', manageRoutes);
 
-//using imported routes
-// 5.//Routes
- app.use('/',classRoutes);
- app.use('/',authRoutes);
- app.use('/',stockRoutes);
- app.use('/',indexRoutes);
- app.use('/',salesRoutes);
-
-
-
-
- 
-//non existing  route handler
-app.use((req,res)=>{
-  res.status(404).send('Oops! Route not found')
-}
-)
-
-// 6.//Bootstrapping Server
-//this should always be the last line in this file.
-app.listen(port, () => {
-  console.log(`listening on port ${port}`)
+// 404 handler
+app.use((req, res) => {
+  res.status(404).send('Oops! Route not found');
 });
-

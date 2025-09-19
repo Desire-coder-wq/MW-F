@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Stock Reports</title>
+  <link rel="stylesheet" href="/public/css/stock-report.css">
+</head>
+<body>
+  <header>
+    <h1>Stock Reports</h1>
+  </header>
+
+  <!-- Summary Section -->
+  <section class="summary">
+    <div class="card">
+      <h2 id="totalRevenue">0</h2>
+      <p>Total Revenue</p>
+    </div>
+    <div class="card">
+      <h2 id="totalExpenses">0</h2>
+      <p>Total Expenses</p>
+    </div>
+    <div class="card">
+      <h2 id="netProfit">0</h2>
+      <p>Net Profit</p>
+    </div>
+  </section>
+
+  <!-- Charts Section -->
+  <section class="charts">
+    <div class="chart-container">
+      <h3>Stock Added by Attendants</h3>
+      <canvas id="attendantChart"></canvas>
+    </div>
+    <div class="chart-container">
+      <h3>Monthly Expenses Trend</h3>
+      <canvas id="expenseChart"></canvas>
+    </div>
+  </section>
+
+  <div class="back">
+    <a href="/dashboard" class="back-btn">⬅ Back to Dashboard</a>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="/js/stock-report.js"></script>
+</body>
+</html>

@@ -1,85 +1,66 @@
-doctype html
-html
-  head
-    meta(charset='UTF-8')
-    title= title
-    link(rel='stylesheet' href='/css/sales-entry.css')
-  body
-    .container
-      h1 Sales Entry Form
-      form#salesForm(action='/sales' method='post')
-        label
-          | Sales Agent:
-          input(type='text' name='salesAgent' required)
-        label
-          | Customer:
-          input(type='text' name='customer' required)
-        label
-          | Product:
-          select(name='productId' required)
-            option(value='') -- Select Product --
-            option(value='123') Wood
-            option(value='456') Timber
-        label
-          | Quantity:
-          input(type='number' name='quantity' min='1' required)
-        label
-          | Transport:
-          input(type='text' name='transport' required)
-        label
-          | Payment:
-          select(name='payment' required)
-            option(value='') -- Select Payment --
-            option(value='cash') Cash
-            option(value='credit') Credit
-            option(value='mobile') Mobile Money
-        label
-          input(type='checkbox' name='discount')
-          | Apply 5% Discount?
-        label
-          | Date:
-          input(type='date' name='date' required)
-        label
-          | Unit Price:
-          input(type='number' name='price' min='0' step='0.01' required)
-        button(type='submit') Save Entry
+meta(charset="UTF-8")
+meta(name="viewport", content="width=device-width,initial-scale=1")
+title MWF - Sales Entry
+link(rel="stylesheet", href="/css/sales-entry.css")
 
-      hr
+.layout
+  // Main content 
+  .main-content
+    header
+      h1 Mayondo Wood and Furniture (MWF) Ltd
+      h3 Sales Entry Form
 
-      h2 Sales Records
-      table#salesTable(border='1' cellpadding='5')
-        thead
-          tr
-            th Sales Agent
-            th Customer
-            th Product
-            th Quantity
-            th Unit Price
-            th Transport
-            th Payment
-            th Discount
-            th Subtotal
-            th Total
-            th Date
-        tbody
-          if sales.length === 0
-            tr
-              td(colspan="11") No sales yet
-          else
-            each sale in sales
-              tr
-                td= sale.salesAgent
-                td= sale.customer
-                td= sale.productId
-                td= sale.quantity
-                td= sale.price
-                td= sale.transport
-                td= sale.payment
-                td= sale.discount ? "Yes" : "No"
-                - const subtotal = sale.quantity * sale.price
-                - const total = sale.discount ? subtotal * 0.95 : subtotal
-                td= subtotal.toFixed(2)
-                td= total.toFixed(2)
-                td= new Date(sale.date).toDateString()
+    main
+      form(action="/sales", method="POST")
+        fieldset
+          legend(style="color:green") Customer Information
+          label(for="customerName") Customer Name:
+          input#customerName(type="text", name="customerName", required)
 
-    script(src='/sales-entry.js')
+          //- label(for="salesAgent") Sales Agent:
+          //- input#salesAgent(type="text", name="salesAgent", required)
+
+        fieldset
+          legend(style="color:green") Product Information
+          label(for="productType") Product Type:
+          select#productType(name="productType", required)
+            option(value="Wood") Wood
+            option(value="Furniture") Furniture
+
+          label(for="productName") Product Name:
+          input#productName(type="text", name="productName", required)
+
+          label(for="quantity") Quantity:
+          input#quantity(type="number", name="quantity", min="1", required)
+
+          label(for="price") Price per Unit (UGX):
+          input#price(type="number", name="price", min="0", required)
+
+          label(for="date") Date of Sale:
+          input#date(type="date", name="date", required)
+
+        fieldset
+          legend(style="color:green") Payment Information
+          label(for="paymentType") Payment Method:
+          select#paymentType(name="paymentType", required)
+            option(value="Cash") Cash
+            option(value="Cheque") Cheque
+            option(value="Bank Overdraft") Bank Overdraft
+
+          label(for="transport") Transport Required? (adds 5% to total):
+          select#transport(name="transport", required)
+            option(value="No") No
+            option(value="Yes") Yes
+
+        fieldset
+          legend(style="color:green") Additional Notes
+          textarea#notes(name="notes", rows="3", placeholder="Any remarks...")
+
+        button(type="submit") Record Sale
+
+    br
+    br
+
+    // Footer 
+    footer
+      p © 2025 Mayondo Wood & Furniture Ltd

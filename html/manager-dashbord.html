@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Manager Dashboard - MWF</title>
+    <link rel="stylesheet" href="/public/css/management.css" />
+  </head>
+  <body>
+    <!-- Wrapper for sidebar + main -->
+    <div class="layout">
+      <!-- Sidebar -->
+      <aside class="sidebar">
+        <h2 class="logo">Dashboard</h2>
+        <nav>
+          <ul>
+            <li><a href="reports.html"> Reports</a></li>
+            <li><a href="approve-stock.html">Approve Stock</a></li>
+            <li><a href="add-stock.html"> Add Stock</a></li>
+            <li><a href="sales-reports.html"> Sales Reports</a></li>
+            <li><a href="attendants.html"> Attendants</a></li>
+            <li><a href="#" id="editProfileBtn"> Profile</a></li>
+            <li><a href="logout.html"> Logout</a></li>
+          </ul>
+        </nav>
+      </aside>
+
+      <!-- Main content -->
+      <main class="main-content">
+        <header>
+          <div class="header-profile">
+            <img
+              id="headerProfilePic"
+              src="/public/images/default-profile.png"
+              alt="Profile Picture"
+            />
+            <h1>Welcome, <span id="managerName">Manager</span></h1>
+          </div>
+        </header>
+
+        <!-- Cards -->
+        <section class="cards">
+          <div class="card" onclick="location.href='/stock-report'">
+            <h3>Stock Report</h3>
+            <p>View stock</p>
+          </div>
+
+          <div class="card" onclick="location.href='/approve-stock'">
+            <h3>Approve Stock</h3>
+            <p>Approve stock submitted by attendants.</p>
+          </div>
+
+          <div class="card" onclick="location.href='/add-stock'">
+            <h3>Add Stock</h3>
+            <p>Record new stock items for sale.</p>
+          </div>
+
+          <div class="card" onclick="location.href='/sales-report'">
+            <h3>Sales Report</h3>
+            <p>View periodical  sales reports.</p>
+          </div>
+
+          <div class="card" onclick="location.href='/products'">
+            <h3>Finished Furniture</h3>
+            <p>View finished products available for sale.</p>
+          </div>
+
+          <div class="card" onclick="location.href='/attendants-monitor'">
+            <h3>Attendants</h3>
+            <p>View attendants and monitor tasks.</p>
+          </div>
+
+          <div class="card" id="profileCard">
+            <h3>Profile</h3>
+            <p>Update your account details.</p>
+          </div>
+
+          <div class="card" onclick="location.href='/logout'">
+            <h3>Logout</h3>
+            <p>Sign out from the system.</p>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <!-- Profile Modal -->
+    <div class="modal" id="profileModal">
+      <div class="modal-content">
+        <span class="close" id="closeModal">&times;</span>
+        <h2>Edit Profile</h2>
+
+        <form
+          id="profileForm"
+          action="/profile"
+          method="POST"
+          enctype="multipart/form-data"
+        >
+          <!-- Profile Picture Section -->
+          <div class="profile-section">
+            <div class="profile-pic-wrapper">
+              <img
+                id="profilePreview"
+                src="/public/images/default-profile.png"
+                alt="Profile Picture"
+              />
+              <input
+                type="file"
+                name="profilePic"
+                id="profilePicInput"
+                accept="image/*"
+              />
+              <div class="profile-actions">
+                <button type="button" id="changePicBtn">Change</button>
+                <button type="button" id="deletePicBtn">Delete</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Info Section -->
+          <div class="info-section">
+            <label>Name:</label>
+            <input type="text" id="nameInput" name="name" value="Manager Name" required />
+
+            <label>Email:</label>
+            <input type="email" id="emailInput" name="email" value="manager@example.com" required />
+          </div>
+
+          <button type="submit" class="save-btn">Save</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+      <div class="container">
+        <p>&copy; 2025 Mayondo Wood & Furniture Ltd</p>
+      </div>
+    </footer>
+
+    <script src="/public/js/management.js"></script>
+  </body>
+</html>
+

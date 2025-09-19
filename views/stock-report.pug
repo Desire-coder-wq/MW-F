@@ -1,0 +1,51 @@
+doctype html
+html
+  head
+    meta(charset="UTF-8")
+    title Stock Reports
+    link(rel="stylesheet", href="/css/stock-report.css")
+    script(src="https://cdn.jsdelivr.net/npm/chart.js")
+  body
+    header
+      h1 Stock Reports
+
+    // Summary Section 
+    section.summary
+      .card
+        h2#totalExpenses UGX #{totalExpenses.toLocaleString()}
+        p Total Expenses
+        ul
+          each exp in productExpenses
+            li #{exp._id}: UGX #{exp.totalExpense.toLocaleString()}
+      .card
+        h2 #{totalQuantity}
+        p Total Stock Quantity
+        ul
+          each q in productQuantities
+            li #{q._id}: #{q.totalQuantity} units
+
+    // Charts Section 
+    section.charts
+      .chart-container
+        h3 Stock Added by Attendants
+        canvas#attendantChart
+      .chart-container
+        h3 Monthly Expenses Trend
+        canvas#expenseChart
+      .chart-container
+        h3 Expenses by Product
+        canvas#productExpenseChart
+      .chart-container
+        h3 Stock Quantities by Product
+        canvas#productQuantityChart
+
+    .back
+      a.back-btn(href="/dashboard") ⬅ Back to Dashboard
+
+    // Pass backend data to frontend JS
+    script.
+      const attendantData = !{JSON.stringify(attendantData)};
+      const monthlyExpenses = !{JSON.stringify(expenseData)};
+      const productExpenses = !{JSON.stringify(productExpenses)};
+      const productQuantities = !{JSON.stringify(productQuantities)};
+    script(src="/js/stock-report.js")

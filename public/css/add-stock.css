@@ -1,104 +1,172 @@
-
-/* Add/Update Stock specific styles */
-
-.container {
-  max-width: 700px;
-  margin: 2rem auto;
-  padding: 0 1rem;
+body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
-
-h1 {
-  text-align: center;
-  margin-bottom: 1.5rem;
-  color: #007bfd;
-}
-
-form.grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 1rem;
-  background: #f8faff;
-  padding: 1.5rem 2rem;
-  border-radius: 10px;
-  box-shadow: 0 2px 8px rgb(0 123 255 / 0.15);
-  margin-bottom: 2rem;
-}
-
-form label {
-  display: flex;
-  flex-direction: column;
-  font-weight: 600;
+  background: #f4f7fa;
+  margin: 0;
+  padding: 0;
   color: #333;
 }
+/* Reset */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
 
-form input,
-form select {
-  margin-top: 4px;
-  padding: 0.45rem 0.6rem;
-  font-size: 1rem;
-  border: 1.5px solid #ccc;
+
+/* ===== Navbar ===== */
+.topnav {
+  background: #145a5a; /* dark teal */
+  padding: 0.8rem 2rem;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+
+  position: sticky;   /* stays at top */
+  top: 0;
+  z-index: 1000;      /* always above content */
+}
+
+.topnav ul {
+  list-style: none;
+  display: flex;
+  justify-content: center; /* center the menu */
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+
+.topnav ul li a {
+  color: #f9f9f9;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.95rem;
+  padding: 0.5rem 0.8rem;
   border-radius: 6px;
-  transition: border-color 0.2s ease;
+  transition: 0.3s;
 }
 
-form input:focus,
-form select:focus {
-  outline: none;
-  border-color: #007bfd;
-  box-shadow: 0 0 6px rgba(0, 123, 255, 0.3);
+.topnav ul li a:hover {
+  background: #1abc9c;  /* bright teal hover */
+  color: #fff;
 }
 
-button[type="submit"] {
-  grid-column: 1 / -1;
-  background-color: #007bfd;
-  border: none;
-  color: white;
-  padding: 0.85rem 0;
-  font-weight: 600;
-  font-size: 1.1rem;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: background-color 0.25s ease;
+.topnav ul li a.active {
+  background: #1abc9c;
+  color: #fff;
 }
 
-button[type="submit"]:hover {
-  background-color: #0056b3;
+.logout-btn {
+  background: #e74c3c;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-weight: bold;
 }
 
-/* Stock Table styles (reuse your .table styles already provided in reports) */
-.stockTable-container {
-  overflow-x: auto;
+.logout-btn:hover {
+  background: #c0392b;
 }
 
-.table {
-  width: 100%;
-  border-collapse: collapse;
+/* ===== Header ===== */
+#topbar {
+  text-align: center;
+  background: linear-gradient(to right, #1abc9c, #16a085);
+  padding: 2rem 1rem;
   margin-bottom: 2rem;
-}
-
-.table th,
-.table td {
-  border: 1px solid #ddd;
-  padding: 0.7rem 1rem;
-  text-align: left;
-}
-
-.table th {
-  background-color: #007bfd;
   color: white;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+}
+
+#topbar h1 {
+  font-size: 2rem;
+  letter-spacing: 1px;
+  font-weight: 700;
+  text-shadow: 1px 1px 4px rgba(0,0,0,0.3);
+}
+
+/* ===== Main Container ===== */
+.container {
+  max-width: 1100px;
+  margin: 0 auto; /* center the content */
+  padding: 2rem;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.1);
+}
+
+.container h2 {
+  font-size: 1.6rem;
+  margin-bottom: 1rem;
+  color: #145a5a;
+  border-bottom: 3px solid #1abc9c;
+  display: inline-block;
+  padding-bottom: 0.3rem;
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 768px) {
+  #topbar h1 {
+    font-size: 1.5rem;
+  }
+
+
+}
+
+
+
+/* Form layout */
+form.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr; /* two columns on desktop */
+  gap: 0.8rem 1.5rem;
+  align-items: start;
+}
+
+/* Each label + input/select */
+.form-group {
+  display: flex;
+  flex-direction: column; /* stacked on desktop for neatness */
+}
+
+.form-group label {
   font-weight: 600;
+  font-size: 0.9rem;
+  margin-bottom: 0.3rem;
 }
 
-.table tr:nth-child(even) {
-  background-color: #f9f9f9;
+.form-group input,
+.form-group select {
+  padding: 0.5rem 0.6rem;
+  font-size: 14px;
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  outline: none;
+  transition: 0.3s;
 }
 
-.table tr:hover {
-  background-color: #e6f0ff;
+.form-group input:focus,
+.form-group select:focus {
+  border-color: #2980b9;
+  box-shadow: 0 0 4px rgba(41, 128, 185, 0.5);
 }
 
-@media (max-width: 480px) {
+/* Submit button full width */
+form button {
+  grid-column: 1 / -1;
+  padding: 0.7rem 1rem;
+  font-size: 1rem;
+  background-color: #2980b9;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+form button:hover {
+  background-color: #1c5980;
+}
+
+/* Responsive for mobile */
+@media screen and (max-width: 700px) {
   form.grid {
     grid-template-columns: 1fr;
   }
