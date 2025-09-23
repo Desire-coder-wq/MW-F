@@ -1,0 +1,52 @@
+/* Full page setup */
+body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  margin: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: linear-gradient(135deg, rgb(228, 216, 199), rgb(232, 176, 103));
+}
+
+/* Card style */
+.card {
+  background: rgba(10, 126, 27, 0.5);
+  padding: 50px 40px;
+  border-radius: 15px;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+  text-align: center;
+  max-width: 400px;
+  width: 90%;
+}
+
+/* 404 heading */
+.card h1 {
+  font-size: 100px;
+  margin: 0;
+  color: #ff4c4c;
+}
+
+/* Message paragraph */
+.card p {
+  font-size: 18px;
+  margin: 20px 0 30px 0;
+  color: #333;
+}
+
+/* Button */
+.card a {
+  display: inline-block;
+  padding: 12px 25px;
+  background:burlywood;
+  color: white;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: bold;
+  transition: 0.3s;
+}
+
+.card a:hover {
+  background:green;
+  transform: translateY(-2px);
+}

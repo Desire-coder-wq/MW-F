@@ -5,22 +5,34 @@ const salesModel = require('../models/salesModel');
 const stockModel = require('../models/stockModel');
 
 // ------------------- Middleware -------------------
+
+// Check if user is logged in
 function checkAuth(req, res, next) {
-  if (!req.session.user) return res.redirect('/login');
+  if (!req.session.user) return res.redirect('/login'); 
   res.locals.user = req.session.user;
   next();
 }
 
+// Check if user is a manager
 function checkManager(req, res, next) {
-  if (req.session.user.role !== 'manager') {
+  if (req.session.user.role !== 'Manager') {
     return res.status(403).send('Not allowed');
   }
   next();
 }
 
+// Check if user is an attendant
+function checkAttendant(req, res, next) {
+  if (!req.session.user || req.session.user.role !== 'Attendant') {
+    return res.status(403).send("Not allowed");
+  }
+  next();
+}
+
 // ------------------- GET Sales Entry Form -------------------
-router.get('/sales', checkAuth, async (req, res) => {
+router.get('/sales', checkAuth, checkAttendant, async (req, res) => {
   try {
+    console.log("Rendering sales for:", req.session.user.email);
     const stock = await stockModel.find().lean();
     res.render("sales", { 
       title: "Sales Entry", 
@@ -34,10 +46,10 @@ router.get('/sales', checkAuth, async (req, res) => {
 });
 
 // ------------------- POST New Sale -------------------
-router.post('/sales', checkAuth, async (req, res) => {
+router.post('/sales', checkAuth, checkAttendant, async (req, res) => {
   try {
     const { customerName, productName, quantity, price, transport, paymentType, date } = req.body;
-    const userId = req.session.user._id; // logged-in sales agent
+    const userId = req.session.user._id; 
 
     // Find stock
     const stock = await stockModel.findOne({ productName });
@@ -51,7 +63,7 @@ router.post('/sales', checkAuth, async (req, res) => {
     // Calculate total
     let total = Number(quantity) * Number(price);
     if (transport === 'yes') {
-      total = total * 1.05; // add 5% transport charge
+      total *= 1.05; // add 5% transport charge
     }
 
     // Save sale
@@ -59,8 +71,8 @@ router.post('/sales', checkAuth, async (req, res) => {
       salesAgent: userId,
       customerName,
       productName,
-      quantity,
-      price,
+      quantity: Number(quantity),
+      price: Number(price),
       total,
       transport: transport === 'yes',
       paymentType,
@@ -72,12 +84,11 @@ router.post('/sales', checkAuth, async (req, res) => {
     stock.quantity -= Number(quantity);
     await stock.save();
 
-    console.log(" Sale saved successfully:", savedSale);
+    console.log("Sale saved successfully:", savedSale);
 
-    // Redirect to sales list
     res.redirect('/sales-list');
   } catch (err) {
-    console.error(" Error saving sale:", err.message);
+    console.error("Error saving sale:", err.message);
     res.status(400).send("Error saving sale: " + err.message);
   }
 });
@@ -88,7 +99,7 @@ router.get('/sales-list', checkAuth, async (req, res) => {
     const currentUser = req.session.user;
 
     let sales;
-    if (currentUser.role === 'manager') {
+    if (currentUser.role.toLowerCase() === 'manager') {
       sales = await salesModel.find()
         .populate('salesAgent', 'name')
         .lean();
@@ -105,15 +116,13 @@ router.get('/sales-list', checkAuth, async (req, res) => {
   }
 });
 
-
 // ------------------- GET Edit Sale Form -------------------
 router.get('/sales/edit/:id', checkAuth, async (req, res) => {
   try {
     const sale = await salesModel.findById(req.params.id).lean();
     if (!sale) return res.status(404).send("Sale not found");
 
-    // Allow manager or owner
-    if (req.session.user.role !== 'manager' && sale.salesAgent.toString() !== req.session.user._id.toString()) {
+    if (req.session.user.role.toLowerCase() !== 'manager' && sale.salesAgent.toString() !== req.session.user._id.toString()) {
       return res.status(403).send("Not allowed");
     }
 
@@ -131,7 +140,7 @@ router.post('/sales/edit/:id', checkAuth, async (req, res) => {
     const sale = await salesModel.findById(req.params.id);
     if (!sale) return res.status(404).send("Sale not found");
 
-    if (req.session.user.role !== 'manager' && sale.salesAgent.toString() !== req.session.user._id.toString()) {
+    if (req.session.user.role.toLowerCase() !== 'manager' && sale.salesAgent.toString() !== req.session.user._id.toString()) {
       return res.status(403).send("Not allowed");
     }
 
@@ -140,7 +149,7 @@ router.post('/sales/edit/:id', checkAuth, async (req, res) => {
     // Update stock if product/quantity changed
     if (sale.productName !== productName || sale.quantity != quantity) {
       const oldStock = await stockModel.findOne({ productName: sale.productName });
-      oldStock.quantity += sale.quantity; // revert old quantity
+      oldStock.quantity += sale.quantity; 
       await oldStock.save();
 
       const newStock = await stockModel.findOne({ productName });
@@ -173,7 +182,7 @@ router.post('/sales/delete/:id', checkAuth, async (req, res) => {
     const sale = await salesModel.findById(req.params.id);
     if (!sale) return res.status(404).send("Sale not found");
 
-    if (req.session.user.role !== 'manager' && sale.salesAgent.toString() !== req.session.user._id.toString()) {
+    if (req.session.user.role.toLowerCase() !== 'manager' && sale.salesAgent.toString() !== req.session.user._id.toString()) {
       return res.status(403).send("Not allowed");
     }
 
@@ -184,15 +193,13 @@ router.post('/sales/delete/:id', checkAuth, async (req, res) => {
       await stock.save();
     }
 
-    await sale.remove();
+    await sale.deleteOne();
     res.redirect('/sales-list');
   } catch (err) {
     console.error(err);
     res.status(500).send("Error deleting sale");
   }
 });
-
-
 
 // ------------------- GET Receipt by Sale ID -------------------
 router.get('/receipt/:id', checkAuth, async (req, res) => {

@@ -1,15 +1,25 @@
-meta(charset="UTF-8")
-meta(name="viewport", content="width=device-width,initial-scale=1")
-title Login - MWF
-link(rel="stylesheet", href="/css/register.css")
-.login-container
-  h2 Login
-  form(action="/login", method="POST")
-    //  Email 
-    label(for="email") Email
-    input#email(type="email", name="email", placeholder="Enter your email", required)
-    //  Password 
-    label(for="password") Password
-    input#password(type="password", name="password", placeholder="Enter your password", required)
-    //  Submit 
-    button(type="submit") Login
+doctype html
+html(lang="en")
+  head
+    meta(charset="UTF-8")
+    meta(name="viewport", content="width=device-width, initial-scale=1")
+    title Login - MWF
+    link(rel="stylesheet", href="/css/login.css")
+  body
+    .login-container
+      h2 Login
+      form(action="/login", method="POST")
+        // Email
+        label(for="email") Email
+        input#email(type="email", name="email", placeholder="Enter your email", required)
+
+        // Password
+        label(for="password") Password
+        input#password(type="password", name="password", placeholder="Enter your password", required)
+
+        // Submit
+        button(type="submit") Login
+
+      p
+        | Don't have an account? 
+        a.btn(href="/") Sign Up

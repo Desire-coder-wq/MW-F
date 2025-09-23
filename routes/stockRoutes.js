@@ -1,9 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const {ensureauthenticated, ensureManager} = require("../middleware/auth");
 const stockModel = require('../models/stockModel');
 const { generateReport } = require("./reportRoutes"); // import report generator
-const StockSubmission = require("../models/stockSubmission");
 const UserModel = require("../models/userModel");
 
 // GET: Render stock entry form
@@ -17,7 +15,18 @@ router.get('/stock', (req, res) => {
 router.post('/stock', async (req, res) => { 
   try {
     console.log("Received data:", req.body);
-    const stock = new stockModel(req.body);
+    const stock = new stockModel({
+  productName: req.body.productName,
+  productType: req.body.productType,
+  category: req.body.category,
+  costPrice: req.body.costPrice,   // map "price" field into costPrice
+  quantity: req.body.quantity,
+  supplier: req.body.supplier,
+  date: req.body.date,
+  quality: req.body.quality,
+  color: req.body.color,
+  measurement: req.body.measurement
+});
     await stock.save();
     console.log("Saved stock:", stock);
 
@@ -67,7 +76,13 @@ router.post("/stock/update/:id", async (req, res) => {
       productType,
       category,
       quantity,
-      price,
+      costPrice,
+      supplier,
+      date,
+      quality,
+      color,
+      measurement,
+
     });
 
     res.redirect("/stockList");
@@ -77,53 +92,9 @@ router.post("/stock/update/:id", async (req, res) => {
   }
 })
 
-router.get('/manager-dashboard', (req, res) => { 
-  res.render("manager-dashboard",{title:"Manager's dashboard"})
-});
-router.post('/manager-dashboard', (req, res) => { 
-  console.log(req.body)
-});
 
 
-// Get all stock submissions
-router.get("/stock-submissions", async (req, res) => {
-  try {
-    const submissions = await StockSubmission.find()
-      .populate("submittedBy", "name") // Get attendant name
-      .lean();
-    res.json(submissions);
-  } catch (err) {
-    res.status(500).json({ error: "Failed to fetch stock submissions" });
-  }
-});
 
-// Approve a submission
-router.post("/stock-submissions/:id/approve", async (req, res) => {
-  try {
-    const submission = await StockSubmission.findById(req.params.id);
-    if (!submission) return res.status(404).json({ error: "Submission not found" });
-
-    submission.status = "Approved";
-    await submission.save();
-    res.json({ message: "Stock approved" });
-  } catch (err) {
-    res.status(500).json({ error: "Error approving stock" });
-  }
-});
-
-// Reject a submission
-router.post("/stock-submissions/:id/reject", async (req, res) => {
-  try {
-    const submission = await StockSubmission.findById(req.params.id);
-    if (!submission) return res.status(404).json({ error: "Submission not found" });
-
-    submission.status = "Rejected";
-    await submission.save();
-    res.json({ message: "Stock rejected" });
-  } catch (err) {
-    res.status(500).json({ error: "Error rejecting stock" });
-  }
-});
 
 
 

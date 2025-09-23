@@ -12,15 +12,14 @@ link(rel="stylesheet", href="/css/attendant.css")
         li
           a(href="/salesEntry") Record Sale
         li
-          a(href="/salesList") Sales List
+          a(href="/sales-ist") Sales List
         li
-          a(href="/add-stock") Add / Update Stock
+          a(href="/stock") Add / Update Stock
         li
           a(href="/stockList") Stock Inventory
         li
           a(href="/sales-summary") Sales Summary
-        li
-          a(href="/profile") Profile
+  
         li
           a(href="/logout") Logout
   //  Main content 
@@ -38,17 +37,17 @@ link(rel="stylesheet", href="/css/attendant.css")
       .card
         h2 Record Sale
         p Enter new sales transactions, including transport charges.
-        a.btn(href="/salesEntry") Go
+        a.btn(href="/sales") Go
       //  Card: Sales List 
       .card
         h2 Sales List
         p View all sales you have recorded so far.
-        a.btn(href="/salesList") Go
+        a.btn(href="/sales-list") Go
       //  Card: Add / Update Stock 
       .card
         h2 Add / Update Stock
         p Record new wood/furniture items or update quantities.
-        a.btn(href="/add-stock") Go
+        a.btn(href="/attendant/add-stock") Go
       //  Card: Stock List 
       .card
         h2 Stock Inventory

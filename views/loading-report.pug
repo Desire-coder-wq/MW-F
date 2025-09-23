@@ -1,0 +1,48 @@
+doctype html
+html(lang="en")
+  head
+    meta(charset="UTF-8")
+    meta(name="viewport" content="width=device-width, initial-scale=1")
+    title MWF — Loading/Offloading Report
+    link(rel="stylesheet", href="/css/attendant-manage.css")
+
+  body
+    .layout
+      // Sidebar
+      aside.sidebar
+        h2.logo Dashboard
+        nav
+          ul
+            li: a(href="/add-stock") Add Stock
+            li: a(href="/sales-report") Sales Reports
+            li: a(href="/loading/offload") Offload Stock
+            li: a(href="/loading/pending") Load Stock
+            li: a(href="/logout") Logout
+
+      // Main content
+      main.main-content
+        header
+          h1 Loading & Offloading Report
+
+        section.table-section
+          table(border="1" cellpadding="5")
+            thead
+              tr
+                th Operation
+                th Product
+                th Quantity
+                th Attendant
+                th Date
+            tbody
+              each r in report
+                tr
+                  td= r.operationType
+                  td= r.productName
+                  td= r.quantity
+                  td= r.attendantName
+                  td= r.dateTime.toDateString()
+
+    // Footer
+    footer
+      .container
+        p &copy; 2025 Mayondo Wood & Furniture Ltd

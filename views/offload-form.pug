@@ -1,0 +1,56 @@
+doctype html
+html(lang="en")
+  head
+    meta(charset="UTF-8")
+    meta(name="viewport" content="width=device-width, initial-scale=1")
+    title MWF — Offload Stock
+    link(rel="stylesheet", href="/css/attendant-manage.css")
+
+  body
+    .layout
+      // Sidebar
+      aside.sidebar
+        h2.logo MWF
+        nav
+          ul 
+            li: a(href="/add-stock") Add Stock
+            li: a(href="/sales-report") Sales Reports
+            li: a(href="/loading/offload", class="active") Offload Stock
+            li: a(href="/loading/pending") Load Stock
+            li: a(href="/logout") Logout
+
+      // Main content
+      main.main-content
+        header
+          h1 Offload Stock
+
+        section.form-section
+          form(action="/loading/offload" method="POST")
+            label(for="productName") Product Name:
+            input(type="text" name="productName" required)
+            br
+
+            label(for="productType") Product Type:
+            select(name="productType")
+              option(value="wood") Wood
+              option(value="furniture") Furniture
+            br
+
+            label(for="quantity") Quantity:
+            input(type="number" name="quantity" required)
+            br
+
+            label(for="attendantName") Attendant Name:
+            input(type="text" name="attendantName" required)
+            br
+
+            label(for="relatedStock") Stock ID:
+            input(type="text" name="relatedStock" required)
+            br
+
+            button(type="submit") Save Offload
+
+    // Footer
+    footer
+      .container
+        p &copy; 2025 Mayondo Wood & Furniture Ltd

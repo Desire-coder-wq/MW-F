@@ -1,0 +1,79 @@
+doctype html
+html(lang="en")
+  head
+    meta(charset="UTF-8")
+    meta(name="viewport", content="width=device-width, initial-scale=1")
+    title MWF — Submit Stock
+    link(rel="stylesheet", href="/css/add-stock.css")
+
+  body
+    .layout
+      // Sidebar
+      aside.sidebar
+        h2.logo Attendant
+        ul
+          li: a(href="/attendant/dashboard") Dashboard
+          li: a(href="/attendant/add-stock" class="active") Submit Stock
+          li: a(href="/logout" class="logout-btn") Logout
+
+      // Main Content
+      .main-content
+        header
+          h1 Mayondo Wood & Furniture Ltd
+          h3 Submit New Stock Request
+
+        main.container
+          form(action="/attendant/add-stock", method="POST", class="stock-form")
+            fieldset
+              legend Stock Details
+
+              label(for="productName") Product Name
+              select#productName(name="productName", required)
+                option(value="", disabled selected) -- Select Product --
+                option(value="timber") Timber
+                option(value="poles") Poles
+                option(value="hardwood") Hardwood
+                option(value="softwood") Softwood
+                option(value="sofa") Sofa
+                option(value="bed") Bed
+                option(value="dinningTable") Dinning Table
+                option(value="Tv-stand") Tv-stand
+                option(value="Office-chair") Office-chair
+
+              label(for="productType") Product Type        
+              select#productType(name="productType", required)
+                option(value="", disabled selected) -- Select Type --
+                option(value="wood") Wood
+                option(value="furniture") Furniture
+          
+              label(for="category") Category
+              select#category(name="category", required)
+                option(value="", disabled selected) -- Select Category --
+                option(value="Raw Materials") Raw Materials
+                option(value="Finished Products") Finished Products
+                
+              label(for="costPrice") Cost Price (UGX)
+              input#costPrice(type="number", name="costPrice", min="0", step="0.01", required)
+
+              label(for="quantity") Quantity
+              input#quantity(type="number", name="quantity", min="1", required)
+
+              label(for="supplier") Supplier
+              input#supplier(type="text", name="supplier", required)
+
+              label(for="date") Date
+              input#date(type="date", name="date", required)
+
+              label(for="quality") Quality
+              input#quality(type="text", name="quality")
+
+              label(for="color") Color
+              input#color(type="text", name="color")
+
+              label(for="measurement") Measurement
+              input#measurement(type="text", name="measurement")
+
+            button(type="submit", class="submit-btn") Submit Stock
+
+        footer
+          p © 2025 Mayondo Wood & Furniture Ltd

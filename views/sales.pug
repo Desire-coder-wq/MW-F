@@ -1,0 +1,100 @@
+doctype html
+html(lang="en")
+  head
+    meta(charset="UTF-8")
+    meta(name="viewport", content="width=device-width,initial-scale=1")
+    title MWF - Sales Entry
+    link(rel="stylesheet", href="/css/sales-entry.css")
+
+  body
+    .layout
+      // Sidebar
+      aside.sidebar
+        h2.logo Dashboard
+        nav
+          ul
+            //- li
+            //-   a(href="/dashboard") Dashboard
+            li
+              a(href="/sales-entry", class="active") Sales Entry
+            li
+              a(href="/receipt") Receipt
+            li
+              a(href="/sales-report") Sales Report
+            li
+              a(href="/sales-list")  Sales-list
+            li
+              a(href="/stockList") Stock List
+            li
+              a(href="/logout") Logout
+
+      // Main content
+      .main-content
+        header
+          h1 Mayondo Wood and Furniture (MWF) Ltd
+          h3 Sales Entry Form
+
+        main
+          form(action="/sales", method="POST")
+            fieldset
+              legend(style="color:green") Customer Information
+              label(for="customerName") Customer Name:
+              input#customerName(type="text", name="customerName", required)
+
+              //- label(for="salesAgent") Sales Agent:
+              //- input#salesAgent(type="text", name="salesAgent", required)
+
+            fieldset
+              legend(style="color:green") Product Information
+              label(for="productType") Product Type:
+              select#productType(name="productType", required)
+                option(value="Wood") Wood
+                option(value="Furniture") Furniture
+
+              label(for="productName") Product Name
+              select#productName(name="productName", required)
+                option(value="", disabled selected) -- Select Product --
+                option(value="timber") Timber
+                option(value="poles") Poles
+                option(value="hardwood") Hardwood
+                option(value="softwood") Softwood
+                option(value="sofa") Sofa
+                option(value="bed") Bed
+                option(value="dinningTable") Dinning Table
+                option(value="Tv-stand") Tv-stand
+                option(value="Office-chair") Office-chair
+
+              label(for="quantity") Quantity:
+              input#quantity(type="number", name="quantity", min="1", required)
+
+              label(for="price") Price per Unit (UGX):
+              input#price(type="number", name="price", min="0", required)
+
+              label(for="date") Date of Sale:
+              input#date(type="date", name="date", required)
+
+            fieldset
+              legend(style="color:green") Payment Information
+              label(for="paymentType") Payment Method:
+              select#paymentType(name="paymentType", required)
+                option(value="Cash") Cash
+                option(value="Cheque") Cheque
+                option(value="Bank Overdraft") Bank Overdraft
+
+              label(for="transport") Transport Required? (adds 5% to total):
+              select#transport(name="transport", required)
+                option(value="No") No
+                option(value="Yes") Yes
+
+            fieldset
+              legend(style="color:green") Additional Notes
+              textarea#notes(name="notes", rows="3", placeholder="Any remarks...")
+
+            button(type="submit") Record Sale
+
+        br
+        br
+
+        // Footer
+        footer
+          p © 2025 Mayondo Wood & Furniture Ltd

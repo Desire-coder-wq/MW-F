@@ -1,46 +1,71 @@
 doctype html
-html
+html(lang="en")
   head
-    meta(charset='UTF-8')
-    meta(name='viewport' content='width=device-width, initial-scale=1.0')
-    title Furniture Company - User Registration
-    link(rel='stylesheet' href='/css/register.css')
+    meta(charset="UTF-8")
+    meta(name="viewport", content="width=device-width, initial-scale=1.0")
+    title MWF — Attendant Registration
+    link(rel="stylesheet", href="/css/register.css")
   body
-    nav.navbar.navbar-expand-lg.bg-body-tertiary
-      .container-fluid
-        a.navbar-brand(href='#') FORMS
-        button.navbar-toggler(type='button' data-bs-toggle='collapse' data-bs-target='#navbarNav' aria-controls='navbarNav' aria-expanded='false' aria-label='Toggle navigation')
-          span.navbar-toggler-icon
-        #navbarNav.collapse.navbar-collapse
-          ul.navbar-nav.ms-auto
-            li.nav-item
-              a.nav-link(href='/') Home
-            li.nav-item
-              a.nav-link(href='/register') Signup
-            li.nav-item
-              a.nav-link(href='/login') login
-            li.nav-item
-              a.nav-link(href='/stock') stock
-    .container
-      .image-section
-        img(src='/images/background.jpeg' alt='Furniture Company')
-      .form-section
-        h2 User Registration
-        form#registerForm(action='/register' method='POST')
-          label(for='name') Full Name
-          input#name(type='text' name='name' placeholder='Enter  name' required='')
-          label(for='email') Email
-          input#email(type='email' name='email' placeholder='Enter email' required='')
-          label(for='password') Password
-          .password-wrapper
-            input#password(type='password' name='password' placeholder='Enter password' required='')
-            span.toggle-password(onclick='togglePassword()') &#x1F441;
-          label(for='role') Role
-          select#role(name='role' required)
-           option(value='' selected='' disabled='') -- Select Role --
-           option(value='Admin') Admin
-           option(value='Manager') Manager
-           option(value='Attendant') Attendant
-          button(type='submit') Register
-          p#error-message
-    script(src='register.js')
+    // Top navigation bar
+    header.navbar
+      .container
+        h2.logo MwF
+        nav
+          ul.nav-links
+            li: a(href="/reports") Reports
+            li: a(href="/approve-stock") Approve Stock
+            li: a(href="/add-stock") Add Stock
+            li: a(href="/sales-reports") Sales Reports
+            li: a(href="/attendants") Attendants
+            li: a(href="#", id="editProfileBtn") Profile
+            li: a(href="/logout") Logout
+
+    // Main content
+    main.main-content
+      .container
+        .card
+          .card-left
+            img(src="/images/registration-image.jpg", alt="Attendant Registration")
+          .card-right
+            header
+              h1 MWF — Attendant Registration
+              p Fill in the details to register a new attendant.
+
+            form(action="/manager/register-attendant", method="POST", class="register-form", enctype="multipart/form-data")
+              label(for="profilePic") Profile Picture
+              input#profilePic(type="file", name="profilePic", accept="image/*")
+
+              label(for="name") Full Name
+              input#name(type="text", name="name", required, placeholder="Enter full name")
+
+              label(for="email") Email
+              input#email(type="email", name="email", required, placeholder="Enter email")
+
+              label(for="password") Password
+              input#password(type="password", name="password", required, placeholder="Enter password")
+
+              label(for="gender") Gender
+              select#gender(name="gender", required)
+                option(value="", disabled selected) -- Select Gender --
+                option(value="Male") Male
+                option(value="Female") Female
+                option(value="Other") Other
+
+              label(for="phoneNumber") Phone Number
+              input#phoneNumber(type="text", name="phoneNumber", required, placeholder="Enter phone number")
+
+              label(for="nationalID") National ID
+              input#nationalID(type="text", name="nationalID", required, placeholder="Enter national ID")
+
+              label(for="nextOfKinName") Next of Kin Name
+              input#nextOfKinName(type="text", name="nextOfKinName", required, placeholder="Enter next of kin name")
+
+              label(for="nextOfKinPhone") Next of Kin Phone
+              input#nextOfKinPhone(type="text", name="nextOfKinPhone", required, placeholder="Enter next of kin phone")
+
+              button(type="submit", class="submit-btn") Register Attendant
+
+    // Footer
+    footer
+      .container
+        p &copy; 2025 Mayondo Wood & Furniture Ltd

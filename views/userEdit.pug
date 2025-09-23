@@ -1,22 +1,66 @@
 doctype html
-html
+html(lang="en")
   head
+    meta(charset="UTF-8")
+    meta(name="viewport", content="width=device-width, initial-scale=1")
     title Edit User
     link(rel="stylesheet", href="/css/userEdit.css")  
   body
-    h1 Edit User
+    .container
+      h1 Edit User
 
-    form(action=`/users/update/${user._id}`, method="POST")
-      div
-        label(for="name") Name:
-        input(type="text", name="name", value=user.name)
-      div
-        label(for="email") Email:
-        input(type="email", name="email", value=user.email)
-      div
-        label(for="role") Role:
-        select(name="role")
-          option(value="manager", selected=(user.role==="manager")) Manager
-          option(value="attendant", selected=(user.role==="attendant")) Attendant
+      form(action=`/users/update/${user._id}`, method="POST", enctype="multipart/form-data")
+        // Profile Picture
+        div.form-group
+          label(for="profilePic") Profile Picture:
+          if user.profilePic
+            img(src=user.profilePic, alt="Profile Picture", width="80", height="80", style="border-radius:50%")
+          input#profilePic(type="file", name="profilePic")
 
-      button(type="submit") Save Changes
+        // Name
+        div.form-group
+          label(for="name") Name:
+          input#name(type="text", name="name", value=user.name, required)
+
+        // Email
+        div.form-group
+          label(for="email") Email:
+          input#email(type="email", name="email", value=user.email, required)
+
+        // Role
+        div.form-group
+          label(for="role") Role:
+          select#role(name="role", required)
+            option(value="Manager", selected=(user.role==="Manager")) Manager
+            option(value="Attendant", selected=(user.role==="Attendant")) Attendant
+
+        // Gender
+        div.form-group
+          label(for="gender") Gender:
+          select#gender(name="gender")
+            option(value="Male", selected=(user.gender==="Male")) Male
+            option(value="Female", selected=(user.gender==="Female")) Female
+            option(value="Other", selected=(user.gender==="Other")) Other
+
+        // Phone Number
+        div.form-group
+          label(for="phoneNumber") Phone Number:
+          input#phoneNumber(type="text", name="phoneNumber", value=user.phoneNumber || "")
+
+        // National ID
+        div.form-group
+          label(for="nationalID") National ID:
+          input#nationalID(type="text", name="nationalID", value=user.nationalID || "")
+
+        // Next of Kin Name
+        div.form-group
+          label(for="nextOfKinName") Next of Kin Name:
+          input#nextOfKinName(type="text", name="nextOfKinName", value=user.nextOfKinName || "")
+
+        // Next of Kin Phone
+        div.form-group
+          label(for="nextOfKinPhone") Next of Kin Phone:
+          input#nextOfKinPhone(type="text", name="nextOfKinPhone", value=user.nextOfKinPhone || "")
+
+        // Save Button
+        button(type="submit") Save Changes

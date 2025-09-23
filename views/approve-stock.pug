@@ -5,20 +5,22 @@ html(lang="en")
     meta(name="viewport" content="width=device-width, initial-scale=1")
     title MWF — Approve Stock
     link(rel="stylesheet", href="/css/attendant-manage.css")
+
   body
     .layout
+      // Sidebar
       aside.sidebar
         h2.logo Dashboard
         nav
           ul
-            li: a(href="/reports") Reports
             li: a(href="/approve-stock", class="active") Approve Stock
             li: a(href="/add-stock") Add Stock
-            li: a(href="/sales-reports") Sales Reports
+            li: a(href="/sales-report") Sales Reports
             li: a(href="/attendants") Attendants
             li: a(href="#", id="editProfileBtn") Profile
             li: a(href="/logout") Logout
 
+      // Main content
       main.main-content
         header
           h1 Approve Stock
@@ -29,37 +31,51 @@ html(lang="en")
             thead
               tr
                 th Item
+                th Product Type
+                th Category
                 th Quantity
+                th Supplier
+                th Date
+                th Quality
+                th Color
+                th Measurement
                 th Submitted By
-                th Date Submitted
                 th Status
                 th Actions
             tbody
-              if stockRequests.length
-                each req in stockRequests
+              if submissions && submissions.length
+                each req in submissions
                   tr
                     td= req.item
+                    td= req.productType
+                    td= req.category
                     td= req.quantity
-                    td= req.submittedBy
-                    td= req.dateSubmitted.toLocaleString()
-                    td 
+                    td= req.supplier
+                    td= req.date ? new Date(req.date).toLocaleDateString() : "N/A"
+                    td= req.quality || "N/A"
+                    td= req.color || "N/A"
+                    td= req.measurement || "N/A"
+                    td= req.submittedBy ? req.submittedBy.name : "N/A"
+                    td
                       span(class=req.status.toLowerCase())= req.status
                     td
                       if req.status == "Pending"
-                        form(action=`/stock-requests/${req._id}/approve`, method="POST", style="display:inline")
+                        form(action=`/stock-submissions/${req._id}/approve`, method="POST", style="display:inline")
                           button(type="submit" class="approve-btn") Approve
-                        form(action=`/stock-requests/${req._id}/reject`, method="POST", style="display:inline", onsubmit="return confirmReject()")
+                        form(action=`/stock-submissions/${req._id}/reject`, method="POST", style="display:inline", onsubmit="return confirmReject()")
                           button(type="submit" class="reject-btn") Reject
                       else
                         button.disabled(disabled)= req.status
               else
                 tr
-                  td(colspan="6") loading submissions...
+                  td(colspan="12") No stock submissions found.
 
+    // Footer
     footer
       .container
         p &copy; 2025 Mayondo Wood & Furniture Ltd
 
+    // Scripts
     script(src="/js/approve-stock.js")
     script.
       function confirmReject() {

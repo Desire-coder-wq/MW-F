@@ -1,19 +1,41 @@
 const express = require("express");
 const router = express.Router();
+const bcrypt = require("bcrypt");
 const Attendant = require("../models/attendantModel");
-const stockSubmission = require("../models/stockSubmission");
+const StockSubmission = require("../models/stockSubmission"); // fixed name consistency
 const UserModel = require("../models/userModel");
-const { ensureauthenticated, ensureManager } = require("../middleware/auth"); // fixed case
+const multer = require('multer');
+const path = require('path');
+const { ensureauthenticated, ensureManager, ensureAgent } = require("../middleware/auth");
+
+
+
+// ---------------------- Attendants Monitoring ----------------------
 
 // Serve attendants monitoring page
-router.get("/attendants", ensureauthenticated, ensureManager, (req, res) => {
-  res.render("attendants", { title: "Attendants Monitoring" });
+router.get("/attendants", ensureauthenticated, ensureManager, async (req, res) => {
+  try {
+    // Fetch attendants with user info
+    const attendants = await Attendant.find()
+      .populate("user", "name email") // populate name & email from UserModel
+      .sort({ "user.name": 1 })
+      .lean();
+
+    res.render("attendants", { title: "Attendants Monitoring", attendants });
+  } catch (err) {
+    console.error("Error fetching attendants:", err);
+    res.status(500).send("Failed to fetch attendants");
+  }
 });
 
 // Fetch attendants (JSON)
 router.get("/attendants-data", ensureauthenticated, ensureManager, async (req, res) => {
   try {
-    const attendants = await Attendant.find().sort({ name: 1 });
+    const attendants = await Attendant.find()
+      .populate("user", "name email")
+      .sort({ "user.name": 1 })
+      .lean();
+
     res.json(attendants);
   } catch (err) {
     console.error("Error fetching attendants:", err);
@@ -21,7 +43,7 @@ router.get("/attendants-data", ensureauthenticated, ensureManager, async (req, r
   }
 });
 
-// Toggle attendant status (Active <-> Inactive)
+// Toggle attendant status
 router.post("/attendants/:id/toggle", ensureauthenticated, ensureManager, async (req, res) => {
   try {
     const attendant = await Attendant.findById(req.params.id);
@@ -38,51 +60,145 @@ router.post("/attendants/:id/toggle", ensureauthenticated, ensureManager, async 
   }
 });
 
-// Serve Approve Stock page
-router.get("/approve-stock", ensureauthenticated, ensureManager, (req, res) => {
-  res.render("approve-stock", { title: "Approve Stock" });
+
+
+
+// ---------------------- Attendant: Submit Stock ----------------------
+
+// GET - show attendant stock submission form
+router.get("/attendant/add-stock", ensureauthenticated, ensureAgent, (req, res) => {
+  res.render("attendant-add-stock", { title: "Submit Stock" });
 });
 
-// Fetch all stock submissions (JSON)
-router.get("/stock-submissions", ensureauthenticated, ensureManager, async (req, res) => {
+// POST - handle attendant submission
+router.post("/attendant/add-stock", ensureauthenticated, ensureAgent, async (req, res) => {
   try {
-    const submissions = await stockSubmission.find()
-      .populate("submittedBy", "name") // show attendant name
+    const submission = new StockSubmission({
+      productName: req.body.productName,
+      productType: req.body.productType,
+      category: req.body.category,
+      costPrice: req.body.costPrice,
+      quantity: req.body.quantity,
+      supplier: req.body.supplier,
+      date: req.body.date,
+      quality: req.body.quality,
+      color: req.body.color,
+      measurement: req.body.measurement,
+      submittedBy: req.session.user._id,
+      status: "Pending"
+    });
+
+    await submission.save();
+    res.redirect("/attendant/add-stock");
+  } catch (err) {
+    console.error("Error submitting stock:", err);
+    res.status(500).send("Error submitting stock");
+  }
+});
+
+// ---------------------- Manager: Approve / Reject Stock ----------------------
+
+// GET - show all submissions
+router.get("/approve-stock", ensureauthenticated, ensureManager, async (req, res) => {
+  try {
+    const submissions = await StockSubmission.find()
+      .populate("submittedBy", "name")
       .sort({ dateSubmitted: -1 })
       .lean();
-    res.json(submissions);
+
+    res.render("approve-stock", { title: "Approve Stock", submissions });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Failed to fetch stock submissions" });
+    console.error("Error fetching stock submissions:", err);
+    res.status(500).send("Error fetching stock submissions");
   }
 });
 
-// Approve a submission
+// POST - approve submission
 router.post("/stock-submissions/:id/approve", ensureauthenticated, ensureManager, async (req, res) => {
   try {
-    const submission = await stockSubmission.findById(req.params.id);
-    if (!submission) return res.status(404).json({ error: "Submission not found" });
+    const submission = await StockSubmission.findById(req.params.id);
+    if (!submission) return res.status(404).send("Submission not found");
+
     submission.status = "Approved";
     await submission.save();
-    res.json({ message: "Stock approved" });
+
+    res.redirect("/approve-stock");
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Error approving stock" });
+    console.error("Error approving stock:", err);
+    res.status(500).send("Error approving stock");
   }
 });
 
-// Reject a submission
+// POST - reject submission
 router.post("/stock-submissions/:id/reject", ensureauthenticated, ensureManager, async (req, res) => {
   try {
-    const submission = await stockSubmission.findById(req.params.id); // fixed typo
-    if (!submission) return res.status(404).json({ error: "Submission not found" });
+    const submission = await StockSubmission.findById(req.params.id);
+    if (!submission) return res.status(404).send("Submission not found");
+
     submission.status = "Rejected";
     await submission.save();
-    res.json({ message: "Stock rejected" });
+
+    res.redirect("/approve-stock");
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Error rejecting stock" });
+    console.error("Error rejecting stock:", err);
+    res.status(500).send("Error rejecting stock");
   }
 });
+
+
+// -------------------- Manager: Register Attendant --------------------
+
+// GET - Show registration form
+router.get("/manager/register-attendant", ensureauthenticated, ensureManager, (req, res) => {
+  res.render("manager-register-attendant", { title: "Register Attendant" });
+});
+
+// POST - Handle registration
+router.post("/manager/register-attendant", ensureauthenticated, ensureManager, async (req, res) => {
+  try {
+    const { name, email, password, gender, phoneNumber, nationalID, nextOfKinName, nextOfKinPhone } = req.body;
+
+    // Check if email already exists
+    const existingUser = await UserModel.findOne({ email });
+    if (existingUser) return res.status(400).send("Email already registered");
+
+    // Hash password
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Create user
+    const user = new UserModel({
+      name,
+      email,
+      password: hashedPassword,
+      role: "Attendant",
+      gender,
+      phoneNumber,
+      nationalID
+    });
+    await user.save();
+
+    // Create attendant entry for monitoring
+    const attendant = new Attendant({
+      userId: user._id,
+      name,
+      gender,
+      phoneNumber,
+      nationalID,
+      nextOfKinName,
+      nextOfKinPhone,
+      status: "Active",
+      lastActive: new Date()
+    });
+    await attendant.save();
+
+    res.redirect("/attendants"); // Go to attendant monitoring page
+  } catch (err) {
+    console.error("Error registering attendant:", err);
+    res.status(500).send("Error registering attendant");
+  }
+});
+
+
+
 
 module.exports = router;

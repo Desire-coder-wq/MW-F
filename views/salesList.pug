@@ -2,92 +2,83 @@ doctype html
 html(lang="en")
   head
     meta(charset="UTF-8")
-    meta(name="viewport" content="width=device-width, initial-scale=1")
-    title MWF — Sales List
-    link(rel="stylesheet", href="/css/sales-entry.css")
-    style.
-      /* Quick inline CSS for table borders and styling */
-      table.sales-table {
-        width:90%;
-        margin:20px auto;
-        border-collapse: collapse;
-        font-size:14px;
-      }
-      table.sales-table th, table.sales-table td {
-        border: 1px solid #333;
-        padding: 6px 8px;
-        text-align: left;
-      }
-      table.sales-table th {
-        background-color: #f2f2f2;
-        font-size:13px;
-      }
-      table.sales-table tr:hover {
-        background-color: #f9f9f9;
-      }
-      table.sales-table td:last-child{
-        white-space: nowrap;
-        width:120px;
-      }
-      .btn-edit, .btn-delete, a {
-        font-size:12px;
-        padding: 3px 6px;
-        border-radius: 3px;
-      }
-      .btn-edit { background-color: #4CAF50; color: white; }
-      .btn-delete { background-color: #f44336; color: white; }
+    meta(name="viewport", content="width=device-width, initial-scale=1")
+    title Sales List — MWF
+    link(rel="stylesheet", href="/css/attendant-manage.css")
 
   body
-    nav.topnav
-      ul
-        li: a(href="/dashboard") Dashboard
-        li: a(href="/sales") Sales Entry
-        li: a(href="/sales-list") Sales List
-        li: a(href="/sales-report") Sales Report
-        li: a(href="/stock-report") Stock Report
-        li: a(href="/stock-list") Stock List
-        li: a(href="/logout", class="logout-btn") Logout
+    .layout
+      // Sidebar
+      aside.sidebar
+        h2.logo Dashboard
+        nav
+          ul
+            li
+              a(href="/dashboard") Dashboard
+            li
+              a(href="/sales") Sales Entry
+            li
+              a(href="/sales-list", class="active") Sales List
+            li
+              a(href="/sales-report") Sales Report
+            li
+              a(href="/stock-report") Stock Report
+            li
+              a(href="/stock-list") Stock List
+            li
+              a(href="/logout") Logout
 
-    header#topbar
+      // Main content
+      main.main-content
+        header
+          h1 Sales List
+          p View and manage all sales records in the system.
 
-    main.container
-      h1 Sales List
-
-      table.sales-table
-        thead
-          tr
-            th Customer Name
-            th Product Name
-            th Quantity
-            th Price
-            th Transport
-            th Total
-            th Payment Type
-            th Date
-            th Sales Agent
-            th Actions
-        tbody
-          if sales.length
-            each sale in sales
+        section.table-section
+          table.sales-table
+            thead
               tr
-                td= sale.customerName
-                td= sale.productName
-                td= sale.quantity
-                td= sale.price
-                td= sale.transport ? "Yes (5%)" : "No"
-                td= sale.total ? sale.total.toLocaleString() : '0'
-                td= sale.paymentType
-                td= sale.date.toDateString()
-                td= sale.salesAgent ? sale.salesAgent.name : "Unknown"
-                td
-                  if user && user.role == 'manager'
-                    a(href=`/receipt/${sale._id}`) View Receipt
-                    a.btn-edit(href=`/sales/${sale._id}/edit`) Edit
-                    form(method="POST", action=`/sales/${sale._id}?_method=DELETE`, style="display:inline;")
-                      button.btn-delete(type="submit") Delete
-                  else if user && user.role != 'manager' && sale.salesAgent && sale.salesAgent._id.toString() == user._id.toString()
-                    a(href=`/receipt/${sale._id}`) View Receipt
-          else
-            tr
-              td(colspan="10", style="text-align:center;") No sales recorded yet.
-    script(src='/sales-entry.js')
+                th #
+                th Customer Name
+                th Product Name
+                th Quantity
+                th Price
+                th Transport
+                th Total
+                th Payment Type
+                th Date
+                th Sales Agent
+                th Actions
+            tbody
+              if sales.length
+                each sale, i in sales
+                  tr
+                    td #{i + 1}
+                    td #{sale.customerName}
+                    td #{sale.productName}
+                    td #{sale.quantity}
+                    td #{sale.price}
+                    td #{sale.transport ? "Yes (5%)" : "No"}
+                    td #{sale.total ? sale.total.toLocaleString() : '0'}
+                    td #{sale.paymentType}
+                    td #{new Date(sale.date).toLocaleDateString()}
+                    td #{sale.salesAgent ? sale.salesAgent.name : "Unknown"}
+                    td
+                      // Actions
+                      a(href=`/receipt/${sale._id}`) View Receipt
+                      if user && user.role == 'manager'
+                        a.btn-edit(href=`/sales/edit/${sale._id}`) Edit
+                        form(method="POST", action=`/sales/delete/${sale._id}`, style="display:inline;")
+                          button.btn-delete(type="submit") Delete
+              else
+                tr
+                  td(colspan="11", style="text-align:center;") No sales recorded yet.
+
+    footer
+      .container
+        p &copy; 2025 Mayondo Wood & Furniture Ltd
+
+    script.
+      // Optional: Auth & topbar scripts
+      requireAuth();
+      renderTopbar("Sales List");

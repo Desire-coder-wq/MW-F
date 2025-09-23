@@ -1,48 +1,56 @@
 document.addEventListener("DOMContentLoaded", () => {
-  const tbody = document.querySelector("#stock-table tbody");
+  const table = document.querySelector("table tbody");
 
-  function fetchSubmissions() {
-    fetch("/stock-submissions")
-      .then(res => res.json())
-      .then(data => {
-        tbody.innerHTML = "";
-        if (data.length === 0) {
-          tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;">No submissions found.</td></tr>`;
-          return;
+  // Approve buttons
+  table.querySelectorAll(".approve-btn").forEach(btn => {
+    btn.addEventListener("click", async (e) => {
+      e.preventDefault();
+      const form = btn.closest("form");
+      const action = form.getAttribute("action");
+
+      try {
+        const res = await fetch(action, { method: "POST" });
+        if (res.ok) {
+          const row = btn.closest("tr");
+          const statusCell = row.querySelector("td span"); // find the status span
+          statusCell.textContent = "Approved";
+          statusCell.className = "approved";
+          // Replace action buttons with disabled Approved button
+          row.querySelector("td:last-child").innerHTML = `<button disabled>Approved</button>`;
+        } else {
+          alert("Failed to approve stock");
         }
+      } catch (err) {
+        console.error(err);
+        alert("Error approving stock");
+      }
+    });
+  });
 
-        data.forEach(sub => {
-          const row = document.createElement("tr");
-          row.innerHTML = `
-            <td>${sub.productName}</td>
-            <td>${sub.quantity}</td>
-            <td>${sub.submittedBy ? sub.submittedBy.name : "Unknown"}</td>
-            <td>${new Date(sub.dateSubmitted).toLocaleDateString()}</td>
-            <td><span class="${sub.status.toLowerCase()}-status">${sub.status}</span></td>
-            <td>
-              ${sub.status === "Pending" ? `
-              <button class="approve-btn" data-id="${sub._id}">Approve</button>
-              <button class="reject-btn" data-id="${sub._id}">Reject</button>
-              ` : `<button class="disabled" disabled>${sub.status}</button>`}
-            </td>
-          `;
-          tbody.appendChild(row);
-        });
+  // Reject buttons
+  table.querySelectorAll(".reject-btn").forEach(btn => {
+    btn.addEventListener("click", async (e) => {
+      e.preventDefault();
+      if (!confirm("Are you sure you want to reject this stock request?")) return;
 
-        // Attach button handlers
-        document.querySelectorAll(".approve-btn").forEach(btn => {
-          btn.addEventListener("click", () => toggleSubmission(btn.dataset.id, "approve"));
-        });
-        document.querySelectorAll(".reject-btn").forEach(btn => {
-          btn.addEventListener("click", () => toggleSubmission(btn.dataset.id, "reject"));
-        });
-      });
-  }
+      const form = btn.closest("form");
+      const action = form.getAttribute("action");
 
-  function toggleSubmission(id, action) {
-    fetch(`/stock-submissions/${id}/${action}`, { method: "POST" })
-      .then(() => fetchSubmissions());
-  }
-
-  fetchSubmissions();
+      try {
+        const res = await fetch(action, { method: "POST" });
+        if (res.ok) {
+          const row = btn.closest("tr");
+          const statusCell = row.querySelector("td span");
+          statusCell.textContent = "Rejected";
+          statusCell.className = "rejected";
+          row.querySelector("td:last-child").innerHTML = `<button disabled>Rejected</button>`;
+        } else {
+          alert("Failed to reject stock");
+        }
+      } catch (err) {
+        console.error(err);
+        alert("Error rejecting stock");
+      }
+    });
+  });
 });

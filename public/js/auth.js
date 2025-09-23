@@ -35,6 +35,6 @@ function requireRole(allowedRoles) {
 
   if (!allowedRoles.includes(currentUser.role)) {
     alert("Access denied: insufficient permissions.");
-    window.location.href = "index.html";
+    window.location.href = "/index";
   }
 }

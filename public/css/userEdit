@@ -1,0 +1,129 @@
+/* ========================
+   General Reset & Body
+   ======================== */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f9f9f9;
+  color: #333;
+  padding: 20px;
+}
+
+/* ========================
+   Container
+   ======================== */
+.container {
+  max-width: 600px;
+  margin: 40px auto;
+  padding: 25px 30px;
+  background-color: #ffffff;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+}
+
+/* ========================
+   Form Heading
+   ======================== */
+h1 {
+  text-align: center;
+  margin-bottom: 25px;
+  font-size: 26px;
+  color: #222;
+}
+
+/* ========================
+   Form Groups
+   ======================== */
+.form-group {
+  margin-bottom: 18px;
+}
+
+label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 600;
+  font-size: 15px;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="file"],
+select {
+  display: block;
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 15px;
+  transition: 0.2s;
+}
+
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="file"]:focus,
+select:focus {
+  border-color: #007BFF;
+  outline: none;
+}
+
+/* ========================
+   Profile Picture Preview
+   ======================== */
+img {
+  display: block;
+  margin-bottom: 10px;
+  border-radius: 50%;
+  border: 2px solid #ccc;
+  width: 80px;
+  height: 80px;
+}
+
+/* ========================
+   Submit Button
+   ======================== */
+button[type="submit"] {
+  display: block;
+  width: 100%;
+  padding: 12px 0;
+  background-color: #007BFF;
+  color: #fff;
+  font-size: 16px;
+  font-weight: 600;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+button[type="submit"]:hover {
+  background-color: #0056b3;
+}
+
+/* ========================
+   Responsive Design
+   ======================== */
+@media (max-width: 640px) {
+  .container {
+    padding: 20px;
+    margin: 20px auto;
+  }
+
+  h1 {
+    font-size: 22px;
+  }
+
+  input[type="text"],
+  input[type="email"],
+  select {
+    font-size: 14px;
+  }
+
+  button[type="submit"] {
+    font-size: 15px;
+  }
+}

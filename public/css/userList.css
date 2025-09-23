@@ -1,143 +1,191 @@
-/* ===== Stock Table Styling ===== */
-
- 
-body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background: #f4f7fa;
+/* ================================
+   Global Reset & Base Styles
+================================ */
+* {
   margin: 0;
   padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  background: #f5f6fa;
   color: #333;
-}
-/* Whole navbar background */
-.topnav {
-  background-color: rgb(20, 161, 161) !important; /* override Bootstrap default */
-  padding: 10px;
-}
-
-/* Collapse background */
-#navbarNav {
-  background-color: rgba(0, 0, 128, 0.452); /* semi-transparent navy */
-  padding: 10px;
-  border-radius: 8px;
-}
-
-/* Brand */
-.navbar-brand {
-  color: powderblue !important;
-  background-color: rgb(161, 103, 26);
-  padding: 5px 10px;
-  border-radius: 6px;
-  font-weight: bold;
-}
-
-/* Navbar links */
-.nav-link {
-  color: black !important; /* default link text */
-  transition: 0.3s ease;
-  border-radius: 5px;
-  padding: 6px 12px;
-}
-
-/* Hover + focus */
-.nav-link:hover,
-.nav-link:focus {
-  color: white !important;
-  background-color: salmon !important;
-}
-
-/* Active link */
-.nav-link.active {
-  color: white !important;
-  background-color: salmon !important;
-}
-
-/* Navbar layout */
-.navbar-nav {
   display: flex;
-  gap: 20px;
+  min-height: 100vh;
+  flex-direction: column;
 }
 
-/* Toggler (hamburger menu) */
-.navbar-toggler {
-  border-color: black;
+/* ================================
+   Sidebar
+================================ */
+.layout {
+  display: flex;
+  min-height: 100vh;
 }
 
-.navbar-toggler-icon {
-  background-image: url("data:image/svg+xml;charset=utf8,%3Csvg viewBox='0 0 30 30' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='black' stroke-width='2' stroke-linecap='round' stroke-miterlimit='10' d='M4 7h22M4 15h22M4 23h22'/%3E%3C/svg%3E");
+.sidebar {
+  width: 220px;
+  background: #2c3e50;
+  color: white;
+  padding: 20px 0;
+  flex-shrink: 0;
 }
 
-
-main.container {
-  max-width: 1100px;
-  margin: 2rem auto;
-  padding: 1.5rem;
-  background: #fff;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+.sidebar .logo {
+  text-align: center;
+  font-size: 1.5rem;
+  margin-bottom: 20px;
 }
 
-h1 {
-  margin-bottom: 1rem;
-  font-size: 1.8rem;
-  color: #2d3748;
+.sidebar nav ul {
+  list-style: none;
 }
 
-/* Table base */
+.sidebar nav ul li {
+  margin: 15px 0;
+}
+
+.sidebar nav ul li a {
+  color: white;
+  text-decoration: none;
+  padding: 10px 20px;
+  display: block;
+  transition: background 0.3s;
+}
+
+.sidebar nav ul li a:hover,
+.sidebar nav ul li a.active {
+  background: #34495e;
+  border-left: 4px solid #1abc9c;
+}
+
+/* ================================
+   Main Content
+================================ */
+.main-content {
+  flex-grow: 1;
+  padding: 20px;
+  background: #ecf0f1;
+}
+
+/* ================================
+   Table (User List)
+================================ */
+.table-section {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  overflow-x: auto;
+}
+
 .table {
   width: 100%;
   border-collapse: collapse;
-  border-radius: 10px;
-  overflow: hidden;
-}
-
-.table thead {
-  background: #4f46e5; /* Indigo header */
-  color: #fff;
-  text-align: left;
 }
 
 .table th,
 .table td {
-  padding: 0.9rem 1rem;
-  border-bottom: 1px solid #e2e8f0;
-  font-size: 0.95rem;
+  text-align: left;
+  padding: 12px 15px;
+  border-bottom: 1px solid #ddd;
 }
 
-.table tbody tr:nth-child(even) {
-  background: #f9fafb;
+.table th {
+  background: #34495e;
+  color: white;
 }
 
-.table tbody tr:hover {
-  background: #eef2ff; /* light indigo */
-  transition: background 0.2s ease-in-out;
+.table tr:hover {
+  background: #f1f1f1;
 }
 
-/* Actions column */
-.table td a,
-.table td button {
-  margin-right: 0.3rem;
-  padding: 0.4rem 0.7rem;
+/* Profile picture inside table */
+.table img {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+/* ================================
+   Edit Form
+================================ */
+.form-container {
+  background: white;
+  padding: 25px;
+  border-radius: 10px;
+  max-width: 500px;
+  margin: 0 auto;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+.form-container h1 {
+  margin-bottom: 20px;
+  font-size: 1.6rem;
+  color: #2c3e50;
+  text-align: center;
+}
+
+.form-container form div {
+  margin-bottom: 15px;
+}
+
+.form-container label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 600;
+}
+
+.form-container input,
+.form-container select {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
   border-radius: 6px;
-  font-size: 0.85rem;
-  cursor: pointer;
+}
+
+.form-container button {
+  display: inline-block;
+  width: 100%;
+  background: #1abc9c;
+  color: white;
   border: none;
-  text-decoration: none;
+  padding: 12px;
+  border-radius: 6px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.3s;
 }
 
-.table td a {
-  background: #2563eb;
+.form-container button:hover {
+  background: #16a085;
+}
+
+/* ================================
+   Profile Picture Upload Preview
+================================ */
+.profile-pic-preview {
+  text-align: center;
+  margin-bottom: 15px;
+}
+
+.profile-pic-preview img {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid #1abc9c;
+}
+
+/* ================================
+   Footer
+================================ */
+footer {
+  background: #2c3e50;
   color: white;
-}
-
-.table td a:hover {
-  background: #1e40af;
-}
-
-.table td button {
-  background: #ef4444;
-  color: white;
-}
-
-.table td button:hover {
-  background: #b91c1c;
+  text-align: center;
+  padding: 15px 0;
+  margin-top: auto;
 }

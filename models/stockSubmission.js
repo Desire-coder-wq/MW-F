@@ -1,30 +1,26 @@
+// models/stockSubmission.js
 const mongoose = require("mongoose");
 
-const stockSubmissionSchema = new mongoose.Schema({
-  item: { 
-    type: String,
-    required: true 
-},
-
-  quantity: {
-     type: Number, 
-     required: true 
+const stockSubmissionSchema = new mongoose.Schema(
+  {
+    productName: { type: String, required: true },             // productName
+    productType: { type: String, required: true },
+    category: { type: String, required: true },
+    costPrice: { type: Number, required: true },
+    quantity: { type: Number, required: true },
+    supplier: { type: String, required: true },
+    date: { type: Date, required: true },               // submission date
+    quality: { type: String },
+    color: { type: String },
+    measurement: { type: String },
+    submittedBy: { 
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Attendant",
+      required: true
     },
+    status: { type: String, enum: ["Pending", "Approved", "Rejected"], default: "Pending" }
+  },
+  { timestamps: true }
+);
 
-  submittedBy: { 
-    type: mongoose.Schema.Types.ObjectId,
-     ref: "UserModel",
-      required: true },
-
-  dateSubmitted: { 
-    type: Date, 
-    default: Date.now
- },
-
-  status: { 
-    type: String,
-     enum: ["Pending", "Approved", "Rejected"], 
-     default: "Pending" }
-});
-
-module.exports = mongoose.model("stockSubmission", stockSubmissionSchema);
+module.exports = mongoose.model("StockSubmission", stockSubmissionSchema);

@@ -18,10 +18,27 @@ const stockSchema = new mongoose.Schema({
      type: Number,
       required: true
      },
-  price: {
+  costPrice: {
      type: Number,
      required: true
-     }
+     },
+  supplier:{
+      type:String,
+  },
+  quality:{
+       type:String,
+
+  },
+  color:{
+    type:String,
+  },
+  measurement:{
+    type:String,
+  },
+  date: { 
+    type: Date,
+     required: true
+     },
 });
 
 module.exports = mongoose.model('Stock', stockSchema);

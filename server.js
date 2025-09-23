@@ -23,7 +23,7 @@ const salesRoutes = require("./routes/salesRoutes");
 const userRoutes = require("./routes/userRoutes");
 const reportRoutes = require("./routes/reportRoutes");
 const manageRoutes = require("./routes/manageRoutes");
-
+const loadingRoutes = require("./routes/loadingRoutes");
 // 2. Instantiations
 const app = express();
 const port = process.env.PORT || 3000;
@@ -62,7 +62,7 @@ app.use(morgan("dev")); // optional logging
 app.use(express.static(path.join(__dirname,'public')));
 app.use(express.urlencoded({ extended:true }));
 app.use(express.json());
-app.use("/public/uploads", express.static(path.join(__dirname, "public/uploads")));
+app.use("/uploads", express.static(path.join(__dirname, "/uploads")));
 
 // Express session configs
 app.use(session({
@@ -88,7 +88,7 @@ app.use('/', salesRoutes);
 app.use('/', userRoutes);
 app.use('/', reportRoutes);
 app.use('/', manageRoutes);
-
+app.use("/loading", loadingRoutes);
 // 404 handler
 app.use((req, res) => {
   res.status(404).send('Oops! Route not found');

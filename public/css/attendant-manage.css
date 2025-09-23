@@ -59,8 +59,9 @@ body {
 /* Main content */
 .main-content {
   flex: 1;
-  padding: 30px;
+  padding: 15px;  /* was 30px, reduces wasted space */
 }
+
 
 header h1 {
   font-size: 26px;
@@ -78,6 +79,9 @@ header p {
   padding: 20px;
   border-radius: 8px;
   box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  width: 100%;         /* take full available space */
+  margin-left: 0;      /* align fully left */
+  margin-right: 0;     /* prevent right overflow */
 }
 
 table {
@@ -91,12 +95,14 @@ thead {
 }
 
 thead th {
-  padding: 12px;
+  padding: 6px 8px;   /* was 12px, reduced */
+  font-size: 14px;    /* slightly smaller text */
   text-align: left;
 }
 
 tbody td {
-  padding: 12px;
+  padding: 6px 8px;   /* was 12px, reduced */
+  font-size: 14px;
   border-bottom: 1px solid #ddd;
 }
 
@@ -180,3 +186,67 @@ footer {
   text-align: center;
   padding: 15px;
 }
+
+/* ----------------- Form Styling for Load & Offload ----------------- */
+.form-section {
+  display: flex;
+  justify-content: center;
+  margin: 20px 0;
+}
+
+.form-section p {
+  font-size: 16px;
+  margin: 5px 0;
+  color: #333;
+  font-weight: 500;
+}
+
+.form-section form {
+  background-color: #fff;
+  padding: 25px 30px;
+  border-radius: 8px;
+  max-width: 500px;
+  width: 100%;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.form-section form label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 600;
+  color: #333;
+}
+
+.form-section form input,
+.form-section form select {
+  width: 100%;
+  padding: 8px 10px;
+  margin-bottom: 15px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  font-size: 14px;
+  transition: border-color 0.2s;
+}
+
+.form-section form input:focus,
+.form-section form select:focus {
+  outline: none;
+  border-color: #f39c12; /* accent color */
+}
+
+.form-section form button {
+  background-color: #f39c12; /* accent color */
+  color: #fff;
+  padding: 10px 18px;
+  font-size: 16px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.form-section form button:hover {
+  background-color: #e67e22;
+}
+

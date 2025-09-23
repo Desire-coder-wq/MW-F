@@ -20,6 +20,8 @@ link(rel="stylesheet", href="/css/management.css")
         li
           a(href="/attendants") Attendants
         li
+          a(href="/loading/pending") Pending Sales
+        li
           a#editProfileBtn(href="#") Profile
         li
           a(href="/logout") Logout
@@ -33,10 +35,10 @@ link(rel="stylesheet", href="/css/management.css")
           span#managerName Manager
     //  Cards 
     section.cards
-      .card(onclick="location.href='/stock-reort'")
+      .card(onclick="location.href='/stock-report'")
         h3 Stock Report
         p View stock
-      .card(onclick="location.href='/sales-report'")
+      .card(onclick="location.href='/approve-stock'")
         h3 Approve Stock
         p Approve stock submitted by attendants.
       .card(onclick="location.href='/stock'")
@@ -48,12 +50,12 @@ link(rel="stylesheet", href="/css/management.css")
       .card(onclick="location.href='/products'")
         h3 Finished Furniture
         p View finished products available for sale.
-      .card(onclick="location.href='/attendants-monitor'")
+      .card(onclick="location.href='/attendants'")
         h3 Attendants
         p View attendants and monitor tasks.
-      .card#profileCard
-        h3 Profile
-        p Update your account details.
+      .card#profileCard(onclick="location.href='/register'")
+        h3 Register Users
+        p Register users here.
       .card(onclick="location.href='/logout'")
         h3 Logout
         p Sign out from the system.

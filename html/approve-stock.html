@@ -1,107 +1,116 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Approve Stock — MWF</title>
-  <link rel="stylesheet" href="/public/css/attendant-manage.css">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Approve Stock — MWF</title>
+    <link rel="stylesheet" href="/public/css/attendant-manage.css" />
+  </head>
+  <body>
+    <div class="layout">
+      <!-- Sidebar -->
+      <aside class="sidebar">
+        <h2 class="logo">Dashboard</h2>
+        <nav>
+          <ul>
+            <li><a href="/reports">Reports</a></li>
+            <li><a href="/approve-stock" class="active">Approve Stock</a></li>
+            <li><a href="/add-stock">Add Stock</a></li>
+            <li><a href="/sales-reports">Sales Reports</a></li>
+            <li><a href="/attendants">Attendants</a></li>
+            <li><a href="#" id="editProfileBtn">Profile</a></li>
+            <li><a href="/logout">Logout</a></li>
+          </ul>
+        </nav>
+      </aside>
 
-</head>
-<body>
-  <div class="layout">
-    <!-- Sidebar -->
-    <aside class="sidebar">
-      <h2 class="logo">Dashboard</h2>
-      <nav>
-        <ul>
-          <li><a href="/reports">Reports</a></li>
-          <li><a href="/approve-stock" class="active">Approve Stock</a></li>
-          <li><a href="/add-stock">Add Stock</a></li>
-          <li><a href="/sales-reports">Sales Reports</a></li>
-          <li><a href="/attendants">Attendants</a></li>
-          <li><a href="#" id="editProfileBtn">Profile</a></li>
-          <li><a href="/logout">Logout</a></li>
-        </ul>
-      </nav>
-    </aside>
+      <!-- Main content -->
+      <main class="main-content">
+        <header>
+          <h1>Approve Stock</h1>
+          <p>
+            Review stock submissions from attendants and approve or reject them.
+          </p>
+        </header>
 
-    <!-- Main content -->
-    <main class="main-content">
-      <header>
-        <h1>Approve Stock</h1>
-        <p>Review stock submissions from attendants and approve or reject them.</p>
-      </header>
-
-      <!-- Stock approval table -->
-      <section class="table-section">
-        <table class="stock-table">
-          <thead>
-            <tr>
-              <th>Item</th>
-              <th>Quantity</th>
-              <th>Submitted By</th>
-              <th>Date Submitted</th>
-              <th>Status</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            <!-- Rows will be dynamically populated -->
-          </tbody>
-        </table>
-      </section>
-    </main>
-  </div>
-
-  <footer>
-    <div class="container">
-      <p>&copy; 2025 Mayondo Wood & Furniture Ltd</p>
+        <!-- Stock approval table -->
+        <section class="table-section">
+          <table class="stock-table">
+            <thead>
+              <tr>
+                <th>Item</th>
+                <th>Quantity</th>
+                <th>Submitted By</th>
+                <th>Date Submitted</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- Rows will be dynamically populated -->
+            </tbody>
+          </table>
+        </section>
+      </main>
     </div>
-  </footer>
 
-  <script>
-    document.addEventListener("DOMContentLoaded", () => {
-      const tbody = document.querySelector("tbody");
+    <footer>
+      <div class="container">
+        <p>&copy; 2025 Mayondo Wood & Furniture Ltd</p>
+      </div>
+    </footer>
 
-      fetch("/stock-submissions")
-        .then(res => res.json())
-        .then(data => {
-          tbody.innerHTML = "";
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const tbody = document.querySelector("tbody");
 
-          if (data.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;">No stock submissions.</td></tr>`;
-            return;
-          }
+        fetch("/stock-submissions")
+          .then((res) => res.json())
+          .then((data) => {
+            tbody.innerHTML = "";
 
-          data.forEach(sub => {
-            const row = document.createElement("tr");
-            row.innerHTML = `
+            if (data.length === 0) {
+              tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;">No stock submissions.</td></tr>`;
+              return;
+            }
+
+            data.forEach((sub) => {
+              const row = document.createElement("tr");
+              row.innerHTML = `
               <td>${sub.item}</td>
               <td>${sub.quantity}</td>
               <td>${sub.submittedBy ? sub.submittedBy.name : "Unknown"}</td>
               <td>${new Date(sub.dateSubmitted).toLocaleDateString()}</td>
-              <td><span class="${sub.status.toLowerCase()}">${sub.status}</span></td>
+              <td><span class="${sub.status.toLowerCase()}">${
+                sub.status
+              }</span></td>
               <td>
-                ${sub.status === "Pending" ? `
+                ${
+                  sub.status === "Pending"
+                    ? `
                   <button class="approve-btn" onclick="approveStock('${sub._id}')">Approve</button>
                   <button class="reject-btn" onclick="rejectStock('${sub._id}')">Reject</button>
-                ` : `<button class="disabled" disabled>${sub.status}</button>`}
+                `
+                    : `<button class="disabled" disabled>${sub.status}</button>`
+                }
               </td>
             `;
-            tbody.appendChild(row);
+              tbody.appendChild(row);
+            });
           });
-        });
-    });
+      });
 
-    function approveStock(id) {
-      fetch(`/stock-submissions/${id}/approve`, { method: "POST" })
-        .then(() => location.reload());
-    }
+      function approveStock(id) {
+        fetch(`/stock-submissions/${id}/approve`, { method: "POST" }).then(() =>
+          location.reload()
+        );
+      }
 
-    function rejectStock(id) {
-      fetch(`/stock-submissions/${id}/reject`, { method: "POST" })
-        .then(() => location.reload());
-    }
-  </script>
-</body>
+      function rejectStock(id) {
+        fetch(`/stock-submissions/${id}/reject`, { method: "POST" }).then(() =>
+          location.reload()
+        );
+      }
+    </script>
+  </body>
 </html>

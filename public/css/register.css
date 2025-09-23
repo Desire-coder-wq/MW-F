@@ -1,225 +1,169 @@
-/* General Styling */
-body {
+/* ======================
+   Reset & Base Styles
+   ====================== */
+* {
   margin: 0;
-  font-family: Arial, sans-serif;
-  background: linear-gradient(135deg, rgb(228, 216, 199), rgb(232, 176, 103));
-}
-/* Whole navbar background */
-.navbar {
-  background-color: rgb(226, 232, 232) !important;  /* override Bootstrap default */
-  padding: 10px;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-/* Collapse background */
-#navbarNav {
-  background-color: rgba(0, 0, 128, 0.452); /* semi-transparent navy */
-  padding: 10px;
-  border-radius: 8px;
+body {
+  display: flex;
+  flex-direction: column; /* stack navbar, main, footer */
+  min-height: 100vh;
+  background: linear-gradient(135deg, #e4d8c7, #e8b067);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+/* ======================
+   Top Navbar
+   ====================== */
+header.navbar {
+  width: 100%;
+  background: linear-gradient(135deg, rgb(11, 136, 11), rgb(232, 176, 103));
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1000;
 }
 
-/* Brand */
-.navbar-brand {
-  color: powderblue !important;
-  background-color: antiquewhite;
-  padding: 5px 10px;
-  border-radius: 6px;
-  font-weight: bold;
+header.navbar .container {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 20px;
 }
 
-/* Navbar links */
-.nav-link {
-  color: black !important; /* default link text */
-  transition: 0.3s ease;
-  border-radius: 5px;
-  padding: 6px 12px;
+header.navbar .logo {
+  font-size: 20px;
+  font-weight: 700;
+  color: #e8b067;
 }
 
-/* Hover + focus */
-.nav-link:hover,
-.nav-link:focus {
-  color: white !important;
-  background-color: salmon !important;
-}
-
-/* Active link */
-.nav-link.active {
-  color: white !important;
-  background-color: salmon !important;
-}
-
-/* Navbar layout */
-.navbar-nav {
+header.navbar nav ul.nav-links {
+  list-style: none;
   display: flex;
   gap: 20px;
 }
 
-/* Toggler (hamburger menu) */
-.navbar-toggler {
-  border-color: black;
-}
-
-.navbar-toggler-icon {
-  background-image: url("data:image/svg+xml;charset=utf8,%3Csvg viewBox='0 0 30 30' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='black' stroke-width='2' stroke-linecap='round' stroke-miterlimit='10' d='M4 7h22M4 15h22M4 23h22'/%3E%3C/svg%3E");
-}
-/* Container Layout */
-.container {
-  display: flex;
-  height: 100vh;
-}
-
-/* Left Image Section */
-.image-section {
-  flex: 1;
-  background-color: #eee;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.image-section img {
-  width: 90%;
-  border-radius: 15px;
-  box-shadow: 0px 5px 20px rgba(0,0,0,0.2);
-}
-
-/* Right Form Section */
-.form-section {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  padding: 40px;
-  background: #ffffff;
-  box-shadow: -5px 0px 15px rgba(0,0,0,0.1);
-}
-
-h2 {
-  margin-bottom: 20px;
-  color: #4a3f35;
-  text-align: center;
-}
-
-label {
-  display: block;
-  margin-top: 10px;
-  font-weight: bold;
+header.navbar nav ul.nav-links li a {
+  text-decoration: none;
   color: #333;
+  font-weight: 500;
+  padding: 6px 10px;
+  border-radius: 6px;
+  transition: background-color 0.3s, color 0.3s;
 }
 
-input, select {
-  width: 100%;
-  padding: 10px;
-  margin-top: 5px;
-  border-radius: 8px;
-  border: 1px solid #ccc;
-  outline: none;
+header.navbar nav ul.nav-links li a:hover {
+  background-color: #e8b067;
+  color: #fff;
 }
 
-input:focus, select:focus {
-  border-color: #8B5E3C;
-}
-
-/* Password Eye Icon */
-.password-wrapper {
-  position: relative;
-}
-
-.toggle-password {
-  position: absolute;
-  right: 12px;
-  top: 50%;
-  transform: translateY(-50%);
-  cursor: pointer;
-}
-
-/* Button */
-button {
-  margin-top: 20px;
-  width: 100%;
-  padding: 12px;
-  border: none;
-  border-radius: 8px;
-  background: #8B5E3C;
-  color: white;
-  font-size: 16px;
-  cursor: pointer;
-}
-
-button:hover {
-  background: #6c482d;
-}
-
-/* Error Message */
-#error-message {
-  margin-top: 10px;
-  color: red;
-  font-size: 14px;
-  text-align: center;
-}
-
-/* Reset */
-body {
-  margin: 0;
-  font-family: Arial, sans-serif;
-  background: linear-gradient(135deg, rgb(228, 216, 199), rgb(232, 176, 103));
+/* ======================
+   Adjust Main Content
+   ====================== */
+main.main-content {
+  flex: 1; /* push footer to bottom */
   display: flex;
   justify-content: center;
-  align-items: center;
-  height: 100vh;
+  align-items: flex-start; /* align form to top of main content */
+  padding: 20px;
 }
 
-/* Login box */
-.login-container {
-  background: #fff;
-  padding: 30px;
+/* ======================
+   Container & Card
+   ====================== */
+.container {
+  width: 100%;
+  max-width: 500px;
+}
+
+.card {
+  background-color: #fff;
   border-radius: 12px;
-  box-shadow: 0 6px 12px rgba(0,0,0,0.1);
-  width: 320px;
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+  padding: 30px 25px;
+}
+
+/* ======================
+   Card Header
+   ====================== */
+.card header h1 {
   text-align: center;
+  font-size: 24px;
+  color: #333;
+  margin-bottom: 8px;
 }
 
-.login-container h2 {
+.card header p {
+  text-align: center;
+  font-size: 14px;
+  color: #666;
   margin-bottom: 20px;
-  color: #2c3e50;
 }
 
-/* Inputs */
-form label {
+/* ======================
+   Form Elements
+   ====================== */
+.register-form label {
   display: block;
-  margin-bottom: 6px;
-  font-size: 14px;
-  text-align: left;
+  margin-bottom: 5px;
   color: #555;
+  font-weight: 500;
 }
 
-form input {
+.register-form input,
+.register-form select {
   width: 100%;
-  padding: 10px;
-  margin-bottom: 18px;
-  border: 1px solid #ccc;
+  padding: 12px 10px;
+  margin-bottom: 15px;
   border-radius: 8px;
+  border: 1px solid #ccc;
   font-size: 14px;
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.register-form input:focus,
+.register-form select:focus {
   outline: none;
-  transition: border-color 0.3s;
+  border-color: #e8b067;
+  box-shadow: 0 0 6px rgba(232, 176, 103, 0.4);
 }
 
-form input:focus {
-  border-color: #2c3e50;
-}
-
-/* Button */
-form button {
+/* ======================
+   Submit Button
+   ====================== */
+.submit-btn {
   width: 100%;
-  padding: 12px;
-  background:goldenrod;
-  color: #fff;
+  padding: 14px;
+  background-color: #e8b067;
   border: none;
   border-radius: 8px;
+  color: #fff;
   font-size: 16px;
+  font-weight: 600;
   cursor: pointer;
-  transition: background 0.3s;
+  transition: background-color 0.3s ease;
+  margin-top: 10px;
 }
 
-form button:hover {
-  background: #1a252f;
+.submit-btn:hover {
+  background-color: #d49e52;
+}
+
+/* ======================
+   Footer
+   ====================== */
+/* Footer */
+footer {
+  text-align: center;
+  font-size: 12px;
+  color: #888;
+  padding: 15px 0;
+  background: linear-gradient(135deg, rgb(11, 136, 11), rgb(232, 176, 103));
+  box-shadow: 0 -2px 6px rgba(0,0,0,0.05);
 }

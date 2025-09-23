@@ -54,3 +54,58 @@ nav a {
   object-fit: cover;
   border-radius: 10px;
 }
+
+/* ----------------- Form Styling ----------------- */
+.form-section form {
+  background: #fff;
+  padding: 25px 30px;
+  border-radius: 8px;
+  max-width: 500px;
+  margin: 20px auto;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.form-section form label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 600;
+  color: #333;
+}
+
+.form-section form input,
+.form-section form select {
+  width: 100%;
+  padding: 8px 10px;
+  margin-bottom: 15px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  font-size: 14px;
+  transition: 0.2s border-color;
+}
+
+.form-section form input:focus,
+.form-section form select:focus {
+  outline: none;
+  border-color: #f39c12; /* accent color */
+}
+
+.form-section form button {
+  background-color: #f39c12; /* accent color */
+  color: #fff;
+  padding: 10px 18px;
+  font-size: 16px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: 0.2s background-color;
+}
+
+.form-section form button:hover {
+  background-color: #e67e22;
+}
+
+.form-section {
+  display: flex;
+  justify-content: center;
+}

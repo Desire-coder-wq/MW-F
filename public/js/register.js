@@ -35,7 +35,7 @@ document.getElementById("registerForm").addEventListener("submit", function(even
   }
 
   errorMessage.style.color = "green";
-  errorMessage.textContent = " Registration successful!";
+  errorMessage.textContent = "✅ Registration successful!";
 
   // Clear form after success
   document.getElementById("registerForm").reset();

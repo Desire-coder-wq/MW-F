@@ -6,34 +6,44 @@ html(lang="en")
     title Sale Receipt
     link(rel="stylesheet", href="/css/sales-entry.css")
     style.
-      /* Receipt styling */
       body {
         font-family: Arial, sans-serif;
-        margin: 20px;
+        margin: 0;
+        background: linear-gradient(135deg, rgb(228, 216, 199), rgb(232, 176, 103));
       }
-      header {
-        text-align: center;
-        margin-bottom: 20px;
-      }
-      section.sale-info {
+      .receipt-container {
+        background: #fff;
+        width: 380px;
+        margin: 20px auto;
+        padding: 20px;
         border: 1px solid #333;
-        padding: 15px;
-        max-width: 600px;
-        margin: 0 auto 20px auto;
-        border-radius: 5px;
-        background-color: #f9f9f9;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
       }
-      section.sale-info p {
-        margin: 8px 0;
-        font-size: 16px;
-      }
-      section.sale-info strong {
-        width: 150px;
-        display: inline-block;
-      }
-      section.actions {
+      .receipt-container header {
         text-align: center;
-        margin-top: 20px;
+        margin-bottom: 15px;
+      }
+      .receipt-container header h1 {
+        font-size: 18px;
+        margin: 0;
+      }
+      .receipt-container header h2 {
+        font-size: 16px;
+        margin: 5px 0;
+        color: green;
+      }
+      .receipt-container p {
+        margin: 6px 0;
+        font-size: 14px;
+      }
+      .receipt-container strong {
+        display: inline-block;
+        width: 130px;
+      }
+      .actions {
+        text-align: center;
+        margin-top: 15px;
       }
       .btn {
         padding: 6px 12px;
@@ -42,57 +52,90 @@ html(lang="en")
         text-decoration: none;
         border-radius: 3px;
         margin: 0 5px;
+        font-size: 14px;
+      }
+      footer {
+        text-align: center;
+        margin-top: 15px;
+        font-style: italic;
+        font-size: 13px;
+        color: #444;
       }
       @media print {
-        nav, .btn, section.actions {
+        aside.sidebar, .btn, .actions {
           display: none;
         }
         body {
+            background: linear-gradient(135deg, rgb(228, 216, 199), rgb(232, 176, 103));
+        }
+        .receipt-container {
           margin: 0;
+          width: 100%;
+          border: none;
+          box-shadow: none;
         }
       }
 
   body
-    nav.topnav
-      ul
-        li: a(href="/dashboard") Dashboard
-        li: a(href="/sales") Sales Entry
-        li: a(href="/sales-list") Sales List
-        li: a(href="/logout", class="logout-btn") Logout
+    .layout
+      // Sidebar
+      aside.sidebar
+        h2.logo Dashboard
+        nav
+          ul
+            li
+              a(href="/sales-entry") Sales Entry
+            li
+              a(href="/receipt", class="active") Receipt
+            li
+              a(href="/sales-report") Sales Report
+            li
+              a(href="/sales-list") Sales List
+            li
+              a(href="/stockList") Stock List
+            li
+              a(href="/logout") Logout
 
-    header
-      h1 Sale Receipt
-      p Ref: #{sale._id}
+      // Main content
+      .main-content
+        .receipt-container
+          header
+            h1 Mayondo Wood and Furniture (MWF) Ltd
+            h2 Sales Receipt
+            p Ref: #{sale._id}
 
-    section.sale-info
-      p
-        strong Customer Name: 
-        = sale.customerName
-      p
-        strong Product Name: 
-        = sale.productName
-      p
-        strong Quantity: 
-        = sale.quantity
-      p
-        strong Price: 
-        = sale.price
-      p
-        strong Total: 
-        = sale.total ? sale.total.toLocaleString() : '0'
-      p
-        strong Transport: 
-        = sale.transport ? 'Yes (5%)' : 'No'
-      p
-        strong Payment Type: 
-        = sale.paymentType
-      p
-        strong Date: 
-        = new Date(sale.date).toDateString()
-      p
-        strong Sales Agent: 
-        = sale.salesAgent && sale.salesAgent.name ? sale.salesAgent.name : 'N/A'
+          section.sale-info
+            p
+              strong Customer Name:
+              = sale.customerName
+            p
+              strong Product Name:
+              = sale.productName
+            p
+              strong Quantity:
+              = sale.quantity
+            p
+              strong Price:
+              = sale.price
+            p
+              strong Total:
+              = sale.total ? sale.total.toLocaleString() : '0'
+            p
+              strong Transport:
+              = sale.transport ? 'Yes (5%)' : 'No'
+            p
+              strong Payment Type:
+              = sale.paymentType
+            p
+              strong Date:
+              = new Date(sale.date).toDateString()
+            p
+              strong Sales Agent:
+              = sale.salesAgent && sale.salesAgent.name ? sale.salesAgent.name : 'N/A'
 
-    section.actions
-      a.btn(href="/sales-list") Back to Sales List
-      button.btn(type="button", onclick="window.print()") Print Receipt
+          .actions
+            a.btn(href="/sales-list") Back to Sales List
+            button.btn(type="button", onclick="window.print()") Print Receipt
+
+          footer
+            p Thank you for buying from Mayondo Wood and Furniture Ltd. We value your support!

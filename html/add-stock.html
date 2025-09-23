@@ -1,111 +1,145 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>MWF — Stock Management</title>
-  <link rel="stylesheet" href="/public/css/add-stock.css">
-</head>
-<body>
-  <nav class="topnav">
-    <ul>
-      <li><a href="/dashboard">Dashboard</a></li>
-      <li><a href="/sales">Sales Entry</a></li>
-      <li><a href="/receipt">Receipt</a></li>
-      <li><a href="/sales-report">Sales Report</a></li>
-      <li><a href="/stock-report">Stock Report</a></li>
-      <li><a href="/stock-list">Stock List</a></li>
-      <li><a href="/logout" class="logout-btn">Logout</a></li>
-    </ul>
-  </nav>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>MWF — Stock Management</title>
+    <link rel="stylesheet" href="/public/css/add-stock.css" />
+  </head>
+  <body>
+    <nav class="topnav">
+      <ul>
+        <li><a href="/dashboard">Dashboard</a></li>
+        <li><a href="/sales">Sales Entry</a></li>
+        <li><a href="/receipt">Receipt</a></li>
+        <li><a href="/sales-report">Sales Report</a></li>
+        <li><a href="/stock-report">Stock Report</a></li>
+        <li><a href="/stock-list">Stock List</a></li>
+        <li><a href="/logout" class="logout-btn">Logout</a></li>
+      </ul>
+    </nav>
 
-  <header id="topbar">
-    <h1>Mayondo Wood and Furniture (MWF) Ltd</h1>
-  </header>
+    <header id="topbar">
+      <h1>Mayondo Wood and Furniture (MWF) Ltd</h1>
+    </header>
 
-  <main class="container">
-    <h2>Stock Management</h2>
+    <main class="container">
+      <h2>Stock Management</h2>
 
-    <form id="stockForm" class="grid" action="/stock" method="POST">
-      
-      <div class="form-group">
-        <label for="name">Product Name</label>
-        <select id="name" name="name" required>
-          <option value="" selected disabled>-- Select Product --</option>
-          <option value="timber">Timber</option>
-          <option value="poles">Poles</option>
-          <option value="hard-wood">Hard-Wood</option>
-          <option value="soft-wood">Soft-Wood</option>
-          <option value="bed">Bed</option>
-          <option value="sofa">Sofa</option>
-          <option value="dining table">Dining Table</option>
-          <option value="cupboards">Cupboards</option>
-          <option value="drawers">Drawers</option>
-        </select>
-      </div>
+      <form id="stockForm" class="grid" action="/stock" method="POST">
+        <div class="form-group">
+          <label for="name">Product Name</label>
+          <select id="name" name="name" required>
+            <option value="" selected disabled>-- Select Product --</option>
+            <option value="timber">Timber</option>
+            <option value="poles">Poles</option>
+            <option value="hard-wood">Hard-Wood</option>
+            <option value="soft-wood">Soft-Wood</option>
+            <option value="bed">Bed</option>
+            <option value="sofa">Sofa</option>
+            <option value="dining table">Dining Table</option>
+            <option value="cupboards">Cupboards</option>
+            <option value="drawers">Drawers</option>
+          </select>
+        </div>
 
-      <div class="form-group">
-        <label for="type">Product Type</label>
-        <select id="type" name="productType" required>
-          <option value="" selected disabled>-- Select Type --</option>
-          <option value="wood">Wood</option>
-          <option value="furniture">Furniture</option>
-        </select>
-      </div>
+        <div class="form-group">
+          <label for="type">Product Type</label>
+          <select id="type" name="productType" required>
+            <option value="" selected disabled>-- Select Type --</option>
+            <option value="wood">Wood</option>
+            <option value="furniture">Furniture</option>
+          </select>
+        </div>
 
-      <div class="form-group">
-        <label for="category">Product Category</label>
-        <select id="category" name="category" required>
-          <option value="" selected disabled>-- Select Category --</option>
-          <option value="raw material">Raw Material</option>
-          <option value="finished goods">Finished Goods</option>
-        </select>
-      </div>
+        <div class="form-group">
+          <label for="category">Product Category</label>
+          <select id="category" name="category" required>
+            <option value="" selected disabled>-- Select Category --</option>
+            <option value="raw material">Raw Material</option>
+            <option value="finished goods">Finished Goods</option>
+          </select>
+        </div>
 
-      <div class="form-group">
-        <label for="quantity">Quantity</label>
-        <input id="quantity" type="number" name="quantity" min="0" required placeholder="Enter quantity">
-      </div>
+        <div class="form-group">
+          <label for="quantity">Quantity</label>
+          <input
+            id="quantity"
+            type="number"
+            name="quantity"
+            min="0"
+            required
+            placeholder="Enter quantity"
+          />
+        </div>
 
-      <div class="form-group">
-        <label for="price">Unit Price</label>
-        <input id="price" type="number" name="price" min="0" required placeholder="Enter unit price">
-      </div>
+        <div class="form-group">
+          <label for="price">Unit Price</label>
+          <input
+            id="price"
+            type="number"
+            name="price"
+            min="0"
+            required
+            placeholder="Enter unit price"
+          />
+        </div>
 
-      <div class="form-group">
-        <label for="supplier">Supplier Name</label>
-        <input id="supplier" type="text" name="supplier" required placeholder="Enter supplier name">
-      </div>
+        <div class="form-group">
+          <label for="supplier">Supplier Name</label>
+          <input
+            id="supplier"
+            type="text"
+            name="supplier"
+            required
+            placeholder="Enter supplier name"
+          />
+        </div>
 
-      <div class="form-group">
-        <label for="quality">Quality</label>
-        <input id="quality" type="text" name="quality" placeholder="Enter quality">
-      </div>
+        <div class="form-group">
+          <label for="quality">Quality</label>
+          <input
+            id="quality"
+            type="text"
+            name="quality"
+            placeholder="Enter quality"
+          />
+        </div>
 
-      <div class="form-group">
-        <label for="color">Color (Optional)</label>
-        <input id="color" type="text" name="color" placeholder="Enter color">
-      </div>
+        <div class="form-group">
+          <label for="color">Color (Optional)</label>
+          <input
+            id="color"
+            type="text"
+            name="color"
+            placeholder="Enter color"
+          />
+        </div>
 
-      <div class="form-group">
-        <label for="measurements">Measurements (Optional)</label>
-        <input id="measurements" type="text" name="measurements" placeholder="Enter measurements">
-      </div>
+        <div class="form-group">
+          <label for="measurements">Measurements (Optional)</label>
+          <input
+            id="measurements"
+            type="text"
+            name="measurements"
+            placeholder="Enter measurements"
+          />
+        </div>
 
-      <button type="submit">Save Item</button>
-    </form>
-  </main>
+        <button type="submit">Save Item</button>
+      </form>
+    </main>
 
-  <script>
-    function requireAuth() {
-      console.log("Authentication check placeholder");
-    }
-    function renderTopbar(title) {
-      document.getElementById("topbar").textContent = title;
-    }
+    <script>
+      function requireAuth() {
+        console.log("Authentication check placeholder");
+      }
+      function renderTopbar(title) {
+        document.getElementById("topbar").textContent = title;
+      }
 
-    requireAuth();
-    renderTopbar("Stock Management");
-  </script>
-</body>
+      requireAuth();
+      renderTopbar("Stock Management");
+    </script>
+  </body>
 </html>
