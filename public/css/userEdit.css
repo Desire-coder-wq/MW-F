@@ -1,0 +1,221 @@
+/* ========================
+   General Reset & Body
+   ======================== */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: linear-gradient(135deg, rgb(228, 216, 199), rgb(232, 176, 103));
+  color: #333;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ========================
+   Sidebar
+   ======================== */
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 200px;
+  height: 100%;
+  background: linear-gradient(135deg, rgb(11, 136, 11), rgb(232, 176, 103));
+  color: #fff;
+  padding: 20px 10px;
+}
+
+.sidebar h2.logo {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.sidebar nav ul {
+  list-style: none;
+  padding-left: 0;
+}
+
+.sidebar nav ul li {
+  margin-bottom: 15px;
+}
+
+.sidebar nav ul li a {
+  color: #fff;
+  text-decoration: none;
+  display: block;
+  padding: 8px 10px;
+  border-radius: 4px;
+}
+
+.sidebar nav ul li a.active,
+.sidebar nav ul li a:hover {
+  background-color: #053216;
+}
+
+/* ========================
+   Topbar
+   ======================== */
+#topbar {
+  margin-left: 200px;
+   background: linear-gradient(135deg, rgb(11, 136, 11), rgb(232, 176, 103));
+  padding: 20px 30px;
+  border-bottom: 1px solid #ccc;
+}
+
+#topbar h1 {
+  margin-bottom: 5px;
+  text-align: center;
+}
+
+#topbar h3 {
+  color: #03200f;
+  font-weight: normal;
+  text-align: center;
+}
+
+/* ========================
+   Main Container (Card)
+   ======================== */
+/* Center the main container */
+main.container {
+  display: flex;
+  justify-content: center; /* Center horizontally */
+  align-items: center;     /* Center vertically */
+  min-height: calc(100vh - 120px); /* full height minus header + footer */
+  padding: 20px;
+}
+
+/* Style the form card */
+.edit-form {
+  background: #fff;
+  padding: 30px;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  width: 100%;
+  max-width: 800px; /* keep it narrow */
+}
+
+/* ========================
+   Form Heading
+   ======================== */
+.edit-form h1 {
+  text-align: center;
+  margin-bottom: 25px;
+  font-size: 28px;
+  color: #222;
+}
+
+/* ========================
+   Form Rows
+   ======================== */
+.form-row {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin-bottom: 15px;
+}
+
+.form-row .form-group {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ========================
+   Form Groups
+   ======================== */
+.form-group label {
+  margin-bottom: 6px;
+  font-weight: 600;
+}
+
+.form-group input[type="text"],
+.form-group input[type="email"],
+.form-group input[type="file"],
+.form-group select {
+  padding: 10px 12px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 15px;
+  transition: border-color 0.3s;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group input[type="file"]:focus {
+  border-color: #007BFF;
+  outline: none;
+}
+
+/* ========================
+   Profile Picture
+   ======================== */
+.profile-img {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  margin-bottom: 10px;
+  border: 2px solid #ccc;
+}
+
+/* ========================
+   Submit Button
+   ======================== */
+button[type="submit"] {
+  width: 100%;
+  padding: 12px 0;
+  font-size: 16px;
+  font-weight: 600;
+  border-radius: 6px;
+  border: none;
+  background-color: #b7bb4a;
+  color: #fff;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+button[type="submit"]:hover {
+  background-color: #11c323;
+}
+
+/* ========================
+   Footer
+   ======================== */
+footer {
+  margin-left: 200px; /* align with sidebar */
+  text-align: center;
+  padding: 15px 0;
+  background: linear-gradient(135deg, rgb(11, 136, 11), rgb(232, 176, 103));
+  color: #fff;
+  font-size: 14px;
+  margin-top: 40px;
+}
+
+/* ========================
+   Responsive
+   ======================== */
+@media (max-width: 768px) {
+  .sidebar {
+    position: relative;
+    width: 100%;
+    height: auto;
+  }
+
+  main.container {
+    margin-left: 0;
+    margin-top: 20px;
+  }
+
+  footer {
+    margin-left: 0;
+  }
+
+  .form-row {
+    flex-direction: column;
+  }
+}

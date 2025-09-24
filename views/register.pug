@@ -4,68 +4,78 @@ html(lang="en")
     meta(charset="UTF-8")
     meta(name="viewport", content="width=device-width, initial-scale=1.0")
     title MWF — Attendant Registration
-    link(rel="stylesheet", href="/css/register.css")
+    link(rel="stylesheet", href="/css/userEdit.css")
   body
-    // Top navigation bar
-    header.navbar
-      .container
-        h2.logo MwF
-        nav
-          ul.nav-links
-            li: a(href="/reports") Reports
-            li: a(href="/approve-stock") Approve Stock
-            li: a(href="/add-stock") Add Stock
-            li: a(href="/sales-reports") Sales Reports
-            li: a(href="/attendants") Attendants
-            li: a(href="#", id="editProfileBtn") Profile
-            li: a(href="/logout") Logout
+    // Sidebar
+    aside.sidebar
+      h2.logo Dashboard
+      nav
+        ul
+          li: a(href="/reports") Reports
+          li: a(href="/approve-stock") Approve Stock
+          li: a(href="/add-stock") Add Stock
+          li: a(href="/sales-reports") Sales Reports
+          li: a(href="/attendants", class="active") Attendants
+          li: a(href="#", id="editProfileBtn") Profile
+          li: a(href="/logout") Logout
 
-    // Main content
-    main.main-content
-      .container
-        .card
-          .card-left
-            img(src="/images/registration-image.jpg", alt="Attendant Registration")
-          .card-right
-            header
-              h1 MWF — Attendant Registration
-              p Fill in the details to register a new attendant.
+    // Top header
+    header#topbar
+      h1 Mayondo Wood & Furniture Ltd
+      h3 Attendant Registration
 
-            form(action="/manager/register-attendant", method="POST", class="register-form", enctype="multipart/form-data")
-              label(for="profilePic") Profile Picture
-              input#profilePic(type="file", name="profilePic", accept="image/*")
+    // Main container (card)
+    main.container
+      form(action="/register", method="POST", class="edit-form", enctype="multipart/form-data")
+        // Profile Picture
+        .form-group.profile
+          label(for="profilePic") Profile Picture
+          input#profilePic(type="file", name="profilePic", accept="image/*")
 
-              label(for="name") Full Name
-              input#name(type="text", name="name", required, placeholder="Enter full name")
+        // Name & Email
+        .form-row
+          .form-group
+            label(for="name") Full Name
+            input#name(type="text", name="name", required, placeholder="Enter full name")
+          .form-group
+            label(for="email") Email
+            input#email(type="email", name="email", required, placeholder="Enter email")
 
-              label(for="email") Email
-              input#email(type="email", name="email", required, placeholder="Enter email")
+        // Password & Gender
+        .form-row
+          .form-group
+            label(for="password") Password
+            input#password(type="password", name="password", required, placeholder="Enter password")
+          .form-group
+            label(for="gender") Gender
+            select#gender(name="gender", required)
+              option(value="", disabled selected) -- Select Gender --
+              option(value="Male") Male
+              option(value="Female") Female
+              option(value="Other") Other
 
-              label(for="password") Password
-              input#password(type="password", name="password", required, placeholder="Enter password")
+        // Contact Info
+        .form-row
+          .form-group
+            label(for="phoneNumber") Phone Number
+            input#phoneNumber(type="text", name="phoneNumber", required, placeholder="Enter phone number")
+          .form-group
+            label(for="nationalID") National ID
+            input#nationalID(type="text", name="nationalID", required, placeholder="Enter national ID")
 
-              label(for="gender") Gender
-              select#gender(name="gender", required)
-                option(value="", disabled selected) -- Select Gender --
-                option(value="Male") Male
-                option(value="Female") Female
-                option(value="Other") Other
+        // Next of Kin Info
+        .form-row
+          .form-group
+            label(for="nextOfKinName") Next of Kin Name
+            input#nextOfKinName(type="text", name="nextOfKinName", required, placeholder="Enter next of kin name")
+          .form-group
+            label(for="nextOfKinPhone") Next of Kin Number
+            input#nextOfKinPhone(type="text", name="nextOfKinNumber", required, placeholder="Enter next of kin phone")
 
-              label(for="phoneNumber") Phone Number
-              input#phoneNumber(type="text", name="phoneNumber", required, placeholder="Enter phone number")
-
-              label(for="nationalID") National ID
-              input#nationalID(type="text", name="nationalID", required, placeholder="Enter national ID")
-
-              label(for="nextOfKinName") Next of Kin Name
-              input#nextOfKinName(type="text", name="nextOfKinName", required, placeholder="Enter next of kin name")
-
-              label(for="nextOfKinPhone") Next of Kin Phone
-              input#nextOfKinPhone(type="text", name="nextOfKinPhone", required, placeholder="Enter next of kin phone")
-
-              button(type="submit", class="submit-btn") Register Attendant
+        // Submit Button
+        .form-group.submit
+          button(type="submit") Register Attendant
 
     // Footer
     footer
-      .container
-        p &copy; 2025 Mayondo Wood & Furniture Ltd
+      p © 2025 Mayondo Wood & Furniture Ltd

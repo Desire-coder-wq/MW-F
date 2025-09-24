@@ -6,61 +6,80 @@ html(lang="en")
     title Edit User
     link(rel="stylesheet", href="/css/userEdit.css")  
   body
-    .container
-      h1 Edit User
+    // Sidebar (optional if you have dashboard)
+    aside.sidebar
+      h2.logo Dashboard
+      nav
+        ul
+          li: a(href="/reports") Reports
+          li: a(href="/approve-stock") Approve Stock
+          li: a(href="/add-stock") Add Stock
+          li: a(href="/sales-reports") Sales Reports
+          li: a(href="/attendants") Attendants
+          li: a(href="/profile", class="active") Profile
+          li: a(href="/logout") Logout
 
-      form(action=`/users/update/${user._id}`, method="POST", enctype="multipart/form-data")
+    // Top header
+    header#topbar
+      h1 Mayondo Wood & Furniture Ltd
+      h3 Edit User Profile
+
+    // Main container (the card)
+    main.container
+      form(action=`/users/update/${user._id}`, method="POST", enctype="multipart/form-data", class="edit-form")
+        
         // Profile Picture
-        div.form-group
+        .form-group.profile
           label(for="profilePic") Profile Picture:
           if user.profilePic
-            img(src=user.profilePic, alt="Profile Picture", width="80", height="80", style="border-radius:50%")
+            img.profile-img(src=user.profilePic, alt="Profile Picture")
           input#profilePic(type="file", name="profilePic")
 
-        // Name
-        div.form-group
-          label(for="name") Name:
-          input#name(type="text", name="name", value=user.name, required)
+        // Name & Email
+        .form-row
+          .form-group
+            label(for="name") Name:
+            input#name(type="text", name="name", value=user.name, required)
+          .form-group
+            label(for="email") Email:
+            input#email(type="email", name="email", value=user.email, required)
 
-        // Email
-        div.form-group
-          label(for="email") Email:
-          input#email(type="email", name="email", value=user.email, required)
+        // Role & Gender
+        .form-row
+          .form-group
+            label(for="role") Role:
+            select#role(name="role", required)
+              option(value="manager", selected=(user.role==="manager")) Manager
+              option(value="attendant", selected=(user.role==="attendant")) Attendant
+          .form-group
+            label(for="gender") Gender:
+            select#gender(name="gender")
+              option(value="Male", selected=(user.gender==="Male")) Male
+              option(value="Female", selected=(user.gender==="Female")) Female
+              option(value="Other", selected=(user.gender==="Other")) Other
 
-        // Role
-        div.form-group
-          label(for="role") Role:
-          select#role(name="role", required)
-            option(value="Manager", selected=(user.role==="Manager")) Manager
-            option(value="Attendant", selected=(user.role==="Attendant")) Attendant
+        // Contact Info
+        .form-row
+          .form-group
+            label(for="phoneNumber") Phone Number:
+            input#phoneNumber(type="text", name="phoneNumber", value=user.phoneNumber || "")
+          .form-group
+            label(for="nationalId") National ID:
+            input#nationalId(type="text", name="nationalId", value=user.nationalId || "")
 
-        // Gender
-        div.form-group
-          label(for="gender") Gender:
-          select#gender(name="gender")
-            option(value="Male", selected=(user.gender==="Male")) Male
-            option(value="Female", selected=(user.gender==="Female")) Female
-            option(value="Other", selected=(user.gender==="Other")) Other
+        // Next of Kin Info
+        .form-row
+          .form-group
+            label(for="nextOfKinName") Next of Kin Name:
+            input#nextOfKinName(type="text", name="nextOfKinName", value=user.nextOfKinName || "")
+          .form-group
+            label(for="nextOfKinNumber") Next of Kin Phone:
+            input#nextOfKinNumber(type="text", name="nextOfKinNumber", value=user.nextOfKinNumber || "")
 
-        // Phone Number
-        div.form-group
-          label(for="phoneNumber") Phone Number:
-          input#phoneNumber(type="text", name="phoneNumber", value=user.phoneNumber || "")
+        // Submit Button
+        .form-group.submit
+          button(type="submit") Save Changes
 
-        // National ID
-        div.form-group
-          label(for="nationalID") National ID:
-          input#nationalID(type="text", name="nationalID", value=user.nationalID || "")
-
-        // Next of Kin Name
-        div.form-group
-          label(for="nextOfKinName") Next of Kin Name:
-          input#nextOfKinName(type="text", name="nextOfKinName", value=user.nextOfKinName || "")
-
-        // Next of Kin Phone
-        div.form-group
-          label(for="nextOfKinPhone") Next of Kin Phone:
-          input#nextOfKinPhone(type="text", name="nextOfKinPhone", value=user.nextOfKinPhone || "")
-
-        // Save Button
-        button(type="submit") Save Changes
+    // Footer
+    footer
+      p © 2025 Mayondo Wood & Furniture Ltd

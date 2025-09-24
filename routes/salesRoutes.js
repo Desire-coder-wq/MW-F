@@ -30,7 +30,7 @@ function checkAttendant(req, res, next) {
 }
 
 // ------------------- GET Sales Entry Form -------------------
-router.get('/sales', checkAuth, checkAttendant, async (req, res) => {
+router.get('/sales', ensureauthenticated, ensureAgent, async (req, res) => {
   try {
     console.log("Rendering sales for:", req.session.user.email);
     const stock = await stockModel.find().lean();
@@ -46,7 +46,7 @@ router.get('/sales', checkAuth, checkAttendant, async (req, res) => {
 });
 
 // ------------------- POST New Sale -------------------
-router.post('/sales', checkAuth, checkAttendant, async (req, res) => {
+router.post('/sales', ensureauthenticated, ensureAgent, async (req, res) => {
   try {
     const { customerName, productName, quantity, price, transport, paymentType, date } = req.body;
     const userId = req.session.user._id; 

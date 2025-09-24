@@ -9,7 +9,7 @@
 
 body {
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-  background: #f5f6fa;
+  background: linear-gradient(135deg, rgb(228, 216, 199), rgb(232, 176, 103));
   color: #333;
   display: flex;
   min-height: 100vh;
@@ -26,7 +26,7 @@ body {
 
 .sidebar {
   width: 220px;
-  background: #2c3e50;
+  background: linear-gradient(135deg, rgb(11, 136, 11), rgb(232, 176, 103));
   color: white;
   padding: 20px 0;
   flex-shrink: 0;
@@ -183,7 +183,7 @@ body {
    Footer
 ================================ */
 footer {
-  background: #2c3e50;
+  background: linear-gradient(135deg, rgb(11, 136, 11), rgb(232, 176, 103));
   color: white;
   text-align: center;
   padding: 15px 0;

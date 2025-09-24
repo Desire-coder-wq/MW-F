@@ -4,8 +4,6 @@ const bcrypt = require("bcrypt");
 const Attendant = require("../models/attendantModel");
 const StockSubmission = require("../models/stockSubmission"); // fixed name consistency
 const UserModel = require("../models/userModel");
-const multer = require('multer');
-const path = require('path');
 const { ensureauthenticated, ensureManager, ensureAgent } = require("../middleware/auth");
 
 
@@ -146,57 +144,7 @@ router.post("/stock-submissions/:id/reject", ensureauthenticated, ensureManager,
 });
 
 
-// -------------------- Manager: Register Attendant --------------------
 
-// GET - Show registration form
-router.get("/manager/register-attendant", ensureauthenticated, ensureManager, (req, res) => {
-  res.render("manager-register-attendant", { title: "Register Attendant" });
-});
-
-// POST - Handle registration
-router.post("/manager/register-attendant", ensureauthenticated, ensureManager, async (req, res) => {
-  try {
-    const { name, email, password, gender, phoneNumber, nationalID, nextOfKinName, nextOfKinPhone } = req.body;
-
-    // Check if email already exists
-    const existingUser = await UserModel.findOne({ email });
-    if (existingUser) return res.status(400).send("Email already registered");
-
-    // Hash password
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    // Create user
-    const user = new UserModel({
-      name,
-      email,
-      password: hashedPassword,
-      role: "Attendant",
-      gender,
-      phoneNumber,
-      nationalID
-    });
-    await user.save();
-
-    // Create attendant entry for monitoring
-    const attendant = new Attendant({
-      userId: user._id,
-      name,
-      gender,
-      phoneNumber,
-      nationalID,
-      nextOfKinName,
-      nextOfKinPhone,
-      status: "Active",
-      lastActive: new Date()
-    });
-    await attendant.save();
-
-    res.redirect("/attendants"); // Go to attendant monitoring page
-  } catch (err) {
-    console.error("Error registering attendant:", err);
-    res.status(500).send("Error registering attendant");
-  }
-});
 
 
 

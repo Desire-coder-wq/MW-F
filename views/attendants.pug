@@ -33,11 +33,6 @@ html(lang="en")
               tr
                 th Name
                 th Email
-                th Gender
-                th Phone
-                th National ID
-                th Next of Kin
-                th Next of Kin Phone
                 th Assigned Task
                 th Status
                 th Last Active
@@ -46,23 +41,18 @@ html(lang="en")
               if attendants && attendants.length
                 each att in attendants
                   tr
-                    td= att.user?.name || "Unknown"
-                    td= att.user?.email || "N/A"
-                    td= att.gender || "N/A"
-                    td= att.phoneNumber || "N/A"
-                    td= att.nationalID || "N/A"
-                    td= att.nextOfKinName || "N/A"
-                    td= att.nextOfKinPhone || "N/A"
-                    td= att.assignedTask || "Unassigned"
+                    td= att.user ? att.user.name : ""
+                    td= att.user ? att.user.email : ""
+                    td= att.assignedTask
                     td
-                      span(class=att.status ? att.status.toLowerCase() + "-status" : "inactive-status")= att.status || "Inactive"
-                    td= att.lastActive ? att.lastActive.toLocaleString() : "N/A"
+                      span(class=att.status ? att.status.toLowerCase() + "-status" : "inactive-status")= att.status
+                    td= att.lastActive ? att.lastActive.toLocaleString() : ""
                     td
                       form(action=`/attendants/${att._id}/toggle`, method="POST", style="display:inline")
                         button(type="submit")= att.status === "Active" ? "Disable" : "Enable"
               else
                 tr
-                  td(colspan="11") No attendants found.
+                  td(colspan="6") No attendants found.
 
     // Footer
     footer

@@ -1,12 +1,13 @@
 const mongoose = require("mongoose");
 const UserModel = require("./models/userModel");
-require('dotenv').config();  // load MONGODB_URL from .env
+require("dotenv").config();
 
 mongoose.connect(process.env.MONGODB_URL)
   .then(async () => {
     const existingManager = await UserModel.findOne({ role: "manager" });
     if (existingManager) {
       console.log("Manager already exists!");
+      await mongoose.disconnect();
       return process.exit(0);
     }
 
@@ -16,17 +17,20 @@ mongoose.connect(process.env.MONGODB_URL)
       role: "manager",
       gender: "Female",
       phoneNumber: "0767625461",
-      nationalId: "CF0574745MNRA",
+      nationalID: "CF0574745MNRA",
       nextOfKinName: "N/A",
       nextOfKinNumber: "N/A"
+
     });
 
-    await UserModel.register(manager, "admin123");
+    await UserModel.register(manager, "asi123"); // 🚀 password hashed automatically
 
-    console.log("First manager created successfully!");
+    console.log("✅ First manager created successfully!");
+    await mongoose.disconnect();
     process.exit(0);
   })
-  .catch(err => {
+  .catch(async (err) => {
     console.error(err);
+    await mongoose.disconnect();
     process.exit(1);
   });

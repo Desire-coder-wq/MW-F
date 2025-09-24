@@ -1,19 +1,19 @@
 const mongoose = require("mongoose");
 const passportLocalMongoose = require("passport-local-mongoose");
 
-const registerSchema = new mongoose.Schema({
+const userSchema = new mongoose.Schema({
   name: { type: String, required: true },
   email: { type: String, required: true, unique: true },
-  gender: { type: String, enum: ["Male", "Female", "Other"], required: true },
-  nationalId: { type: String, required: true, unique: true },
-  nextOfKinName: { type: String },
-  nextOfKinNumber: { type: String },
-  phoneNumber: { type: String },
   role: { type: String, enum: ["manager", "attendant"], default: "attendant" },
   profilePic: { type: String, default: "/images/default-avatar.png" },
-});
+  gender: { type: String, enum: ["Male", "Female", "Other"], required: true },
+  phoneNumber: { type: String, required: true },
+  nationalID: { type: String, required: true, unique: true },
+  nextOfKinName: { type: String, default: "" },
+  nextOfKinNumber: { type: String, default: "" },
+}, { timestamps: true });
 
-// This adds username & hashed password fields automatically
-registerSchema.plugin(passportLocalMongoose, { usernameField: 'email' });
+// Adds username (email) and password fields + authentication methods
+userSchema.plugin(passportLocalMongoose, { usernameField: "email" });
 
-module.exports = mongoose.model("UserModel", registerSchema);
+module.exports = mongoose.model("User", userSchema);

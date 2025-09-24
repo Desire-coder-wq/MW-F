@@ -8,7 +8,7 @@ exports.ensureauthenticated = (req,res, next) =>{
 
 // ensure user is attendant
 exports.ensureAgent = (req,res, next) =>{
-    if (req.session .user && req.session.user.role==="Attendant"){
+    if (req.session .user && req.session.user.role==="attendant"){
        return next()
     }
     res.redirect('/')
@@ -16,7 +16,7 @@ exports.ensureAgent = (req,res, next) =>{
 
 // ensure user is manager
 exports.ensureManager = (req,res, next) =>{
-    if (req.session .user && req.session.user.role==="Manager"){
+    if (req.session .user && req.session.user.role==="manager"){
        return next()
     }
     res.redirect('/')
