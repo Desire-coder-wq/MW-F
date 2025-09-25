@@ -8,7 +8,6 @@ html(lang="en")
 
   body
     .layout
-      // Sidebar
       aside.sidebar
         h2.logo Dashboard
         nav
@@ -28,11 +27,10 @@ html(lang="en")
             li
               a(href="/logout") Logout
 
-      // Main content
       main.main-content
         header
           h1 Sales List
-          p View and manage all sales records in the system.
+          p View all sales records you have access to.
 
         section.table-section
           table.sales-table
@@ -57,16 +55,15 @@ html(lang="en")
                     td #{sale.customerName}
                     td #{sale.productName}
                     td #{sale.quantity}
-                    td #{sale.price}
+                    td #{sale.price.toLocaleString()}
                     td #{sale.transport ? "Yes (5%)" : "No"}
-                    td #{sale.total ? sale.total.toLocaleString() : '0'}
+                    td #{sale.total.toLocaleString()}
                     td #{sale.paymentType}
                     td #{new Date(sale.date).toLocaleDateString()}
                     td #{sale.salesAgent ? sale.salesAgent.name : "Unknown"}
                     td
-                      // Actions
-                      a(href=`/receipt/${sale._id}`) View Receipt
-                      if user && user.role == 'manager'
+                      a.btn-view(href=`/receipt/${sale._id}`) View Receipt
+                      if user && user.role === 'manager'
                         a.btn-edit(href=`/sales/edit/${sale._id}`) Edit
                         form(method="POST", action=`/sales/delete/${sale._id}`, style="display:inline;")
                           button.btn-delete(type="submit") Delete
@@ -77,8 +74,3 @@ html(lang="en")
     footer
       .container
         p &copy; 2025 Mayondo Wood & Furniture Ltd
-
-    script.
-      // Optional: Auth & topbar scripts
-      requireAuth();
-      renderTopbar("Sales List");

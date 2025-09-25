@@ -3,56 +3,25 @@ const mongoose = require("mongoose");
 const salesSchema = new mongoose.Schema({
   salesAgent: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "UserModel",
+    ref: "UserModel", // correct
     required: true
   },
-  customerName: {
-    type: String,
-    required: true
-  },
-  productName: {
-    type: String,
-    required: true
-  },
-  quantity: {
-    type: Number,
-    required: true
-  },
-  price: {
-    type: Number,
-    required: true
-  },
-  transport: {
-    type: Boolean,   // must be Boolean
-    default: false
-  },
-  paymentType: {
-    type: String,
-    required: true
-  },
-  date: {
-    type: Date,
-    required: true,
-    default: Date.now
-  },
-  notes: {
-    type: String
-  },
-  total: {
-    type: Number ,// store computed total,
-     required: true
-  }
+  customerName: { type: String, required: true, trim: true },
+  productName: { type: String, required: true, trim: true },
+  quantity: { type: Number, required: true, min: 1 },
+  price: { type: Number, required: true, min: 0 },
+  transport: { type: Boolean, default: false },
+  paymentType: { type: String, required: true, trim: true },
+  date: { type: Date, default: Date.now },
+  notes: { type: String, trim: true },
+  total: { type: Number, required: true, min: 0 }
 });
 
-// Attach middleware AFTER schema definition
-salesSchema.pre("save", function (next) {
-  if (this.transport) {
-    this.total = this.quantity * this.price * 1.05; // add 5%
-  } else {
-    this.total = this.quantity * this.price;
-  }
+salesSchema.pre("save", function(next) {
+  this.total = this.transport 
+    ? this.quantity * this.price * 1.05 
+    : this.quantity * this.price;
   next();
 });
 
 module.exports = mongoose.model("SalesModel", salesSchema);
-

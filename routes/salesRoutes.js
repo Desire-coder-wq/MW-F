@@ -1,43 +1,20 @@
 const express = require('express');
 const router = express.Router();
 
-const salesModel = require('../models/salesModel');
-const stockModel = require('../models/stockModel');
+const UserModel = require("../models/userModel");
+const Sales = require('../models/salesModel');
+const Stock = require('../models/stockModel');
 
-// ------------------- Middleware -------------------
+const { ensureauthenticated, ensureAgent, ensureManager } = require('../middleware/auth');
 
-// Check if user is logged in
-function checkAuth(req, res, next) {
-  if (!req.session.user) return res.redirect('/login'); 
-  res.locals.user = req.session.user;
-  next();
-}
-
-// Check if user is a manager
-function checkManager(req, res, next) {
-  if (req.session.user.role !== 'Manager') {
-    return res.status(403).send('Not allowed');
-  }
-  next();
-}
-
-// Check if user is an attendant
-function checkAttendant(req, res, next) {
-  if (!req.session.user || req.session.user.role !== 'Attendant') {
-    return res.status(403).send("Not allowed");
-  }
-  next();
-}
-
-// ------------------- GET Sales Entry Form -------------------
+// ------------------- GET Sales Entry Form (Attendant only) -------------------
 router.get('/sales', ensureauthenticated, ensureAgent, async (req, res) => {
   try {
-    console.log("Rendering sales for:", req.session.user.email);
-    const stock = await stockModel.find().lean();
+    const stock = await Stock.find().lean();
     res.render("sales", { 
       title: "Sales Entry", 
       stock,
-      user: req.session.user
+      user: req.user  // Use req.user consistently
     });
   } catch (err) {
     console.error("Error fetching sales form:", err.message);
@@ -45,46 +22,41 @@ router.get('/sales', ensureauthenticated, ensureAgent, async (req, res) => {
   }
 });
 
-// ------------------- POST New Sale -------------------
+// ------------------- POST New Sale (Attendant only) -------------------
 router.post('/sales', ensureauthenticated, ensureAgent, async (req, res) => {
   try {
-    const { customerName, productName, quantity, price, transport, paymentType, date } = req.body;
-    const userId = req.session.user._id; 
+    const { customerName, productName, quantity, price, transport, paymentType, date, notes } = req.body;
+    const userId = req.user._id;
 
-    // Find stock
-    const stock = await stockModel.findOne({ productName });
-    if (!stock) {
-      return res.status(400).send('No stock found for this product');
-    }
-    if (stock.quantity < Number(quantity)) {
-      return res.status(400).send(`Insufficient Stock — only ${stock.quantity} available`);
-    }
+    // Validate stock
+    const stock = await Stock.findOne({ productName });
+    if (!stock) return res.status(400).send('No stock found for this product');
+    if (stock.quantity < Number(quantity)) return res.status(400).send(`Insufficient stock — only ${stock.quantity} available`);
 
-    // Calculate total
-    let total = Number(quantity) * Number(price);
-    if (transport === 'yes') {
-      total *= 1.05; // add 5% transport charge
-    }
+    // Transport boolean
+    const transportRequired = transport.toLowerCase() === "yes";
+
+    // Total calculation
+    const total = Number(quantity) * Number(price) * (transportRequired ? 1.05 : 1);
 
     // Save sale
-    const sale = new salesModel({
+    const sale = new Sales({
       salesAgent: userId,
       customerName,
       productName,
       quantity: Number(quantity),
       price: Number(price),
       total,
-      transport: transport === 'yes',
+      transport: transportRequired,
       paymentType,
       date,
+      notes
     });
-    const savedSale = await sale.save();
+    await sale.save();
 
     // Update stock
     stock.quantity -= Number(quantity);
     await stock.save();
-
-    console.log("Sale saved successfully:", savedSale);
 
     res.redirect('/sales-list');
   } catch (err) {
@@ -94,79 +66,78 @@ router.post('/sales', ensureauthenticated, ensureAgent, async (req, res) => {
 });
 
 // ------------------- GET Sales List -------------------
-router.get('/sales-list', checkAuth, async (req, res) => {
+router.get('/sales-list', ensureauthenticated, async (req, res) => {
   try {
-    const currentUser = req.session.user;
+    const currentUser = req.user;  // Always use req.user
+    if (!currentUser) return res.redirect('/login');
 
     let sales;
-    if (currentUser.role.toLowerCase() === 'manager') {
-      sales = await salesModel.find()
+    if (currentUser.role === 'manager') {
+      sales = await Sales.find()
         .populate('salesAgent', 'name')
         .lean();
     } else {
-      sales = await salesModel.find({ salesAgent: currentUser._id })
+      sales = await Sales.find({ salesAgent: currentUser._id })
         .populate('salesAgent', 'name')
         .lean();
     }
 
-    res.render('salesList', { sales, currentUser });
+    res.render('salesList', { sales, user: currentUser });
   } catch (error) {
     console.error("Error fetching sales list:", error.message);
     res.redirect('/');
   }
 });
 
-// ------------------- GET Edit Sale Form -------------------
-router.get('/sales/edit/:id', checkAuth, async (req, res) => {
+// ------------------- GET Edit Sale Form (Manager only) -------------------
+router.get('/sales/edit/:id', ensureauthenticated, ensureManager, async (req, res) => {
   try {
-    const sale = await salesModel.findById(req.params.id).lean();
+    const sale = await Sales.findById(req.params.id).lean();
     if (!sale) return res.status(404).send("Sale not found");
 
-    if (req.session.user.role.toLowerCase() !== 'manager' && sale.salesAgent.toString() !== req.session.user._id.toString()) {
-      return res.status(403).send("Not allowed");
-    }
-
-    const stock = await stockModel.find().lean();
-    res.render('editSale', { sale, stock });
+    const stock = await Stock.find().lean();
+    res.render('editSale', { sale, stock, user: req.user });
   } catch (err) {
     console.error(err);
     res.status(500).send("Error loading sale");
   }
 });
 
-// ------------------- POST Update Sale -------------------
-router.post('/sales/edit/:id', checkAuth, async (req, res) => {
+// ------------------- POST Update Sale (Manager only) -------------------
+router.post('/sales/edit/:id', ensureauthenticated, ensureManager, async (req, res) => {
   try {
-    const sale = await salesModel.findById(req.params.id);
+    const sale = await Sales.findById(req.params.id);
     if (!sale) return res.status(404).send("Sale not found");
 
-    if (req.session.user.role.toLowerCase() !== 'manager' && sale.salesAgent.toString() !== req.session.user._id.toString()) {
-      return res.status(403).send("Not allowed");
-    }
-
-    const { customerName, productName, quantity, price, transport, paymentType, date } = req.body;
+    const { customerName, productName, quantity, price, transport, paymentType, date, notes } = req.body;
 
     // Update stock if product/quantity changed
     if (sale.productName !== productName || sale.quantity != quantity) {
-      const oldStock = await stockModel.findOne({ productName: sale.productName });
-      oldStock.quantity += sale.quantity; 
-      await oldStock.save();
+      const oldStock = await Stock.findOne({ productName: sale.productName });
+      if (oldStock) {
+        oldStock.quantity += sale.quantity;
+        await oldStock.save();
+      }
 
-      const newStock = await stockModel.findOne({ productName });
+      const newStock = await Stock.findOne({ productName });
       if (!newStock) return res.status(400).send("Product not found");
-      if (newStock.quantity < quantity) return res.status(400).send("Insufficient stock");
-      newStock.quantity -= quantity;
+      if (newStock.quantity < Number(quantity)) return res.status(400).send(`Insufficient stock — only ${newStock.quantity} available`);
+
+      newStock.quantity -= Number(quantity);
       await newStock.save();
     }
 
+    // Update sale
+    const transportBool = transport.toLowerCase() === 'yes';
     sale.customerName = customerName;
     sale.productName = productName;
     sale.quantity = Number(quantity);
     sale.price = Number(price);
-    sale.total = Number(quantity) * Number(price) * (transport === 'yes' ? 1.05 : 1);
-    sale.transport = transport === 'yes';
+    sale.total = Number(quantity) * Number(price) * (transportBool ? 1.05 : 1);
+    sale.transport = transportBool;
     sale.paymentType = paymentType;
     sale.date = date;
+    sale.notes = notes;
 
     await sale.save();
     res.redirect('/sales-list');
@@ -176,18 +147,14 @@ router.post('/sales/edit/:id', checkAuth, async (req, res) => {
   }
 });
 
-// ------------------- POST Delete Sale -------------------
-router.post('/sales/delete/:id', checkAuth, async (req, res) => {
+// ------------------- POST Delete Sale (Manager only) -------------------
+router.post('/sales/delete/:id', ensureauthenticated, ensureManager, async (req, res) => {
   try {
-    const sale = await salesModel.findById(req.params.id);
+    const sale = await Sales.findById(req.params.id);
     if (!sale) return res.status(404).send("Sale not found");
 
-    if (req.session.user.role.toLowerCase() !== 'manager' && sale.salesAgent.toString() !== req.session.user._id.toString()) {
-      return res.status(403).send("Not allowed");
-    }
-
     // Restore stock
-    const stock = await stockModel.findOne({ productName: sale.productName });
+    const stock = await Stock.findOne({ productName: sale.productName });
     if (stock) {
       stock.quantity += sale.quantity;
       await stock.save();
@@ -202,14 +169,19 @@ router.post('/sales/delete/:id', checkAuth, async (req, res) => {
 });
 
 // ------------------- GET Receipt by Sale ID -------------------
-router.get('/receipt/:id', checkAuth, async (req, res) => {
+router.get('/receipt/:id', ensureauthenticated, async (req, res) => {
   try {
-    const sale = await salesModel.findById(req.params.id)
+    const sale = await Sales.findById(req.params.id)
       .populate('salesAgent', 'name')
       .lean();
     if (!sale) return res.status(404).send("Receipt not found");
 
-    res.render("receipt", { sale });
+    const currentUser = req.user;
+    if (currentUser.role !== 'manager' && sale.salesAgent._id.toString() !== currentUser._id.toString()) {
+      return res.status(403).send("Not allowed to view this receipt");
+    }
+
+    res.render("receipt", { sale, user: currentUser });
   } catch (err) {
     console.error("Error fetching receipt:", err.message);
     res.status(500).send("Error fetching receipt");

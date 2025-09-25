@@ -82,23 +82,31 @@ router.post("/register", upload.single("profilePic"), async (req, res) => {
 
 // ---------------------- LOGIN ----------------------
 
-// GET: Login page
-router.get("/login", (req, res) => {
+router.get('/login', (req, res) => { 
   res.render("login", { title: "login page" });
 });
 
-// POST: Login using passport
 router.post(
-  "/login",
+  '/login',
   passport.authenticate("local", { failureRedirect: "/login" }),
-  (req, res) => {
+  (req, res) => { 
+    console.log("Logged in user:", req.user); //  Add thi
+    if(!req.user){
+      return res.send("User not set in req.user");
+    }
+
     req.session.user = req.user;
-    const role = (req.user.role || "").toLowerCase();
-    if (role === "manager") return res.redirect("/manager-dashboard");
-    if (role === "attendant") return res.redirect("/attendant-dashboard");
-    res.render("noneUser");
+
+    if (req.user.role === "manager") {
+      res.redirect("/manager-dashboard");
+    } else if (req.user.role === "attendant") {
+      res.redirect("/attendant-dashboard");
+    } else {
+      res.render("noneUser"); // must exist in views folder
+    }
   }
 );
+
 
 // ---------------------- DASHBOARDS ----------------------
 router.get("/manager-dashboard", (req, res) => {
@@ -175,13 +183,19 @@ router.post("/users/update/:id", upload.single("profilePic"), async (req, res) =
 });
 
 // ---------------------- LOGOUT ----------------------
-router.get("/logout", (req, res, next) => {
+// GET - show logout confirmation page
+router.get("/logout", (req, res) => {
+  res.render("logout", { title: "Confirm Logout" });
+});
+
+// POST - perform logout
+router.post("/logout", (req, res, next) => {
   req.logout(function (err) {
     if (err) return next(err);
     req.session.destroy((err) => {
       if (err) return res.status(500).send("Error logging out");
       res.clearCookie("connect.sid");
-      res.redirect("/");
+      res.redirect("/"); // redirect to home after logout
     });
   });
 });

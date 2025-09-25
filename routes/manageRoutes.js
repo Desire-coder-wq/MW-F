@@ -3,6 +3,7 @@ const router = express.Router();
 const bcrypt = require("bcrypt");
 const Attendant = require("../models/attendantModel");
 const StockSubmission = require("../models/stockSubmission"); // fixed name consistency
+const Stock = require("../models/stockModel");
 const UserModel = require("../models/userModel");
 const { ensureauthenticated, ensureManager, ensureAgent } = require("../middleware/auth");
 
@@ -87,7 +88,7 @@ router.post("/attendant/add-stock", ensureauthenticated, ensureAgent, async (req
     });
 
     await submission.save();
-    res.redirect("/attendant/add-stock");
+    res.redirect("/attendant-dashboard");
   } catch (err) {
     console.error("Error submitting stock:", err);
     res.status(500).send("Error submitting stock");
@@ -111,14 +112,32 @@ router.get("/approve-stock", ensureauthenticated, ensureManager, async (req, res
   }
 });
 
+
 // POST - approve submission
 router.post("/stock-submissions/:id/approve", ensureauthenticated, ensureManager, async (req, res) => {
   try {
     const submission = await StockSubmission.findById(req.params.id);
     if (!submission) return res.status(404).send("Submission not found");
 
+    // mark as approved
     submission.status = "Approved";
     await submission.save();
+
+    // create new stock from submission
+    const newStock = new Stock({
+      productName: submission.productName,
+      productType: submission.productType,
+      category: submission.category,
+      quantity: submission.quantity,
+      costPrice: submission.costPrice,
+      supplier: submission.supplier,
+      quality: submission.quality,
+      color: submission.color,
+      measurement: submission.measurement,
+      date: new Date() // or use submission.date if it exists
+    });
+
+    await newStock.save();
 
     res.redirect("/approve-stock");
   } catch (err) {
@@ -126,7 +145,6 @@ router.post("/stock-submissions/:id/approve", ensureauthenticated, ensureManager
     res.status(500).send("Error approving stock");
   }
 });
-
 // POST - reject submission
 router.post("/stock-submissions/:id/reject", ensureauthenticated, ensureManager, async (req, res) => {
   try {

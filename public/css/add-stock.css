@@ -52,19 +52,21 @@ aside.sidebar nav ul li a:hover {
 header#topbar {
   margin-left: 220px; /* match sidebar width */
   padding: 20px;
-   background: linear-gradient(135deg, rgb(11, 136, 11), rgb(232, 176, 103));
+  background: linear-gradient(135deg, rgb(11, 136, 11), rgb(232, 176, 103));
   text-align: center;
 }
 
 header#topbar h1 {
   margin-bottom: 5px;
   font-size: 1.8rem; /* medium header size */
+  text-align: center;
 }
 
 header#topbar h3 {
   margin-top: 0;
   font-size: 1.2rem;
   color: #555;
+  text-align: center;
 }
 
 /* Main container */

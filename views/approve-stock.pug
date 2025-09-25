@@ -30,7 +30,7 @@ html(lang="en")
           table
             thead
               tr
-                th Item
+                th productName
                 th Product Type
                 th Category
                 th Quantity
@@ -46,7 +46,7 @@ html(lang="en")
               if submissions && submissions.length
                 each req in submissions
                   tr
-                    td= req.item
+                    td= req.productName
                     td= req.productType
                     td= req.category
                     td= req.quantity

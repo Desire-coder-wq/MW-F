@@ -23,7 +23,7 @@ mongoose.connect(process.env.MONGODB_URL)
 
     });
 
-    await UserModel.register(manager, "asi123"); // 🚀 password hashed automatically
+    await UserModel.register(manager, "asi123"); //  password hashed automatically
 
     console.log("✅ First manager created successfully!");
     await mongoose.disconnect();

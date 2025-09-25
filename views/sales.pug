@@ -8,13 +8,10 @@ html(lang="en")
 
   body
     .layout
-      // Sidebar
       aside.sidebar
         h2.logo Dashboard
         nav
           ul
-            //- li
-            //-   a(href="/dashboard") Dashboard
             li
               a(href="/sales-entry", class="active") Sales Entry
             li
@@ -22,14 +19,13 @@ html(lang="en")
             li
               a(href="/sales-report") Sales Report
             li
-              a(href="/sales-list")  Sales-list
+              a(href="/sales-list") Sales List
             li
               a(href="/stockList") Stock List
             li
               a(href="/logout") Logout
 
-      // Main content
-      .main-content
+      main.main-content
         header
           h1 Mayondo Wood and Furniture (MWF) Ltd
           h3 Sales Entry Form
@@ -41,17 +37,9 @@ html(lang="en")
               label(for="customerName") Customer Name:
               input#customerName(type="text", name="customerName", required)
 
-              //- label(for="salesAgent") Sales Agent:
-              //- input#salesAgent(type="text", name="salesAgent", required)
-
             fieldset
               legend(style="color:green") Product Information
-              label(for="productType") Product Type:
-              select#productType(name="productType", required)
-                option(value="Wood") Wood
-                option(value="Furniture") Furniture
-
-              label(for="productName") Product Name
+              label(for="productName") Product Name:
               select#productName(name="productName", required)
                 option(value="", disabled selected) -- Select Product --
                 option(value="timber") Timber
@@ -63,6 +51,13 @@ html(lang="en")
                 option(value="dinningTable") Dinning Table
                 option(value="Tv-stand") Tv-stand
                 option(value="Office-chair") Office-chair
+
+              label(for="productType") Product Type:
+              select#productType(name="productType", required)
+                option(value="Wood") Wood
+                option(value="Furniture") Furniture
+
+
 
               label(for="quantity") Quantity:
               input#quantity(type="number", name="quantity", min="1", required)
@@ -83,8 +78,8 @@ html(lang="en")
 
               label(for="transport") Transport Required? (adds 5% to total):
               select#transport(name="transport", required)
-                option(value="No") No
-                option(value="Yes") Yes
+                option(value="no") No
+                option(value="yes") Yes
 
             fieldset
               legend(style="color:green") Additional Notes
@@ -92,9 +87,5 @@ html(lang="en")
 
             button(type="submit") Record Sale
 
-        br
-        br
-
-        // Footer
         footer
           p © 2025 Mayondo Wood & Furniture Ltd
