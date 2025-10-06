@@ -5,71 +5,132 @@ html(lang="en")
     meta(name="viewport", content="width=device-width, initial-scale=1")
     title Sales List — MWF
     link(rel="stylesheet", href="/css/attendant-manage.css")
+    link(rel="stylesheet", href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css")
 
   body
     .layout
       aside.sidebar
-        h2.logo Dashboard
+        .logo-container
+          img.logo-img(src="/images/logo 2.png", alt="MWF Logo")
+          .logo-text Mayondo Wood & Furniture
         nav
           ul
             li
-              a(href="/dashboard") Dashboard
+              a(href="/dashboard")
+                i.fas.fa-tachometer-alt
+                span Dashboard
             li
-              a(href="/sales") Sales Entry
+              a(href="/sales")
+                i.fas.fa-cash-register
+                span Sales Entry
             li
-              a(href="/sales-list", class="active") Sales List
+              a(href="/sales-list", class="active")
+                i.fas.fa-list
+                span Sales List
             li
-              a(href="/sales-report") Sales Report
+              a(href="/sales-report")
+                i.fas.fa-chart-bar
+                span Sales Report
             li
-              a(href="/stock-report") Stock Report
+              a(href="/stock-report")
+                i.fas.fa-boxes
+                span Stock Report
             li
-              a(href="/stock-list") Stock List
+              a(href="/stock-list")
+                i.fas.fa-clipboard-list
+                span Stock List
             li
-              a(href="/logout") Logout
+              a(href="/logout")
+                i.fas.fa-sign-out-alt
+                span Logout
 
-      main.main-content
-        header
-          h1 Sales List
-          p View all sales records you have access to.
+      #topbar
+        .header-content
+          .company-info
+            h1 Sales List
+            h3 View all sales records
+          .header-actions
+            .notification-btn
+              i.fas.fa-bell
+              .notification-count 3
+            .user-profile
+              i.fas.fa-user-circle
+              span #{user ? user.name : 'User'}
 
-        section.table-section
-          table.sales-table
-            thead
-              tr
-                th #
-                th Customer Name
-                th Product Name
-                th Quantity
-                th Price
-                th Transport
-                th Total
-                th Payment Type
-                th Date
-                th Sales Agent
-                th Actions
-            tbody
-              if sales.length
-                each sale, i in sales
-                  tr
-                    td #{i + 1}
-                    td #{sale.customerName}
-                    td #{sale.productName}
-                    td #{sale.quantity}
-                    td #{sale.price.toLocaleString()}
-                    td #{sale.transport ? "Yes (5%)" : "No"}
-                    td #{sale.total.toLocaleString()}
-                    td #{sale.paymentType}
-                    td #{new Date(sale.date).toLocaleDateString()}
-                    td #{sale.salesAgent ? sale.salesAgent.name : "Unknown"}
-                    td
-                      a.btn-view(href=`/receipt/${sale._id}`) View Receipt
-                      if user && user.role === 'manager'
-                        a.btn-edit(href=`/sales/edit/${sale._id}`) Edit
-                        form(method="POST", action=`/sales/delete/${sale._id}`, style="display:inline;")
-                          button.btn-delete(type="submit") Delete
-              else
+      .container
+        .table-section
+          .table-header
+            h3
+              i.fas.fa-receipt
+              | Sales Records
+          .table-container
+            table.sales-table
+              thead
                 tr
-                  td(colspan="11", style="text-align:center;") No sales recorded yet.
+                  th 
+                    i.fas.fa-hashtag
+                    | #
+                  th 
+                    i.fas.fa-user
+                    | Customer
+                  th 
+                    i.fas.fa-cube
+                    | Product
+                  th 
+                    i.fas.fa-box
+                    | Qty
+                  th 
+                    i.fas.fa-tag
+                    | Price
+                  th 
+                    i.fas.fa-truck
+                    | Transport
+                  th 
+                    i.fas.fa-calculator
+                    | Total
+                  th 
+                    i.fas.fa-credit-card
+                    | Payment
+                  th 
+                    i.fas.fa-calendar
+                    | Date
+                  th 
+                    i.fas.fa-user-tie
+                    | Agent
+                  th 
+                    i.fas.fa-cog
+                    | Actions
+              tbody
+                if sales.length
+                  each sale, i in sales
+                    tr
+                      td #{i + 1}
+                      td #{sale.customerName}
+                      td #{sale.productName}
+                      td #{sale.quantity}
+                      td #{sale.price.toLocaleString()}
+                      td #{sale.transport ? "Yes (5%)" : "No"}
+                      td #{sale.total.toLocaleString()}
+                      td #{sale.paymentType}
+                      td #{new Date(sale.date).toLocaleDateString()}
+                      td #{sale.salesAgent ? sale.salesAgent.name : "Unknown"}
+                      td.actions-cell
+                        a.btn-view(href=`/receipt/${sale._id}`)
+                          i.fas.fa-eye
+                          | View
+                        if user && user.role === 'manager'
+                          a.btn-edit(href=`/sales/edit/${sale._id}`)
+                            i.fas.fa-edit
+                            | Edit
+                          form.delete-form(method="POST", action=`/sales/delete/${sale._id}`)
+                            button.btn-delete(type="submit")
+                              i.fas.fa-trash
+                              | Delete
+                else
+                  tr
+                    td(colspan="11", style="text-align:center;") 
+                      i.fas.fa-inbox
+                      | No sales recorded yet.
 
     footer
       .container

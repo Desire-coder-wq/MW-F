@@ -4,77 +4,231 @@ html(lang="en")
     meta(charset="UTF-8")
     meta(name="viewport", content="width=device-width, initial-scale=1")
     title MWF — Stock Entry
-    link(rel="stylesheet", href="/css/add-stock.css")
+    link(rel="stylesheet", href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css")
+    link(rel="stylesheet", href="/css/attendant-manage.css")
+    style.
+      .image-upload-section {
+        grid-column: 1 / -1;
+        margin-bottom: 20px;
+      }
+      .image-preview {
+        width: 200px;
+        height: 200px;
+        border: 2px dashed #d1d5db;
+        border-radius: 8px;
+        margin-bottom: 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        background: #f8fafc;
+      }
+      .image-preview img {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: cover;
+      }
+      .image-preview-placeholder {
+        text-align: center;
+        color: #64748b;
+      }
+      .image-preview-placeholder i {
+        font-size: 3rem;
+        margin-bottom: 10px;
+      }
+      .upload-info {
+        color: #64748b;
+        font-size: 0.9rem;
+        margin-top: 10px;
+      }
 
   body
-    aside.sidebar
-      h2.logo Dashboard
-      nav
-        ul
-          li: a(href="/reports") Reports
-          li: a(href="/approve-stock") Approve Stock
-          li: a(href="/add-stock") Add Stock
-          li: a(href="/sales-reports") Sales Reports
-          li: a(href="/attendants", class="active") Attendants
-          li: a(href="#", id="editProfileBtn") Profile
-          li: a(href="/logout") Logout
+    .layout
+      //- Sidebar
+      aside.sidebar
+        .logo-container
+          img.logo-img(src="/images/logo 2.png", alt="MWF Logo")
+          .logo-text Mayondo Wood & Furniture
+        nav
+          ul
+            li
+              a(href="/reports")
+                i.fas.fa-chart-bar
+                span Reports
+            li
+              a(href="/approve-stock")
+                i.fas.fa-check-circle
+                span Approve Stock
+            li
+              a(href="/add-stock")
+                i.fas.fa-boxes
+                span Add Stock
+            li
+              a(href="/sales-reports")
+                i.fas.fa-file-invoice-dollar
+                span Sales Reports
+            li
+              a(href="/attendants", class="active")
+                i.fas.fa-users
+                span Attendants
+            li
+              a(href="#", id="editProfileBtn")
+                i.fas.fa-user-cog
+                span Profile
+            li
+              a(href="/logout")
+                i.fas.fa-sign-out-alt
+                span Logout
 
-    header#topbar
-      h1 Mayondo Wood & Furniture Ltd
-      h3 Add New Stock Entry
+      //- Topbar
+      #topbar
+        .header-content
+          .company-info
+            h1 Stock Entry
+            h3 Add new stock to inventory
+          .header-actions
+            .notification-btn
+              i.fas.fa-bell
+              .notification-count 0
+            .user-profile
+              i.fas.fa-user-circle
+              span #{user ? user.name : 'User'}
 
-    main.container
-      form(action="/stock", method="POST", class="stock-form")
-        fieldset
-          legend Stock Details
+      //- Main Content
+      .container
+        .form-section
+          .form-container
+            .form-header
+              h3
+                i.fas.fa-boxes
+                | Stock Entry Form
+              p Fill in the details below to add new stock
 
-          label(for="productName") Product Name
-          select#productName(name="productName", required)
-            option(value="", disabled selected) -- Select Product --
-            option(value="timber") Timber
-            option(value="poles") Poles
-            option(value="hardwood") Hardwood
-            option(value="softwood") Softwood
-            option(value="sofa") Sofa
-            option(value="bed") Bed
-            option(value="dinningTable") Dinning Table
-            option(value="Tv-stand") Tv-stand
-            option(value="Office-chair") Office-chair
+            form.stock-form(action="/stock", method="POST", enctype="multipart/form-data")
+              fieldset.form-fieldset
+                legend.fieldset-legend
+                  i.fas.fa-clipboard-list
+                  | Stock Details
 
-          label(for="productType") Product Type
-          select#type(name="productType", required)
-            option(value="", disabled selected) -- Select Type --
-            option(value="wood") Wood
-            option(value="furniture") Furniture
+                .form-grid
+                  .form-group
+                    label(for="productName")
+                      i.fas.fa-cube
+                      | Product Name
+                    select#productName(name="productName", required)
+                      option(value="", disabled, selected) -- Select Product --
+                      option(value="timber") Timber
+                      option(value="poles") Poles
+                      option(value="hardwood") Hardwood
+                      option(value="softwood") Softwood
+                      option(value="sofa") Sofa
+                      option(value="bed") Bed
+                      option(value="dinningTable") Dinning Table
+                      option(value="Tv-stand") Tv-stand
+                      option(value="Office-chair") Office-chair
 
-          label(for="Category") Category
-          select#type(name="category", required)
-            option(value="", disabled selected) -- Select Type --
-            option(value="Raw Materails") Raw Materials
-            option(value="Finished Products") Finished Products
+                  .form-group
+                    label(for="productType")
+                      i.fas.fa-tag
+                      | Product Type
+                    select#productType(name="productType", required)
+                      option(value="", disabled, selected) -- Select Type --
+                      option(value="wood") Wood
+                      option(value="furniture") Furniture
 
-          label(for="costPrice") Cost Price (UGX)
-          input#costPrice(type="number", name="costPrice", min="0", step="0.01", required)
+                  .form-group
+                    label(for="category")
+                      i.fas.fa-folder
+                      | Category
+                    select#category(name="category", required)
+                      option(value="", disabled, selected) -- Select Type --
+                      option(value="Raw Materials") Raw Materials
+                      option(value="Finished Products") Finished Products
 
-          label(for="quantity") Quantity
-          input#quantity(type="number", name="quantity", min="1", required)
+                  .form-group
+                    label(for="costPrice")
+                      i.fas.fa-money-bill
+                      | Cost Price (UGX)
+                    input#costPrice(type="number", name="costPrice", min="0", step="0.01", required)
 
-          label(for="supplier") Supplier
-          input#supplier(type="text", name="supplier", required)
+                  .form-group
+                    label(for="quantity")
+                      i.fas.fa-box
+                      | Quantity
+                    input#quantity(type="number", name="quantity", min="1", required)
 
-          label(for="date") Date
-          input#date(type="date", name="date", required)
+                  .form-group
+                    label(for="supplier")
+                      i.fas.fa-truck
+                      | Supplier
+                    input#supplier(type="text", name="supplier", required)
 
-          label(for="quality") Quality
-          input#quality(type="text", name="quality")
+                  .form-group
+                    label(for="date")
+                      i.fas.fa-calendar
+                      | Date
+                    input#date(type="date", name="date", required)
 
-          label(for="color") Color
-          input#color(type="text", name="color")
+                  .form-group
+                    label(for="quality")
+                      i.fas.fa-star
+                      | Quality
+                    input#quality(type="text", name="quality")
 
-          label(for="measurement") Measurement
-          input#measurement(type="text", name="measurement")
+                  .form-group
+                    label(for="color")
+                      i.fas.fa-palette
+                      | Color
+                    input#color(type="text", name="color")
 
-        button(type="submit", class="submit-btn") Add Stock
+                  .form-group
+                    label(for="measurement")
+                      i.fas.fa-ruler
+                      | Measurement
+                    input#measurement(type="text", name="measurement")
 
+                  //- Image Upload Section
+                  .image-upload-section
+                    .form-group
+                      label(for="image")
+                        i.fas.fa-image
+                        | Product Image
+                      .image-preview#imagePreview
+                        .image-preview-placeholder
+                          i.fas.fa-camera
+                          p No image selected
+                      input#image(type="file", name="image", accept="image/*", onchange="previewImage(this)")
+                      .upload-info
+                        | Supported formats: JPG, PNG, GIF, WebP (Max: 5MB)
+
+              .form-actions
+                button.submit-btn(type="submit")
+                  i.fas.fa-plus-circle
+                  | Add Stock
+
+    //- Footer
     footer
-      p © 2025 Mayondo Wood & Furniture Ltd
+      .container
+        p &copy; 2025 Mayondo Wood & Furniture Ltd
+
+  script.
+    document.addEventListener('DOMContentLoaded', function() {
+      const today = new Date().toISOString().split('T')[0];
+      document.getElementById('date').value = today;
+    });
+
+    function previewImage(input) {
+      const preview = document.getElementById('imagePreview');
+      
+      if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        
+        reader.onload = function(e) {
+          preview.innerHTML = '<img src="' + e.target.result + '" alt="Image preview">';
+        }
+        
+        reader.readAsDataURL(input.files[0]);
+      } else {
+        preview.innerHTML = '<div class="image-preview-placeholder"><i class="fas fa-camera"></i><p>No image selected</p></div>';
+      }
+    }

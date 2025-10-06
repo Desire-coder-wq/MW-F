@@ -2,49 +2,108 @@ doctype html
 html(lang="en")
   head
     meta(charset="UTF-8")
-    meta(name="viewport" content="width=device-width, initial-scale=1")
+    meta(name="viewport", content="width=device-width, initial-scale=1")
     title MWF — Pending Sales
+    link(rel="stylesheet", href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css")
     link(rel="stylesheet", href="/css/attendant-manage.css")
 
   body
     .layout
-      // Sidebar
+      //- Sidebar
       aside.sidebar
-        h2.logo Dashboard
+        .logo-container
+          img.logo-img(src="/images/logo 2.png", alt="MWF Logo")
+          .logo-text Mayondo Wood & Furniture
         nav
           ul
-            li: a(href="/approve-stock") Approve Stock
-            li: a(href="/add-stock") Add Stock
-            li: a(href="/sales-report") Sales Reports
-            li: a(href="/attendants") Attendants
-            li: a(href="/loading/offload") Offload Stock
-            li: a(href="/loading/pending", class="active") Load Stock
-            li: a(href="#", id="editProfileBtn") Profile
-            li: a(href="/logout") Logout
+            li
+              a(href="/approve-stock")
+                i.fas.fa-check-circle
+                span Approve Stock
+            li
+              a(href="/add-stock")
+                i.fas.fa-boxes
+                span Add Stock
+            li
+              a(href="/sales-report")
+                i.fas.fa-chart-bar
+                span Sales Reports
+            li
+              a(href="/attendants")
+                i.fas.fa-users
+                span Attendants
+            li
+              a(href="/loading/offload")
+                i.fas.fa-truck-loading
+                span Offload Stock
+            li
+              a(href="/loading/pending", class="active")
+                i.fas.fa-hourglass-half
+                span Load Stock
+            li
+              a(href="#", id="editProfileBtn")
+                i.fas.fa-user-cog
+                span Profile
+            li
+              a(href="/logout")
+                i.fas.fa-sign-out-alt
+                span Logout
 
-      // Main content
-      main.main-content
-        header
-          h1 Pending Sales
+      //- Topbar
+      #topbar
+        .header-content
+          .company-info
+            h1 Pending Sales
+            h3 Manage sales awaiting loading
+          .header-actions
+            .notification-btn
+              i.fas.fa-bell
+              .notification-count 0
+            .user-profile
+              i.fas.fa-user-circle
+              span #{user ? user.name : 'User'}
 
-        section.table-section
-          table(border="1" cellpadding="5")
-            thead
-              tr
-                th Customer
-                th Product
-                th Quantity
-                th Action
-            tbody
-              each sale in sales
+      //- Main Content
+      .container
+        .table-section
+          .table-header
+            h3
+              i.fas.fa-hourglass-half
+              | Pending Sales Orders
+          .table-container
+            table.pending-sales-table
+              thead
                 tr
-                  td= sale.customerName
-                  td= sale.productName
-                  td= sale.quantity
-                  td
-                    a(href=`/loading/load/${sale._id}`) Load
+                  th 
+                    i.fas.fa-user
+                    | Customer
+                  th 
+                    i.fas.fa-cube
+                    | Product
+                  th 
+                    i.fas.fa-box
+                    | Quantity
+                  th 
+                    i.fas.fa-cog
+                    | Action
+              tbody
+                if sales && sales.length
+                  each sale in sales
+                    tr
+                      td= sale.customerName
+                      td= sale.productName
+                      td= sale.quantity
+                      td.actions-cell
+                        a.btn-view(href=`/loading/load/${sale._id}`)
+                          i.fas.fa-truck-loading
+                          | Load
+                else
+                  tr
+                    td(colspan="4", style="text-align:center;")
+                      i.fas.fa-check-circle
+                      | No pending sales found
 
-    // Footer
+    //- Footer
     footer
       .container
         p &copy; 2025 Mayondo Wood & Furniture Ltd

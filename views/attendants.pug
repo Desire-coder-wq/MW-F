@@ -2,59 +2,114 @@ doctype html
 html(lang="en")
   head
     meta(charset="UTF-8")
-    meta(name="viewport" content="width=device-width, initial-scale=1")
+    meta(name="viewport", content="width=device-width, initial-scale=1")
     title MWF — Attendants
-    link(rel="stylesheet" href="/css/attendant-manage.css")
+    link(rel="stylesheet", href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css")
+    link(rel="stylesheet", href="/css/attendant-manage.css")
 
   body
     .layout
-      // Sidebar
+      //- Sidebar
       aside.sidebar
-        h2.logo Dashboard
+        .logo-container
+          img.logo-img(src="/images/logo 2.png", alt="MWF Logo")
+          .logo-text Mayondo Wood & Furniture
         nav
           ul
-            li: a(href="/reports") Reports
-            li: a(href="/approve-stock") Approve Stock
-            li: a(href="/stock") Add Stock
-            li: a(href="/sales-reports") Sales Reports
-            li: a(href="/attendants", class="active") Attendants
-            li: a(href="#", id="editProfileBtn") Profile
-            li: a(href="/logout") Logout
+            li
+              a(href="/reports")
+                i.fas.fa-chart-bar
+                span Reports
+            li
+              a(href="/approve-stock")
+                i.fas.fa-check-circle
+                span Approve Stock
+            li
+              a(href="/stock")
+                i.fas.fa-boxes
+                span Add Stock
+            li
+              a(href="/sales-reports")
+                i.fas.fa-file-invoice-dollar
+                span Sales Reports
+            li
+              a(href="/attendants", class="active")
+                i.fas.fa-users
+                span Attendants
+            li
+              a(href="#", id="editProfileBtn")
+                i.fas.fa-user-cog
+                span Profile
+            li
+              a(href="/logout")
+                i.fas.fa-sign-out-alt
+                span Logout
 
-      // Main content
-      main.main-content
-        header
-          h1 Attendants Monitoring
-          p View attendants, their status, and monitor assigned tasks.
+      //- Topbar
+      #topbar
+        .header-content
+          .company-info
+            h1 Attendants Monitoring
+            h3 View and manage attendant activities
+          .header-actions
+            .notification-btn
+              i.fas.fa-bell
+              .notification-count 0
+            .user-profile
+              i.fas.fa-user-circle
+              span Manager
 
-        section.table-section
-          table
-            thead
-              tr
-                th Name
-                th Email
-                th Assigned Task
-                th Status
-                th Last Active
-                th Actions
-            tbody
-              if attendants && attendants.length
-                each att in attendants
-                  tr
-                    td= att.user ? att.user.name : ""
-                    td= att.user ? att.user.email : ""
-                    td= att.assignedTask
-                    td
-                      span(class=att.status ? att.status.toLowerCase() + "-status" : "inactive-status")= att.status
-                    td= att.lastActive ? att.lastActive.toLocaleString() : ""
-                    td
-                      form(action=`/attendants/${att._id}/toggle`, method="POST", style="display:inline")
-                        button(type="submit")= att.status === "Active" ? "Disable" : "Enable"
-              else
+      //- Main Content
+      .container
+        .table-section
+          .table-header
+            h3
+              i.fas.fa-users
+              | Attendants List
+          .table-container
+            table.attendants-table
+              thead
                 tr
-                  td(colspan="6") No attendants found.
+                  th 
+                    i.fas.fa-user
+                    | Name
+                  th 
+                    i.fas.fa-envelope
+                    | Email
+                  th 
+                    i.fas.fa-tasks
+                    | Assigned Task
+                  th 
+                    i.fas.fa-circle
+                    | Status
+                  th 
+                    i.fas.fa-clock
+                    | Last Active
+                  th 
+                    i.fas.fa-cog
+                    | Actions
+              tbody
+                if attendants && attendants.length
+                  each att in attendants
+                    tr
+                      td= att.user ? att.user.name : ""
+                      td= att.user ? att.user.email : ""
+                      td= att.assignedTask
+                      td
+                        span(class=att.status ? att.status.toLowerCase() + "-status" : "inactive-status")= att.status
+                      td= att.lastActive ? att.lastActive.toLocaleString() : ""
+                      td.actions-cell
+                        form(action=`/attendants/${att._id}/toggle`, method="POST")
+                          button(type="submit", class=att.status === "Active" ? "btn-delete" : "btn-edit")
+                            i.fas.fa-power-off
+                            | #{att.status === "Active" ? "Disable" : "Enable"}
+                else
+                  tr
+                    td(colspan="6", style="text-align:center;")
+                      i.fas.fa-users
+                      | No attendants found.
 
-    // Footer
+    //- Footer
     footer
       .container
         p &copy; 2025 Mayondo Wood & Furniture Ltd

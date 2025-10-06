@@ -4,41 +4,45 @@ const stockSchema = new mongoose.Schema({
   productName: { 
     type: String, 
     required: true,
-     trim: true
- },
-  productType:{
-  type:String,
-  required:true,
- },
- category:{
-   type:String,
-   required:true,
- },
+    trim: true
+  },
+  productType: {
+    type: String,
+    required: true,
+  },
+  category: {
+    type: String,
+    required: true,
+  },
   quantity: {
-     type: Number,
-      required: true
-     },
+    type: Number,
+    required: true
+  },
   costPrice: {
-     type: Number,
-     required: true
-     },
-  supplier:{
-      type:String,
+    type: Number,
+    required: true
   },
-  quality:{
-       type:String,
-
+  supplier: {
+    type: String,
   },
-  color:{
-    type:String,
+  quality: {
+    type: String,
   },
-  measurement:{
-    type:String,
+  color: {
+    type: String,
+  },
+  measurement: {
+    type: String,
+  },
+  // ADD THIS IMAGE FIELD
+  image: {
+    type: String,
+    default: ''
   },
   date: { 
     type: Date,
-     required: true
-     },
+    required: true
+  },
 });
 
 module.exports = mongoose.model('Stock', stockSchema);

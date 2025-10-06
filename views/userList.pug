@@ -2,49 +2,111 @@ doctype html
 html(lang="en")
   head
     meta(charset="UTF-8")
-    meta(name="viewport" content="width=device-width, initial-scale=1")
+    meta(name="viewport", content="width=device-width, initial-scale=1")
     title MWF — User List
-    link(rel="stylesheet", href="/css/userList.css")
+    link(rel="stylesheet", href="/css/sales-report.css")
+    link(rel="stylesheet", href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css")
 
   body
-    .layout
-      // ======================
-      // Sidebar Navigation
-      // ======================
-      aside.sidebar
-        h2.logo MWF
+    // ---- Sidebar ----
+    aside.sidebar
+      .logo-container
+        img.logo-img(src="/images/logo 2.png", alt="MWF Logo", onerror="this.style.display='none'")
+        h2.logo-text Mayondo Wood & Furniture
+      nav
         ul
-          li: a(href="/dashboard") Dashboard
-          li: a(href="/sales-entry") Sales Entry
-          li: a(href="/receipt") Receipt
-          li: a(href="/sales-report") Sales Report
-          li: a(href="/stock-report") Stock Report
-          li: a(href="/stockList") Stock List
-          li: a(href="/userList", class="active") User List
-          li: a(href="/logout", class="logout-btn") Logout
+          li
+            a(href="/dashboard")
+              i.fas.fa-tachometer-alt
+              span Dashboard
+          li
+            a(href="/sales-entry")
+              i.fas.fa-cash-register
+              span Sales Entry
+          li
+            a(href="/receipt")
+              i.fas.fa-receipt
+              span Receipt
+          li
+            a(href="/sales-report")
+              i.fas.fa-chart-line
+              span Sales Report
+          li
+            a(href="/stock-report")
+              i.fas.fa-chart-bar
+              span Stock Report
+          li
+            a(href="/stockList")
+              i.fas.fa-boxes
+              span Stock List
+          li
+            a(href="/userList", class="active")
+              i.fas.fa-users
+              span User List
+          li
+            a(href="/logout")
+              i.fas.fa-sign-out-alt
+              span Logout
 
-      // ======================
-      // Main Content
-      // ======================
-      .main-content
-        header#topbar
-          h1 User List
+    // ---- Header ----
+    header#topbar
+      .header-content
+        .company-info
+          h1 Mayondo Wood & Furniture Ltd
+          h3 User Management
+        .header-actions
+          button.notification-btn
+            i.fas.fa-bell
+            span.notification-count 3
+          .user-profile
+            i.fas.fa-user-circle
+            span Admin
 
-        main.container
-          table#userTable.table
+    // ---- Main Content ----
+    main.container
+      .section
+        .table-header
+          h3
+            i.fas.fa-users
+            | User List
+
+        .report-table
+          table#userTable
             thead
               tr
-                th #
-                th Profile
-                th Name
-                th Email
-                th Role
-                th Gender
-                th Phone
-                th National ID
-                th Next of Kin
-                th Next of Kin Phone
-                th Actions
+                th 
+                  i.fas.fa-hashtag
+                  | #
+                th 
+                  i.fas.fa-image
+                  | Profile
+                th 
+                  i.fas.fa-user
+                  | Name
+                th 
+                  i.fas.fa-envelope
+                  | Email
+                th 
+                  i.fas.fa-user-tag
+                  | Role
+                th 
+                  i.fas.fa-venus-mars
+                  | Gender
+                th 
+                  i.fas.fa-phone
+                  | Phone
+                th 
+                  i.fas.fa-id-card
+                  | National ID
+                th 
+                  i.fas.fa-user-friends
+                  | Next of Kin
+                th 
+                  i.fas.fa-mobile-alt
+                  | Next of Kin Phone
+                th 
+                  i.fas.fa-cogs
+                  | Actions
             tbody
               if user.length
                 each item, i in user
@@ -66,32 +128,26 @@ html(lang="en")
                     td #{item.nationalID || 'N/A'}
                     td #{item.nextOfKinName || 'N/A'}
                     td #{item.nextOfKinPhone || 'N/A'}
-                    td
-                      a(href=`/user-edit/${item._id}`) Edit
-                      form(
+                    td.actions-cell
+                      a.edit-btn(href=`/user-edit/${item._id}`)
+                        i.fas.fa-edit
+                        | Edit
+                      form.delete-form(
                         action=`/users/${item._id}?_method=DELETE`,
                         method="POST",
-                        style="display:inline",
                         onsubmit="return confirmDelete()"
                       )
-                        button(type="submit") Delete
+                        button.delete-btn(type="submit")
+                          i.fas.fa-trash
+                          | Delete
               else
                 tr
                   td(colspan="11") No users found.
 
-    // ======================
-    // Footer
-    // ======================
+    // ---- Footer ----
     footer
       .container
-        p &copy; 2025 Mayondo Wood & Furniture Ltd
-
-    // ======================
-    // Scripts
-    // ======================
-    script.
-      requireAuth();
-      renderTopbar("User List");
+        p © 2025 Mayondo Wood & Furniture Ltd
 
     script.
       function confirmDelete() {

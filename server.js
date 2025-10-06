@@ -21,9 +21,9 @@ const stockRoutes = require("./routes/stockRoutes");
 const indexRoutes = require("./routes/indexRoutes");
 const salesRoutes = require("./routes/salesRoutes");
 const userRoutes = require("./routes/userRoutes");
-const reportRoutes = require("./routes/reportRoutes");
 const manageRoutes = require("./routes/manageRoutes");
 const loadingRoutes = require("./routes/loadingRoutes");
+const reportRoutes = require("./routes/reportRoutes");
 // 2. Instantiations
 const app = express();
 const port = process.env.PORT || 3000;
@@ -86,9 +86,9 @@ app.use('/', stockRoutes);
 app.use('/', indexRoutes);
 app.use('/', salesRoutes);
 app.use('/', userRoutes);
-app.use('/', reportRoutes);
 app.use('/', manageRoutes);
 app.use("/loading", loadingRoutes);
+app.use("/", reportRoutes);
 // 404 handler
 app.use((req, res) => {
   res.status(404).send('Oops! Route not found');

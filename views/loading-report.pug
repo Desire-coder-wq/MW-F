@@ -2,47 +2,103 @@ doctype html
 html(lang="en")
   head
     meta(charset="UTF-8")
-    meta(name="viewport" content="width=device-width, initial-scale=1")
+    meta(name="viewport", content="width=device-width, initial-scale=1")
     title MWF — Loading/Offloading Report
+    link(rel="stylesheet", href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css")
     link(rel="stylesheet", href="/css/attendant-manage.css")
 
   body
     .layout
-      // Sidebar
+      //- Sidebar
       aside.sidebar
-        h2.logo Dashboard
+        .logo-container
+          img.logo-img(src="/images/logo 2.png", alt="MWF Logo")
+          .logo-text Mayondo Wood & Furniture
         nav
           ul
-            li: a(href="/add-stock") Add Stock
-            li: a(href="/sales-report") Sales Reports
-            li: a(href="/loading/offload") Offload Stock
-            li: a(href="/loading/pending") Load Stock
-            li: a(href="/logout") Logout
+            li
+              a(href="/add-stock")
+                i.fas.fa-boxes
+                span Add Stock
+            li
+              a(href="/sales-report")
+                i.fas.fa-chart-line
+                span Sales Reports
+            li
+              a(href="/loading/offload")
+                i.fas.fa-truck-loading
+                span Offload Stock
+            li
+              a(href="/loading/pending")
+                i.fas.fa-hourglass-half
+                span Load Stock
+            li
+              a(href="/logout")
+                i.fas.fa-sign-out-alt
+                span Logout
 
-      // Main content
-      main.main-content
-        header
-          h1 Loading & Offloading Report
+      //- Topbar
+      #topbar
+        .header-content
+          .company-info
+            h1 Loading & Offloading Report
+            h3 View loading and offloading operations
+          .header-actions
+            .notification-btn
+              i.fas.fa-bell
+              .notification-count 0
+            .user-profile
+              i.fas.fa-user-circle
+              span#userName User
 
-        section.table-section
-          table(border="1" cellpadding="5")
-            thead
-              tr
-                th Operation
-                th Product
-                th Quantity
-                th Attendant
-                th Date
-            tbody
-              each r in report
+      //- Main Content
+      .container
+        //- Table Section
+        .table-section
+          .table-header
+            h3
+              i.fas.fa-clipboard-list
+              | Loading/Offloading Operations
+          .table-container
+            table.sales-table
+              thead
                 tr
-                  td= r.operationType
-                  td= r.productName
-                  td= r.quantity
-                  td= r.attendantName
-                  td= r.dateTime.toDateString()
+                  th 
+                    i.fas.fa-cogs
+                    | Operation
+                  th 
+                    i.fas.fa-cube
+                    | Product
+                  th 
+                    i.fas.fa-boxes
+                    | Quantity
+                  th 
+                    i.fas.fa-user
+                    | Attendant
+                  th 
+                    i.fas.fa-calendar
+                    | Date
+              tbody
+                each r in report
+                  tr
+                    td
+                      if r.operationType === 'loading'
+                        span.pending-badge Loading
+                      else
+                        span.completed-badge Offloading
+                    td= r.productName
+                    td= r.quantity
+                    td= r.attendantName
+                    td= r.dateTime.toLocaleDateString()
 
-    // Footer
+    //- Footer
     footer
       .container
         p &copy; 2025 Mayondo Wood & Furniture Ltd
+
+  script.
+    // Set user name if available
+    document.addEventListener('DOMContentLoaded', function() {
+      const userName = '#{user ? user.name : "User"}';
+      document.getElementById('userName').textContent = userName;
+    });

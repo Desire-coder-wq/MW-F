@@ -2,140 +2,93 @@ doctype html
 html(lang="en")
   head
     meta(charset="UTF-8")
-    meta(name="viewport" content="width=device-width, initial-scale=1")
-    title Sale Receipt
-    link(rel="stylesheet", href="/css/sales-entry.css")
-    style.
-      body {
-        font-family: Arial, sans-serif;
-        margin: 0;
-        background: linear-gradient(135deg, rgb(228, 216, 199), rgb(232, 176, 103));
-      }
-      .receipt-container {
-        background: #fff;
-        width: 380px;
-        margin: 20px auto;
-        padding: 20px;
-        border: 1px solid #333;
-        border-radius: 8px;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-      }
-      .receipt-container header {
-        text-align: center;
-        margin-bottom: 15px;
-      }
-      .receipt-container header h1 {
-        font-size: 18px;
-        margin: 0;
-      }
-      .receipt-container header h2 {
-        font-size: 16px;
-        margin: 5px 0;
-        color: green;
-      }
-      .receipt-container p {
-        margin: 6px 0;
-        font-size: 14px;
-      }
-      .receipt-container strong {
-        display: inline-block;
-        width: 130px;
-      }
-      .actions {
-        text-align: center;
-        margin-top: 15px;
-      }
-      .btn {
-        padding: 6px 12px;
-        background-color: #4CAF50;
-        color: white;
-        text-decoration: none;
-        border-radius: 3px;
-        margin: 0 5px;
-        font-size: 14px;
-      }
-      footer {
-        text-align: center;
-        margin-top: 15px;
-        font-style: italic;
-        font-size: 13px;
-        color: #444;
-      }
-      @media print {
-        aside.sidebar, .btn, .actions {
-          display: none;
-        }
-        body {
-            background: linear-gradient(135deg, rgb(228, 216, 199), rgb(232, 176, 103));
-        }
-        .receipt-container {
-          margin: 0;
-          width: 100%;
-          border: none;
-          box-shadow: none;
-        }
-      }
+    meta(name="viewport", content="width=device-width, initial-scale=1")
+    title Sale Receipt — MWF
+    link(rel="stylesheet", href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css")
+    link(rel="stylesheet", href="/css/attendant-manage.css")
+
 
   body
-    .layout
+    .receipt-layout
       // Sidebar
-      aside.sidebar
-        h2.logo Dashboard
+      aside.receipt-sidebar
+        .logo-container
+          img.logo-img(src="/images/logo 2.png", alt="MWF Logo")
+          .logo-text Mayondo Wood & Furniture
         nav
           ul
             li
-              a(href="/sales-entry") Sales Entry
+              a(href="/sales-entry")
+                i.fas.fa-cash-register
+                span Sales Entry
             li
-              a(href="/receipt", class="active") Receipt
+              a(href="/receipt", class="active")
+                i.fas.fa-receipt
+                span Receipt
             li
-              a(href="/sales-report") Sales Report
+              a(href="/sales-report")
+                i.fas.fa-chart-bar
+                span Sales Report
             li
-              a(href="/sales-list") Sales List
+              a(href="/sales-list")
+                i.fas.fa-list
+                span Sales List
             li
-              a(href="/stockList") Stock List
+              a(href="/stockList")
+                i.fas.fa-boxes
+                span Stock List
             li
-              a(href="/logout") Logout
+              a(href="/logout")
+                i.fas.fa-sign-out-alt
+                span Logout
 
       // Main content
-      .main-content
+      .receipt-main
         .receipt-container
-          header
-            h1 Mayondo Wood and Furniture (MWF) Ltd
-            h2 Sales Receipt
-            p Ref: #{sale._id}
+          .receipt-header
+            img.receipt-logo(src="/images/logo 2.png", alt="MWF Logo")
+            h1 Mayondo Wood and Furniture Ltd
+            h2 SALES RECEIPT
+            .receipt-ref Ref: #{sale._id}
 
-          section.sale-info
-            p
-              strong Customer Name:
-              = sale.customerName
-            p
-              strong Product Name:
-              = sale.productName
-            p
-              strong Quantity:
-              = sale.quantity
-            p
-              strong Price:
-              = sale.price
-            p
-              strong Total:
-              = sale.total ? sale.total.toLocaleString() : '0'
-            p
-              strong Transport:
-              = sale.transport ? 'Yes (5%)' : 'No'
-            p
-              strong Payment Type:
-              = sale.paymentType
-            p
-              strong Date:
-              = new Date(sale.date).toDateString()
-            p
-              strong Sales Agent:
-              = sale.salesAgent && sale.salesAgent.name ? sale.salesAgent.name : 'N/A'
+          .receipt-info
+            .info-row
+              span.info-label Customer Name:
+              span.info-value= sale.customerName
+            .info-row
+              span.info-label Product Name:
+              span.info-value= sale.productName
+            .info-row
+              span.info-label Quantity:
+              span.info-value= sale.quantity
+            .info-row
+              span.info-label Unit Price:
+              span.info-value= sale.price.toLocaleString()
+            .info-row
+              span.info-label Transport:
+              span.info-value= sale.transport ? 'Yes (5%)' : 'No'
+            .info-row
+              span.info-label Payment Type:
+              span.info-value= sale.paymentType
+            .info-row
+              span.info-label Date:
+              span.info-value= new Date(sale.date).toLocaleDateString()
+            .info-row
+              span.info-label Sales Agent:
+              span.info-value= sale.salesAgent && sale.salesAgent.name ? sale.salesAgent.name : 'N/A'
+            
+            .total-row.info-row
+              span.info-label TOTAL AMOUNT:
+              span.info-value= sale.total ? sale.total.toLocaleString() : '0'
 
-          .actions
-            a.btn(href="/sales-list") Back to Sales List
-            button.btn(type="button", onclick="window.print()") Print Receipt
+          .receipt-actions
+            a.receipt-btn.btn-back(href="/sales-list")
+              i.fas.fa-arrow-left
+              | Back to Sales List
+            button.receipt-btn.btn-print(type="button", onclick="window.print()")
+              i.fas.fa-print
+              | Print Receipt
 
-          footer
-            p Thank you for buying from Mayondo Wood and Furniture Ltd. We value your support!
+          .receipt-footer
+            p Thank you for your business! We value your support and look forward to serving you again.
+            p.mt-2 For inquiries: contact@mayondowood.com | +256-7676254

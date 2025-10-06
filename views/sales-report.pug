@@ -1,0 +1,212 @@
+doctype html
+html(lang="en")
+  head
+    meta(charset="UTF-8")
+    meta(name="viewport", content="width=device-width, initial-scale=1")
+    title MWF — Sales Report
+    link(rel="stylesheet", href="/css/sales-report.css")
+    link(rel="stylesheet", href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css")
+    script(src="https://cdn.jsdelivr.net/npm/chart.js") 
+    script(src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js")
+    script(src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js")
+
+  body
+    // ---- Sidebar ----
+    aside.sidebar
+      .logo-container
+        img.logo-img(src="/images/logo 2.png", alt="MWF Logo", onerror="this.style.display='none'")
+        h2.logo-text Mayondo Wood & Furniture
+      nav
+        ul
+          li
+            a(href="/reports")
+              i.fas.fa-chart-bar
+              span Stock Reports
+          li
+            a(href="/approve-stock")
+              i.fas.fa-check-circle
+              span Approve Stock
+          li
+            a(href="/add-stock")
+              i.fas.fa-plus-circle
+              span Add Stock
+          li
+            a(href="/sales-report", class="active")
+              i.fas.fa-shopping-cart
+              span Sales Reports
+          li
+            a(href="/attendants")
+              i.fas.fa-users
+              span Attendants
+          li
+            a(href="#", id="editProfileBtn")
+              i.fas.fa-user-cog
+              span Profile
+          li
+            a(href="/logout")
+              i.fas.fa-sign-out-alt
+              span Logout
+
+    // ---- Header ----
+    header#topbar
+      .header-content
+        .company-info
+          h1 Mayondo Wood & Furniture Ltd
+          h3 Sales Report Dashboard
+        .header-actions
+          button.notification-btn
+            i.fas.fa-bell
+            span.notification-count 3
+          .user-profile
+            i.fas.fa-user-circle
+            span Admin
+
+    // ---- Main Content ----
+    main.container
+      // ---- Cards ----
+      .cards
+        .card
+          .card-icon
+            i.fas.fa-money-bill-wave
+          .card-content
+            h4 Total Revenue
+            p #{totalRevenue ? totalRevenue.toLocaleString() : '0'} UGX
+        .card
+          .card-icon
+            i.fas.fa-shopping-cart
+          .card-content
+            h4 Total Sales
+            p #{totalSales ? totalSales.toLocaleString() : '0'}
+        .card
+          .card-icon
+            i.fas.fa-star
+          .card-content
+            h4 Best Selling Product
+            if topProducts && topProducts.length > 0
+              p #{topProducts[0]._id} (#{topProducts[0].totalQuantity} units)
+            else
+              p No sales yet
+        .card
+          .card-icon
+            i.fas.fa-user-tie
+          .card-content
+            h4 Top Sales Agent
+            if topAgents && topAgents.length > 0
+              p #{topAgents[0]._id} (UGX #{topAgents[0].totalRevenue ? topAgents[0].totalRevenue.toLocaleString() : '0'})
+            else
+              p No sales yet
+
+      // ---- Filters ----
+      .filters
+        h3 
+          i.fas.fa-filter
+          | Filter Sales Report
+        form(action="/sales-report", method="GET")
+          .form-group
+            label(for="fromDate")
+              i.fas.fa-calendar-alt
+              | From:
+            input(type="date", name="fromDate", value=fromDate, id="fromDate")
+
+          .form-group
+            label(for="toDate")
+              i.fas.fa-calendar-check
+              | To:
+            input(type="date", name="toDate", value=toDate, id="toDate")
+
+          button(type="submit")
+            i.fas.fa-search
+            | Apply Filter
+
+      // ---- Table ----
+      .report-table
+        .table-header
+          h3
+            i.fas.fa-table
+            | Sales Records
+        table
+          thead
+            tr
+              th 
+                i.fas.fa-hashtag
+                | #
+              th 
+                i.fas.fa-user
+                | Customer Name
+              th 
+                i.fas.fa-cube
+                | Product Name
+              th 
+                i.fas.fa-box
+                | Quantity
+              th 
+                i.fas.fa-money-bill
+                | Price
+              th 
+                i.fas.fa-truck
+                | Transport
+              th 
+                i.fas.fa-money-bill-wave
+                | Total Amount
+              th 
+                i.fas.fa-credit-card
+                | Payment Type
+              th 
+                i.fas.fa-calendar
+                | Date
+              th 
+                i.fas.fa-user-tie
+                | Sales Agent
+          tbody
+            if sales && sales.length > 0
+              each sale, i in sales
+                tr
+                  td #{i + 1}
+                  td #{sale.customerName}
+                  td #{sale.productName}
+                  td #{sale.quantity}
+                  td #{sale.price ? sale.price.toLocaleString() : '0'} UGX
+                  td #{sale.transport ? 'Yes (5%)' : 'No'}
+                  td #{sale.total ? sale.total.toLocaleString() : '0'} UGX
+                  td #{sale.paymentType}
+                  td #{sale.date ? new Date(sale.date).toLocaleDateString() : 'N/A'}
+                  td #{sale.salesAgent && sale.salesAgent.name ? sale.salesAgent.name : 'Unknown'}
+            else
+              tr
+                td(colspan="10") No sales records found.
+
+      // ---- Export ----
+      .export-buttons
+        button.export-btn(onclick="exportPDF()")
+          i.fas.fa-file-pdf
+          | Export to PDF
+        button.export-btn(onclick="exportExcel()")
+          i.fas.fa-file-excel
+          | Export to Excel
+
+      // ---- Charts ----
+      .section
+        .charts-grid
+          .chart-container
+            .chart-header
+              i.fas.fa-chart-pie
+              h3 Top Products by Sales
+            canvas#productChart(width="400" height="300")
+          .chart-container
+            .chart-header
+              i.fas.fa-chart-bar
+              h3 Top Agents by Revenue
+            canvas#agentChart(width="400" height="300")
+
+    // ---- Hidden Chart Data ----
+    script.
+      // Pass data from server to frontend JavaScript
+      const chartData = {
+        topProducts: !{JSON.stringify(topProducts || [])},
+        topAgents: !{JSON.stringify(topAgents || [])}
+      };
+  // ---- Footer ----
+    footer
+      .container
+        p © 2025 Mayondo Wood & Furniture Ltd
+    script(src="/js/sales-report.js")

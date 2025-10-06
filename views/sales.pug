@@ -4,88 +4,144 @@ html(lang="en")
     meta(charset="UTF-8")
     meta(name="viewport", content="width=device-width,initial-scale=1")
     title MWF - Sales Entry
-    link(rel="stylesheet", href="/css/sales-entry.css")
+    link(rel="stylesheet", href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css")
+    link(rel="stylesheet", href="/css/attendant-manage.css")
 
   body
     .layout
+      //- Sidebar
       aside.sidebar
-        h2.logo Dashboard
+        .logo-container
+          img.logo-img(src="/images/logo 2.png", alt="MWF Logo")
+          .logo-text Mayondo Wood & Furniture
         nav
           ul
             li
-              a(href="/sales-entry", class="active") Sales Entry
+              a(href="/sales-entry", class="active")
+                i.fas.fa-cash-register
+                span Sales Entry
             li
-              a(href="/receipt") Receipt
+              a(href="/receipt")
+                i.fas.fa-receipt
+                span Receipt
             li
-              a(href="/sales-report") Sales Report
+              a(href="/sales-report")
+                i.fas.fa-chart-bar
+                span Sales Report
             li
-              a(href="/sales-list") Sales List
+              a(href="/sales-list")
+                i.fas.fa-list
+                span Sales List
             li
-              a(href="/stockList") Stock List
+              a(href="/stockList")
+                i.fas.fa-boxes
+                span Stock List
             li
-              a(href="/logout") Logout
+              a(href="/logout")
+                i.fas.fa-sign-out-alt
+                span Logout
 
-      main.main-content
-        header
-          h1 Mayondo Wood and Furniture (MWF) Ltd
-          h3 Sales Entry Form
+      //- Topbar
+      #topbar
+        .header-content
+          .company-info
+            h1 Sales Entry
+            h3 Record new sales transactions
+          .header-actions
+            .notification-btn
+              i.fas.fa-bell
+              .notification-count 0
+            .user-profile
+              i.fas.fa-user-circle
+              span #{user ? user.name : 'User'}
 
-        main
-          form(action="/sales", method="POST")
-            fieldset
-              legend(style="color:green") Customer Information
-              label(for="customerName") Customer Name:
-              input#customerName(type="text", name="customerName", required)
+      //- Main Content
+      .container
+        .form-section
+          .form-container
+            .form-header
+              h3
+                i.fas.fa-cash-register
+                | Sales Entry Form
+              p Fill in the details below to record a new sale
 
-            fieldset
-              legend(style="color:green") Product Information
-              label(for="productName") Product Name:
-              select#productName(name="productName", required)
-                option(value="", disabled selected) -- Select Product --
-                option(value="timber") Timber
-                option(value="poles") Poles
-                option(value="hardwood") Hardwood
-                option(value="softwood") Softwood
-                option(value="sofa") Sofa
-                option(value="bed") Bed
-                option(value="dinningTable") Dinning Table
-                option(value="Tv-stand") Tv-stand
-                option(value="Office-chair") Office-chair
+            form(action="/sales", method="POST")
+              fieldset.form-fieldset
+                legend.fieldset-legend(style="color:green")
+                  i.fas.fa-user
+                  | Customer Information
+                .form-group
+                  label(for="customerName") Customer Name:
+                  input#customerName(type="text", name="customerName", required)
 
-              label(for="productType") Product Type:
-              select#productType(name="productType", required)
-                option(value="Wood") Wood
-                option(value="Furniture") Furniture
+              fieldset.form-fieldset
+                legend.fieldset-legend(style="color:green")
+                  i.fas.fa-cube
+                  | Product Information
+                .form-grid
+                  .form-group
+                    label(for="productName") Product Name:
+                    select#productName(name="productName", required)
+                      option(value="", disabled selected) -- Select Product --
+                      option(value="timber") Timber
+                      option(value="poles") Poles
+                      option(value="hardwood") Hardwood
+                      option(value="softwood") Softwood
+                      option(value="sofa") Sofa
+                      option(value="bed") Bed
+                      option(value="dinningTable") Dinning Table
+                      option(value="Tv-stand") Tv-stand
+                      option(value="Office-chair") Office-chair
 
+                  .form-group
+                    label(for="productType") Product Type:
+                    select#productType(name="productType", required)
+                      option(value="Wood") Wood
+                      option(value="Furniture") Furniture
 
+                  .form-group
+                    label(for="quantity") Quantity:
+                    input#quantity(type="number", name="quantity", min="1", required)
 
-              label(for="quantity") Quantity:
-              input#quantity(type="number", name="quantity", min="1", required)
+                  .form-group
+                    label(for="price") Price per Unit (UGX):
+                    input#price(type="number", name="price", min="0", required)
 
-              label(for="price") Price per Unit (UGX):
-              input#price(type="number", name="price", min="0", required)
+                  .form-group
+                    label(for="date") Date of Sale:
+                    input#date(type="date", name="date", required)
 
-              label(for="date") Date of Sale:
-              input#date(type="date", name="date", required)
+              fieldset.form-fieldset
+                legend.fieldset-legend(style="color:green")
+                  i.fas.fa-credit-card
+                  | Payment Information
+                .form-grid
+                  .form-group
+                    label(for="paymentType") Payment Method:
+                    select#paymentType(name="paymentType", required)
+                      option(value="Cash") Cash
+                      option(value="Cheque") Cheque
+                      option(value="Bank Overdraft") Bank Overdraft
 
-            fieldset
-              legend(style="color:green") Payment Information
-              label(for="paymentType") Payment Method:
-              select#paymentType(name="paymentType", required)
-                option(value="Cash") Cash
-                option(value="Cheque") Cheque
-                option(value="Bank Overdraft") Bank Overdraft
+                  .form-group
+                    label(for="transport") Transport Required? (adds 5% to total):
+                    select#transport(name="transport", required)
+                      option(value="no") No
+                      option(value="yes") Yes
 
-              label(for="transport") Transport Required? (adds 5% to total):
-              select#transport(name="transport", required)
-                option(value="no") No
-                option(value="yes") Yes
+              fieldset.form-fieldset
+                legend.fieldset-legend(style="color:green")
+                  i.fas.fa-sticky-note
+                  | Additional Notes
+                .form-group
+                  textarea#notes(name="notes", rows="3", placeholder="Any remarks...")
 
-            fieldset
-              legend(style="color:green") Additional Notes
-              textarea#notes(name="notes", rows="3", placeholder="Any remarks...")
+              .form-actions
+                button.submit-btn(type="submit")
+                  i.fas.fa-save
+                  | Record Sale
 
-            button(type="submit") Record Sale
-
-        footer
-          p © 2025 Mayondo Wood & Furniture Ltd
+    //- Footer
+    footer
+      .container
+        p &copy; 2025 Mayondo Wood & Furniture Ltd

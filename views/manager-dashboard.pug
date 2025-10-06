@@ -1,90 +1,175 @@
-meta(charset="UTF-8")
-meta(name="viewport", content="width=device-width,initial-scale=1")
-title Manager Dashboard - MWF
-link(rel="stylesheet", href="/css/management.css")
-//  Wrapper for sidebar + main 
-.layout
-  //  Sidebar 
-  aside.sidebar
-    h2.logo Dashboard
-    nav
-      ul
-        li
-          a(href="/stock-report") Reports
-        li
-          a(href="/approve-stock") Approve Stock
-        li
-          a(href="/stock") Add Stock
-        li
-          a(href="/sales-reports") Sales Reports
-        li
-          a(href="/attendants") Attendants
-        li
-          a(href="/loading/pending") Pending Sales
-        li
-          a#editProfileBtn(href="#") Profile
-        li
-          a(href="/logout") Logout
-  //  Main content 
-  main.main-content
-    header
-      .header-profile
-        img#headerProfilePic(src="/images/default-profile.png", alt="Profile Picture")
-        h1
-          | Welcome, 
-          span#managerName Manager
-    //  Cards 
-    section.cards
-      .card(onclick="location.href='/sales-list'")
-        h3 Sales Made
-        p View sales made
-      .card(onclick="location.href='/stock-report'")
-        h3 Stock Report
-        p View stock
-      .card(onclick="location.href='/approve-stock'")
-        h3 Approve Stock
-        p Approve stock submitted by attendants.
-      .card(onclick="location.href='/stock'")
-        h3 Add Stock
-        p Record new stock items for sale.
-      .card(onclick="location.href='/sales-report'")
-        h3 Sales Report
-        p View periodical sales reports.
-      .card(onclick="location.href='/products'")
-        h3 Finished Furniture
-        p View finished products available for sale.
-      .card(onclick="location.href='/attendants'")
-        h3 Attendants
-        p View attendants and monitor tasks.
-      .card#profileCard(onclick="location.href='/register'")
-        h3 Register Users
-        p Register users here.
-      .card(onclick="location.href='/logout'")
-        h3 Logout
-        p Sign out from the system.
-//  Profile Modal 
-.modal#profileModal
-  .modal-content
-    span.close#closeModal 
-    h2 Edit Profile
-    form#profileForm(action="/profile", method="POST", enctype="multipart/form-data")
-      //  Profile Picture Section 
-      .profile-section
-        .profile-pic-wrapper
-          img#profilePreview(src="/images/default-profile.png", alt="Profile Picture")
-          input#profilePicInput(type="file", name="profilePic", accept="image/*")
-          .profile-actions
-            button#changePicBtn(type="button") Change
-            button#deletePicBtn(type="button") Delete
-      //  Info Section 
-      .info-section
-        label Name:
-        input#nameInput(type="text", name="name", value="Manager Name", required)
-        label Email:
-        input#emailInput(type="email", name="email", value="manager@example.com", required)
-      button.save-btn(type="submit") Save
-//  Footer 
-footer
-  .container
-    p © 2025 Mayondo Wood & Furniture Ltd
-script(src="/js/management.js")
+doctype html
+html(lang="en")
+  head
+    meta(charset="UTF-8")
+    meta(name="viewport", content="width=device-width, initial-scale=1")
+    title Manager Dashboard - MWF
+    link(rel="stylesheet", href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css")
+    link(rel="stylesheet", href="/css/attendant-manage.css")
+
+  body
+    .layout
+      //- Sidebar
+      aside.sidebar
+        .logo-container
+          img.logo-img(src="/images/logo 2.png", alt="MWF Logo")
+          .logo-text Mayondo Wood & Furniture
+        nav
+          ul
+            li
+              a(href="/reports")
+                i.fas.fa-chart-bar
+                span Reports
+            li
+              a(href="/approve-stock")
+                i.fas.fa-check-circle
+                span Approve Stock
+            li
+              a(href="/stock")
+                i.fas.fa-boxes
+                span Add Stock
+            li
+              a(href="/sales-report")
+                i.fas.fa-chart-line
+                span Sales Reports
+            li
+              a(href="/attendants")
+                i.fas.fa-users
+                span Attendants
+            li
+              a(href="/loading/pending")
+                i.fas.fa-clock
+                span Pending Sales
+            li
+              a(href="/logout")
+                i.fas.fa-sign-out-alt
+                span Logout
+
+      //- Topbar
+      #topbar
+        .header-content
+          .company-info
+            h1 Manager Dashboard
+            h3 Manage your team and operations
+          .header-actions
+            .notification-btn
+              i.fas.fa-bell
+              .notification-count 0
+            .user-profile
+              i.fas.fa-user-circle
+              span#managerName Manager
+
+      //- Main Content
+      .container
+        //- Cards Section
+        .cards
+          .card(onclick="location.href='/userList'")
+            .card-icon
+              i.fas.fa-user-friends
+            .card-content
+              h4 Registered Users
+              p View registered users
+            .card-action
+              button.go-btn Go
+
+          .card(onclick="location.href='/sales-list'")
+            .card-icon
+              i.fas.fa-shopping-cart
+            .card-content
+              h4 Sales Made
+              p View sales made
+            .card-action
+              button.go-btn Go
+
+          .card(onclick="location.href='/reports'")
+            .card-icon
+              i.fas.fa-chart-pie
+            .card-content
+              h4 Stock Report
+              p View stock
+            .card-action
+              button.go-btn Go
+
+          .card(onclick="location.href='/approve-stock'")
+            .card-icon
+              i.fas.fa-thumbs-up
+            .card-content
+              h4 Approve Stock
+              p Approve stock submitted by attendants
+            .card-action
+              button.go-btn Go
+
+          .card(onclick="location.href='/stock'")
+            .card-icon
+              i.fas.fa-plus-square
+            .card-content
+              h4 Add Stock
+              p Record new stock items for sale
+            .card-action
+              button.go-btn Go
+
+          .card(onclick="location.href='/sales-report'")
+            .card-icon
+              i.fas.fa-file-invoice-dollar
+            .card-content
+              h4 Sales Report
+              p View periodical sales reports
+            .card-action
+              button.go-btn Go
+
+          .card(onclick="location.href='/products'")
+            .card-icon
+              i.fas.fa-couch
+            .card-content
+              h4 Finished Furniture
+              p View finished products available for sale
+            .card-action
+              button.go-btn Go
+
+          .card(onclick="location.href='/attendants'")
+            .card-icon
+              i.fas.fa-user-tie
+            .card-content
+              h4 Attendants
+              p View attendants and monitor tasks
+            .card-action
+              button.go-btn Go
+
+          .card(onclick="location.href='/loading/pending'")
+            .card-icon
+              i.fas.fa-hourglass-half
+            .card-content
+              h4 Pending Sales
+              p Load pending sales
+            .card-action
+              button.go-btn Go
+
+          .card(onclick="location.href='/loading/offload'")
+            .card-icon
+              i.fas.fa-truck-loading
+            .card-content
+              h4 Offload Stock
+              p Offload history
+            .card-action
+              button.go-btn Go
+
+          .card(onclick="location.href='/register'")
+            .card-icon
+              i.fas.fa-user-plus
+            .card-content
+              h4 Register Users
+              p Register users here
+            .card-action
+              button.go-btn Go
+
+    //- Footer
+    footer
+      .container
+        p &copy; 2025 Mayondo Wood & Furniture Ltd
+
+  script.
+    // Set manager name if available
+    document.addEventListener('DOMContentLoaded', function() {
+      const managerName = '#{user ? user.name : "Manager"}';
+      document.getElementById('managerName').textContent = managerName;
+    });

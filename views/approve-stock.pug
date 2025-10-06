@@ -2,80 +2,116 @@ doctype html
 html(lang="en")
   head
     meta(charset="UTF-8")
-    meta(name="viewport" content="width=device-width, initial-scale=1")
+    meta(name="viewport", content="width=device-width, initial-scale=1")
     title MWF — Approve Stock
+    link(rel="stylesheet", href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css")
     link(rel="stylesheet", href="/css/attendant-manage.css")
 
   body
     .layout
-      // Sidebar
+      //- Sidebar
       aside.sidebar
-        h2.logo Dashboard
+        .logo-container
+          img.logo-img(src="/images/logo 2.png", alt="MWF Logo")
+          .logo-text Mayondo Wood & Furniture
         nav
           ul
-            li: a(href="/approve-stock", class="active") Approve Stock
-            li: a(href="/add-stock") Add Stock
-            li: a(href="/sales-report") Sales Reports
-            li: a(href="/attendants") Attendants
-            li: a(href="#", id="editProfileBtn") Profile
-            li: a(href="/logout") Logout
+            li
+              a(href="/approve-stock", class="active")
+                i.fas.fa-check-circle
+                span Approve Stock
+            li
+              a(href="/stock")
+                i.fas.fa-boxes
+                span Add Stock
+            li
+              a(href="/sales-report")
+                i.fas.fa-chart-bar
+                span Sales Reports
+            li
+              a(href="/attendants")
+                i.fas.fa-users
+                span Attendants
+            li
+              a(href="/logout")
+                i.fas.fa-sign-out-alt
+                span Logout
 
-      // Main content
-      main.main-content
-        header
-          h1 Approve Stock
-          p Review stock submissions from attendants and approve or reject them.
+      //- Topbar
+      #topbar
+        .header-content
+          .company-info
+            h1 Approve Stock
+            h3 Review and approve stock submissions
+          .header-actions
+            .notification-btn
+              i.fas.fa-bell
+              .notification-count 0
+            .user-profile
+              i.fas.fa-user-circle
+              span #{user ? user.name : 'User'}
 
-        section.table-section
-          table
-            thead
-              tr
-                th productName
-                th Product Type
-                th Category
-                th Quantity
-                th Supplier
-                th Date
-                th Quality
-                th Color
-                th Measurement
-                th Submitted By
-                th Status
-                th Actions
-            tbody
-              if submissions && submissions.length
-                each req in submissions
-                  tr
-                    td= req.productName
-                    td= req.productType
-                    td= req.category
-                    td= req.quantity
-                    td= req.supplier
-                    td= req.date ? new Date(req.date).toLocaleDateString() : "N/A"
-                    td= req.quality || "N/A"
-                    td= req.color || "N/A"
-                    td= req.measurement || "N/A"
-                    td= req.submittedBy ? req.submittedBy.name : "N/A"
-                    td
-                      span(class=req.status.toLowerCase())= req.status
-                    td
-                      if req.status == "Pending"
-                        form(action=`/stock-submissions/${req._id}/approve`, method="POST", style="display:inline")
-                          button(type="submit" class="approve-btn") Approve
-                        form(action=`/stock-submissions/${req._id}/reject`, method="POST", style="display:inline", onsubmit="return confirmReject()")
-                          button(type="submit" class="reject-btn") Reject
-                      else
-                        button.disabled(disabled)= req.status
-              else
+      //- Main Content
+      .container
+        .table-section
+          .table-header
+            h3
+              i.fas.fa-clipboard-check
+              | Stock Submissions
+          .table-container
+            table.stock-approval-table
+              thead
                 tr
-                  td(colspan="12") No stock submissions found.
+                  th Product Name
+                  th Product Type
+                  th Category
+                  th Quantity
+                  th Supplier
+                  th Date
+                  th Quality
+                  th Color
+                  th Measurement
+                  th Submitted By
+                  th Status
+                  th Actions
+              tbody
+                if submissions && submissions.length
+                  each req in submissions
+                    tr
+                      td= req.productName
+                      td= req.productType
+                      td= req.category
+                      td= req.quantity
+                      td= req.supplier
+                      td= req.date ? new Date(req.date).toLocaleDateString() : "N/A"
+                      td= req.quality || "N/A"
+                      td= req.color || "N/A"
+                      td= req.measurement || "N/A"
+                      td= req.submittedBy ? req.submittedBy.name : "N/A"
+                      td
+                        span(class=req.status.toLowerCase() + "-status")= req.status
+                      td.actions-cell
+                        if req.status == "Pending"
+                          form(action=`/stock-submissions/${req._id}/approve`, method="POST")
+                            button.approve-btn(type="submit")
+                              i.fas.fa-check
+                              | Approve
+                          form(action=`/stock-submissions/${req._id}/reject`, method="POST", onsubmit="return confirmReject()")
+                            button.reject-btn(type="submit")
+                              i.fas.fa-times
+                              | Reject
+                        else
+                          button.disabled(disabled)= req.status
+                else
+                  tr
+                    td(colspan="12") No stock submissions found.
 
-    // Footer
+    //- Footer
     footer
       .container
         p &copy; 2025 Mayondo Wood & Furniture Ltd
 
-    // Scripts
+    //- Scripts
     script(src="/js/approve-stock.js")
     script.
       function confirmReject() {

@@ -24,8 +24,8 @@ async function renderStock() {
       <td>${item.price.toLocaleString()} UGX</td>
       <td>${(item.quantity * item.price).toLocaleString()} UGX</td>
       <td>
-        <button class="editBtn">✏️ Edit</button>
-        <button class="deleteBtn">🗑️ Delete</button>
+        <button class="editBtn">Edit</button>
+        <button class="deleteBtn"> Delete</button>
       </td>
     </tr>
   `).join('');

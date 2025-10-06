@@ -4,76 +4,139 @@ html(lang="en")
     meta(charset="UTF-8")
     meta(name="viewport", content="width=device-width, initial-scale=1")
     title MWF — Submit Stock
-    link(rel="stylesheet", href="/css/add-stock.css")
+    link(rel="stylesheet", href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css")
+    link(rel="stylesheet", href="/css/attendant-manage.css")
 
   body
     .layout
-      // Sidebar
+      //- Sidebar
       aside.sidebar
-        h2.logo Attendant
-        ul
-          li: a(href="/attendant-dashboard") Dashboard
-          li: a(href="/attendant/add-stock" class="active") Submit Stock
-          li: a(href="/logout" class="logout-btn") Logout
+        .logo-container
+          img.logo-img(src="/images/logo 2.png", alt="MWF Logo")
+          .logo-text Mayondo Wood & Furniture
+        nav
+          ul
+            li
+              a(href="/attendant-dashboard")
+                i.fas.fa-tachometer-alt
+                span Dashboard
+            li
+              a(href="/attendant/add-stock", class="active")
+                i.fas.fa-boxes
+                span Submit Stock
+            li
+              a(href="/logout")
+                i.fas.fa-sign-out-alt
+                span Logout
 
-      // Main Content
-      .main-content
-        header
-          h1 Mayondo Wood & Furniture Ltd
-          h3 Submit New Stock Request
+      //- Topbar
+      #topbar
+        .header-content
+          .company-info
+            h1 Submit Stock Request
+            h3 Add new stock items for approval
+          .header-actions
+            .notification-btn
+              i.fas.fa-bell
+              .notification-count 0
+            .user-profile
+              i.fas.fa-user-circle
+              span Attendant
 
-        main.container
-          form(action="/attendant/add-stock", method="POST", class="stock-form")
-            fieldset
-              legend Stock Details
+      //- Main Content
+      .container
+        .form-section
+          .form-container
+            .form-header
+              h3
+                i.fas.fa-clipboard-list
+                | Stock Submission Form
+              p Fill in the details below to submit a new stock request
 
-              label(for="productName") Product Name
-              select#productName(name="productName", required)
-                option(value="", disabled selected) -- Select Product --
-                option(value="timber") Timber
-                option(value="poles") Poles
-                option(value="hardwood") Hardwood
-                option(value="softwood") Softwood
-                option(value="sofa") Sofa
-                option(value="bed") Bed
-                option(value="dinningTable") Dinning Table
-                option(value="Tv-stand") Tv-stand
-                option(value="Office-chair") Office-chair
+            form.stock-form(action="/attendant/add-stock", method="POST")
+              .form-grid
+                .form-group
+                  label(for="productName")
+                    i.fas.fa-cube
+                    | Product Name
+                  select#productName(name="productName", required)
+                    option(value="", disabled selected) -- Select Product --
+                    option(value="timber") Timber
+                    option(value="poles") Poles
+                    option(value="hardwood") Hardwood
+                    option(value="softwood") Softwood
+                    option(value="sofa") Sofa
+                    option(value="bed") Bed
+                    option(value="dinningTable") Dining Table
+                    option(value="Tv-stand") TV Stand
+                    option(value="Office-chair") Office Chair
 
-              label(for="productType") Product Type        
-              select#productType(name="productType", required)
-                option(value="", disabled selected) -- Select Type --
-                option(value="wood") Wood
-                option(value="furniture") Furniture
-          
-              label(for="category") Category
-              select#category(name="category", required)
-                option(value="", disabled selected) -- Select Category --
-                option(value="Raw Materials") Raw Materials
-                option(value="Finished Products") Finished Products
-                
-              label(for="costPrice") Cost Price (UGX)
-              input#costPrice(type="number", name="costPrice", min="0", step="0.01", required)
+                .form-group
+                  label(for="productType")
+                    i.fas.fa-tag
+                    | Product Type
+                  select#productType(name="productType", required)
+                    option(value="", disabled selected) -- Select Type --
+                    option(value="wood") Wood
+                    option(value="furniture") Furniture
 
-              label(for="quantity") Quantity
-              input#quantity(type="number", name="quantity", min="1", required)
+                .form-group
+                  label(for="category")
+                    i.fas.fa-folder
+                    | Category
+                  select#category(name="category", required)
+                    option(value="", disabled selected) -- Select Category --
+                    option(value="Raw Materials") Raw Materials
+                    option(value="Finished Products") Finished Products
 
-              label(for="supplier") Supplier
-              input#supplier(type="text", name="supplier", required)
+                .form-group
+                  label(for="costPrice")
+                    i.fas.fa-money-bill-wave
+                    | Cost Price (UGX)
+                  input#costPrice(type="number", name="costPrice", min="0", step="0.01", required, placeholder="Enter cost price")
 
-              label(for="date") Date
-              input#date(type="date", name="date", required)
+                .form-group
+                  label(for="quantity")
+                    i.fas.fa-box
+                    | Quantity
+                  input#quantity(type="number", name="quantity", min="1", required, placeholder="Enter quantity")
 
-              label(for="quality") Quality
-              input#quality(type="text", name="quality")
+                .form-group
+                  label(for="supplier")
+                    i.fas.fa-truck
+                    | Supplier
+                  input#supplier(type="text", name="supplier", required, placeholder="Enter supplier name")
 
-              label(for="color") Color
-              input#color(type="text", name="color")
+                .form-group
+                  label(for="date")
+                    i.fas.fa-calendar
+                    | Date
+                  input#date(type="date", name="date", required)
 
-              label(for="measurement") Measurement
-              input#measurement(type="text", name="measurement")
+                .form-group
+                  label(for="quality")
+                    i.fas.fa-star
+                    | Quality
+                  input#quality(type="text", name="quality", placeholder="Enter quality rating")
 
-            button(type="submit", class="submit-btn") Submit Stock
+                .form-group
+                  label(for="color")
+                    i.fas.fa-palette
+                    | Color
+                  input#color(type="text", name="color", placeholder="Enter color")
 
-        footer
-          p © 2025 Mayondo Wood & Furniture Ltd
+                .form-group
+                  label(for="measurement")
+                    i.fas.fa-ruler-combined
+                    | Measurement
+                  input#measurement(type="text", name="measurement", placeholder="Enter measurements")
+
+              .form-actions
+                button.submit-btn(type="submit")
+                  i.fas.fa-paper-plane
+                  | Submit Stock Request
+
+    //- Footer
+    footer
+      .container
+        p &copy; 2025 Mayondo Wood & Furniture Ltd

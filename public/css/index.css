@@ -1,4 +1,4 @@
-   
+/* Reset and base */
 * {
   margin: 0;
   padding: 0;
@@ -6,13 +6,29 @@
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }
 
+/* Body with background image */
+body {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+
+  /* Background image */
+  background: #f4f4f4 url('/images/embrace.png') no-repeat center center;
+  background-size: cover;  /* Changed to cover for better appearance */
+  background-attachment: fixed; /* optional: parallax effect */
+}
+
 /* Navbar */
 header {
-  background: #fff;
+  width: 100%;
+  background: rgba(255, 255, 255, 0.9);
   padding: 15px 40px;
   box-shadow: 0 2px 10px rgba(0,0,0,0.1);
   position: sticky;
   top: 0;
+  z-index: 10;
 }
 
 .navbar {
@@ -22,10 +38,19 @@ header {
 }
 
 .logo {
-  font-size: 24px;
+  display: flex;
+  align-items: center;
+  font-size: 20px;
   font-weight: bold;
   color: olivedrab;
 }
+
+.logo img {
+  height: 50px;      /* small logo */
+  width: auto;
+  margin-right: 10px;
+}
+
 .logo span {
   color: olive;
 }
@@ -49,37 +74,28 @@ header {
 
 /* Hero Section */
 .hero {
-  height: 90vh;
+  width: 100%;
+  min-height: 90vh;
   display: flex;
-  align-items: center;
   justify-content: center;
+  align-items: center;
   text-align: center;
-  /* background: linear-gradient(135deg, #6a11cb, #2575fc); */
-   background: linear-gradient(135deg, rgb(228, 216, 199), rgb(232, 176, 103));
-  color: #fff;
   padding: 20px;
-}
-.typewriter {
-  border-right: 2px solid black;
-  white-space: nowrap;
-  overflow: hidden;
+  position: relative;
+  z-index: 1;
+  color: #fff;
 }
 
-.hero img {
-  width: 200px;      /* Adjust width to your preferred smaller size */
-  height: auto;      /* Maintain aspect ratio */
-  display: block;    /* Removes any extra inline spacing */
-  margin-bottom: 20px; /* Optional spacing below image */
-    margin: 0 auto 20px;
+.hero-content {
+  max-width: 800px;
 }
-  /* Optional blinking cursor effect */
-  #heading, #paragraph {
-    font-family: Arial, sans-serif;
 
-    white-space: nowrap;
-    overflow: hidden;
-
-  }
+.hero-content img {
+  width: 200px;   /* adjust logo in hero */
+  height: auto;
+  margin: 0 auto 20px;
+  display: block;
+}
 
 .hero-content h1 {
   font-size: 42px;
@@ -96,6 +112,7 @@ header {
 }
 
 .btn {
+  display: inline-block;
   padding: 12px 25px;
   background: #fff;
   color: #2575fc;
@@ -107,100 +124,107 @@ header {
 
 .btn:hover {
   background: #038c0f;
-  color: #333;
+  color: #fff;
 }
 
-/* About Section */
-.about {
-  padding: 60px 20px;
+/* Nature Text Section */
+.nature-text {
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   text-align: center;
-  background: #f7f7f7;
+  padding: 20px;
+  position: relative;
+  z-index: 1;
 }
 
-.about h2 {
+.nature-content {
+  max-width: 800px;
+  color: #fff;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+}
+
+.embrace-heading {
+  font-size: 32px;
+  margin-bottom: 10px;
+  font-weight: 600;
+  letter-spacing: 1px;
+}
+
+.timeless-heading {
+  font-size: 48px;
+  margin-bottom: 20px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: #f8f8f8;
+}
+
+.tagline {
+  font-size: 24px;
+  margin-bottom: 30px;
+  font-weight: 500;
+  font-style: italic;
+}
+
+.craftsmanship {
   font-size: 28px;
-  margin-bottom: 15px;
+  margin-bottom: 10px;
+  font-weight: 600;
 }
 
-.about p {
-  font-size: 18px;
-  max-width: 600px;
-  margin: 0 auto;
-  color: #555;
+.sustainability {
+  font-size: 28px;
+  margin-bottom: 30px;
+  font-weight: 600;
+  color: #04791c;
 }
 
-.slideshow-container {
-    position: relative;
-    max-width: 600px;
-    background: white;
-    border-radius: 10px;
-    box-shadow: 0 0 10px rgba(0,0,0,0.3);
-    overflow: hidden;
-  }
-  .mySlides {
-    display: none;
-  }
-  .mySlides img {
-    width: 100%;
-    border-radius: 10px;
-  }
-  .fade {
-    animation: fadeEffect 1s ease-in-out;
-  }
-  @keyframes fadeEffect {
-    from {opacity: 0.4;}
-    to {opacity: 1;}
-  }
-  /* Next & previous buttons */
-  .prev, .next {
-    position: absolute;
-    top: 50%;
-    color: black;
-    font-weight: bold;
-    font-size: 18px;
-    padding: 8px 12px;
-    cursor: pointer;
-    border-radius: 0 3px 3px 0;
-    user-select: none;
-    background: rgba(255,255,255,0.7);
-    transform: translateY(-50%);
-  }
-  .next {
-    right: 0;
-    border-radius: 3px 0 0 3px;
-  }
-  .prev:hover, .next:hover {
-    background: rgba(0,0,0,0.3);
-    color: white;
-  }
-  /* Caption text */
-  .caption {
-    text-align: center;
-    padding: 10px 0;
-    font-size: 18px;
-  }
-  /* Dots */
-  .dots-container {
-    text-align: center;
-    padding: 10px 0;
-  }
-  .dot {
-    height: 15px;
-    width: 15px;
-    margin: 0 5px;
-    background-color: #bbb;
-    border-radius: 50%;
-    display: inline-block;
-    cursor: pointer;
-  }
-  .active-dot {
-    background-color: #717171;
-  }
+.discover {
+  font-size: 26px;
+  margin-bottom: 5px;
+  font-weight: 500;
+}
+
+.piece {
+  font-size: 30px;
+  font-weight: 600;
+  letter-spacing: 1px;
+}
 
 /* Footer */
 footer {
+  width: 100%;
   background: #333;
   color: #e1d0d0;
   padding: 20px;
   text-align: center;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .embrace-heading {
+    font-size: 24px;
+  }
+  
+  .timeless-heading {
+    font-size: 36px;
+  }
+  
+  .tagline {
+    font-size: 20px;
+  }
+  
+  .craftsmanship, .sustainability {
+    font-size: 22px;
+  }
+  
+  .discover {
+    font-size: 20px;
+  }
+  
+  .piece {
+    font-size: 24px;
+  }
 }

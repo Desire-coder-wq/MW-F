@@ -1,81 +1,117 @@
-// report.js
+document.addEventListener("DOMContentLoaded", () => {
+  initializeCharts();
+});
 
-// Helper: format number as UGX currency with commas
-function formatUGX(amount) {
-  return "UGX " + amount.toLocaleString();
-}
+// ---------------- CHARTS ----------------
+function initializeCharts() {
+  // Product Chart
+  const productCtx = document.getElementById("productChart").getContext("2d");
+  const productLabels = chartData.topProducts.map(item => item._id);
+  const productData = chartData.topProducts.map(item => item.totalQuantity);
 
-// Render the sales report table based on optional filter formData
-function renderReport(formData = null) {
-  const { sales } = db(); // get sales data from your db()
-
-  // Filter sales based on formData if provided
-  let filteredSales = sales;
-
-  if (formData) {
-    const fromDate = formData.get("from");
-    const toDate = formData.get("to");
-    const agent = (formData.get("agent") || "").toLowerCase();
-    const payment = formData.get("payment");
-
-    filteredSales = sales.filter(sale => {
-      // Filter by date range
-      if (fromDate && new Date(sale.date) < new Date(fromDate)) return false;
-      if (toDate && new Date(sale.date) > new Date(toDate)) return false;
-
-      // Filter by agent (if provided)
-      if (agent && !sale.agent.toLowerCase().includes(agent)) return false;
-
-      // Filter by payment type (if provided)
-      if (payment && payment !== "" && sale.payment !== payment) return false;
-
-      return true;
-    });
-  }
-
-  // Build table header
-  let tableHtml = `
-    <thead>
-      <tr>
-        <th>Date</th>
-        <th>Agent</th>
-        <th>Product</th>
-        <th>Quantity</th>
-        <th>Payment Type</th>
-        <th>Total (UGX)</th>
-      </tr>
-    </thead>
-    <tbody>
-  `;
-
-  // If no sales, show message
-  if (filteredSales.length === 0) {
-    tableHtml += `
-      <tr><td colspan="6" style="text-align:center;">No sales found matching the criteria.</td></tr>
-    `;
-  }
-
-  // Sum totals for the footer
-  let totalQuantity = 0;
-  let totalRevenue = 0;
-
-  // Generate table rows
-  filteredSales.forEach(sale => {
-    totalQuantity += sale.quantity;
-    totalRevenue += sale.total;
-
-    tableHtml += `
-      <tr>
-        <td>${new Date(sale.date).toLocaleDateString()}</td>
-        <td>${sale.agent}</td>
-        <td>${sale.productName}</td>
-        <td>${sale.quantity}</td>
-        <td>${sale.payment}</td>
-        <td style="text-align:right;">${sale.total.toLocaleString()}</td>
-      </tr>
-    `;
+  new Chart(productCtx, {
+    type: "pie",
+    data: {
+      labels: productLabels,
+      datasets: [{
+        data: productData,
+        backgroundColor: [
+          "#0b880b", "#e8b067", "#1e293b", "#475569", "#334155",
+          "#64748b", "#94a3b8", "#cbd5e1", "#e2e8f0", "#f1f5f9"
+        ]
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { position: "right" },
+        title: { display: true, text: "Top Selling Products" }
+      }
+    }
   });
 
-  tableHtml += `</tbody>`;
+  // Agent Chart
+  const agentCtx = document.getElementById("agentChart").getContext("2d");
+  const agentLabels = chartData.topAgents.map(item => item._id || "Unknown");
+  const agentData = chartData.topAgents.map(item => item.totalRevenue);
 
+  new Chart(agentCtx, {
+    type: "bar",
+    data: {
+      labels: agentLabels,
+      datasets: [{
+        label: "Revenue (UGX)",
+        data: agentData,
+        backgroundColor: "#0b880b",
+        borderColor: "#06660e",
+        borderWidth: 1
+      }]
+    },
+    options: {
+      responsive: true,
+      scales: {
+        y: {
+          beginAtZero: true,
+          ticks: {
+            callback: value => value.toLocaleString() + " UGX"
+          }
+        }
+      },
+      plugins: {
+        title: { display: true, text: "Top Agents by Revenue" }
+      }
+    }
+  });
+}
 
+// ---------------- EXPORT PDF ----------------
+function exportPDF() {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+
+  doc.text("Sales Report - Mayondo Wood & Furniture", 20, 20);
+  doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 20, 30);
+
+  const cards = document.querySelectorAll(".card-content");
+  let cardY = 50;
+  cards.forEach(card => {
+    const title = card.querySelector("h4").textContent;
+    const value = card.querySelector("p").textContent;
+    doc.text(`${title}: ${value}`, 20, cardY);
+    cardY += 10;
+  });
+
+  doc.text("Sales Records:", 20, cardY + 10);
+  let yPosition = cardY + 20;
+  const table = document.querySelector(".report-table table");
+  const headers = table.querySelectorAll("thead th");
+  const rows = table.querySelectorAll("tbody tr");
+
+  let xPosition = 10;
+  headers.forEach(header => {
+    doc.text(header.textContent.trim(), xPosition, yPosition);
+    xPosition += 30;
+  });
+
+  yPosition += 10;
+  rows.forEach(row => {
+    xPosition = 10;
+    row.querySelectorAll("td").forEach(cell => {
+      doc.text(cell.textContent.trim(), xPosition, yPosition, { maxWidth: 30 });
+      xPosition += 30;
+    });
+    yPosition += 10;
+    if (yPosition > 270) { doc.addPage(); yPosition = 20; }
+  });
+
+  doc.save("sales-report.pdf");
+}
+
+// ---------------- EXPORT EXCEL ----------------
+function exportExcel() {
+  const table = document.querySelector(".report-table table");
+  const ws = XLSX.utils.table_to_sheet(table);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "Sales Report");
+  XLSX.writeFile(wb, "sales-report.xlsx");
+}

@@ -1,51 +1,193 @@
 doctype html
-html
+html(lang="en")
   head
     meta(charset="UTF-8")
-    title Stock Reports
+    meta(name="viewport", content="width=device-width, initial-scale=1")
+    title MWF — Stock Report
     link(rel="stylesheet", href="/css/stock-report.css")
-    script(src="https://cdn.jsdelivr.net/npm/chart.js")
+    link(rel="stylesheet", href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css")
+    script(src="https://cdn.jsdelivr.net/npm/chart.js") 
+    script(src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js")
+    script(src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js")
+
   body
-    header
-      h1 Stock Reports
-
-    // Summary Section 
-    section.summary
-      .card
-        h2#totalExpenses UGX #{totalExpenses.toLocaleString()}
-        p Total Expenses
+    // ---- Sidebar ----
+    aside.sidebar
+      .logo-container
+        img.logo-img(src="/images/logo 2.png", alt="MWF Logo", onerror="this.style.display='none'")
+        h2.logo-text Mayondo Wood & Furniture
+      nav
         ul
-          each exp in productExpenses
-            li #{exp._id}: UGX #{exp.totalExpense.toLocaleString()}
-      .card
-        h2 #{totalQuantity}
-        p Total Stock Quantity
-        ul
-          each q in productQuantities
-            li #{q._id}: #{q.totalQuantity} units
+          li
+            a(href="/reports", class="active")
+              i.fas.fa-chart-bar
+              span Stock Reports
+          li
+            a(href="/approve-stock")
+              i.fas.fa-check-circle
+              span Approve Stock
+          li
+            a(href="/add-stock")
+              i.fas.fa-plus-circle
+              span Add Stock
+          li
+            a(href="/sales-report")
+              i.fas.fa-shopping-cart
+              span Sales Reports
+          li
+            a(href="/attendants")
+              i.fas.fa-users
+              span Attendants
+          li
+            a(href="#", id="editProfileBtn")
+              i.fas.fa-user-cog
+              span Profile
+          li
+            a(href="/logout")
+              i.fas.fa-sign-out-alt
+              span Logout
 
-    // Charts Section 
-    section.charts
-      .chart-container
-        h3 Stock Added by Attendants
-        canvas#attendantChart
-      .chart-container
-        h3 Monthly Expenses Trend
-        canvas#expenseChart
-      .chart-container
-        h3 Expenses by Product
-        canvas#productExpenseChart
-      .chart-container
-        h3 Stock Quantities by Product
-        canvas#productQuantityChart
+    // ---- Header ----
+    header#topbar
+      .header-content
+        .company-info
+          h1 Mayondo Wood & Furniture Ltd
+          h3 Stock Report Dashboard
+        .header-actions
+          button.notification-btn
+            i.fas.fa-bell
+            span.notification-count 3
+          .user-profile
+            i.fas.fa-user-circle
+            span Admin
 
-    .back
-      a.back-btn(href="/dashboard") ⬅ Back to Dashboard
+    // ---- Main Content ----
+    main.container
+      // ---- Cards ----
+      .cards
+        .card
+          .card-icon
+            i.fas.fa-money-bill-wave
+          .card-content
+            h4 Total Expenses on Raw Materials
+            p #{totalExpenses} UGX
+        .card
+          .card-icon
+            i.fas.fa-boxes
+          .card-content
+            h4 Total Stock Items
+            p #{totalStock}
+        .card
+          .card-icon
+            i.fas.fa-exclamation-triangle
+          .card-content
+            h4 Low Stock Alerts
+            if lowStock && lowStock.length > 0
+              ul
+                each item in lowStock
+                  li #{item.productName} (#{item.quantity} left)
+            else
+              p No low stock issues detected!
 
-    // Pass backend data to frontend JS
-    script.
-      const attendantData = !{JSON.stringify(attendantData)};
-      const monthlyExpenses = !{JSON.stringify(expenseData)};
-      const productExpenses = !{JSON.stringify(productExpenses)};
-      const productQuantities = !{JSON.stringify(productQuantities)};
+      // ---- Filters ----
+      .filters
+        h3 
+          i.fas.fa-filter
+          | Filter Stock Report
+        form(action="/reports", method="GET")
+          .form-group
+            label(for="productType")
+              i.fas.fa-tags
+              | Product Type:
+            select(name="productType" value=productType)
+              option(value="") All
+              option(value="wood" selected=productType==='wood') Wood
+              option(value="furniture" selected=productType==='furniture') Furniture
+
+          .form-group
+            label(for="dateFrom")
+              i.fas.fa-calendar-alt
+              | From:
+            input(type="date", name="dateFrom", value=dateFrom)
+
+          .form-group
+            label(for="dateTo")
+              i.fas.fa-calendar-check
+              | To:
+            input(type="date", name="dateTo", value=dateTo)
+
+          button(type="submit")
+            i.fas.fa-search
+            | Apply Filter
+
+      // ---- Table ----
+      .report-table
+        .table-header
+          h3
+            i.fas.fa-table
+            | Stock Inventory
+        table
+          thead
+            tr
+              th 
+                i.fas.fa-cube
+                | Product
+              th 
+                i.fas.fa-tag
+                | Type
+              th 
+                i.fas.fa-folder
+                | Category
+              th 
+                i.fas.fa-box
+                | Quantity
+              th 
+                i.fas.fa-money-bill
+                | Cost Price
+              th 
+                i.fas.fa-truck
+                | Supplier
+              th 
+                i.fas.fa-calendar
+                | Date
+          tbody
+            if stocks && stocks.length > 0
+              each stock in stocks
+                tr
+                  td #{stock.productName}
+                  td #{stock.productType}
+                  td #{stock.category}
+                  td #{stock.quantity}
+                  td #{stock.costPrice}
+                  td #{stock.supplier}
+                  td #{stock.date.toDateString()}
+            else
+              tr
+                td(colspan="7") No stock records found.
+
+      // ---- Export ----
+      .export-buttons
+        button.export-btn(onclick="exportPDF()")
+          i.fas.fa-file-pdf
+          | Export to PDF
+        button.export-btn(onclick="exportExcel()")
+          i.fas.fa-file-excel
+          | Export to Excel
+
+      // ---- Charts ----
+      .section
+        .charts-grid
+          .chart-container
+            .chart-header
+              i.fas.fa-chart-line
+              h3 Stock Insights
+            canvas#stockLevelsChart(width="400" height="200")
+          .chart-container
+            .chart-header
+              i.fas.fa-exclamation-circle
+              h3 Alerts
+            canvas#lowStockChart(width="400" height="200")
+
+    // ---- Hidden Chart Data ----
+    script#chart-data(type="application/json") !{chartData}
     script(src="/js/stock-report.js")

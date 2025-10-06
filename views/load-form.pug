@@ -2,43 +2,109 @@ doctype html
 html(lang="en")
   head
     meta(charset="UTF-8")
-    meta(name="viewport" content="width=device-width, initial-scale=1")
+    meta(name="viewport", content="width=device-width, initial-scale=1")
     title MWF — Load Stock
+    link(rel="stylesheet", href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css")
     link(rel="stylesheet", href="/css/attendant-manage.css")
 
   body
     .layout
-      // Sidebar
+      //- Sidebar
       aside.sidebar
-        h2.logo Dashboard
+        .logo-container
+          img.logo-img(src="/images/logo 2.png", alt="MWF Logo")
+          .logo-text Mayondo Wood & Furniture
         nav
           ul
-            li: a(href="/approve-stock") Approve Stock
-            li: a(href="/add-stock") Add Stock
-            li: a(href="/sales-report") Sales Reports
-            li: a(href="/attendants") Attendants
-            li: a(href="/loading/offload") Offload Stock
-            li: a(href="/loading/pending", class="active") Load Stock
-            li: a(href="#", id="editProfileBtn") Profile
-            li: a(href="/logout") Logout
+            li
+              a(href="/approve-stock")
+                i.fas.fa-check-circle
+                span Approve Stock
+            li
+              a(href="/add-stock")
+                i.fas.fa-boxes
+                span Add Stock
+            li
+              a(href="/sales-report")
+                i.fas.fa-chart-bar
+                span Sales Reports
+            li
+              a(href="/attendants")
+                i.fas.fa-users
+                span Attendants
+            li
+              a(href="/loading/offload")
+                i.fas.fa-truck-loading
+                span Offload Stock
+            li
+              a(href="/loading/pending", class="active")
+                i.fas.fa-hourglass-half
+                span Load Stock
+            li
+              a(href="#", id="editProfileBtn")
+                i.fas.fa-user-cog
+                span Profile
+            li
+              a(href="/logout")
+                i.fas.fa-sign-out-alt
+                span Logout
 
-      // Main content
-      main.main-content
-        header
-          h1 Load Stock for #{sale.customerName}
+      //- Topbar
+      #topbar
+        .header-content
+          .company-info
+            h1 Load Stock
+            h3 Confirm loading for customer order
+          .header-actions
+            .notification-btn
+              i.fas.fa-bell
+              .notification-count 0
+            .user-profile
+              i.fas.fa-user-circle
+              span #{user ? user.name : 'User'}
 
-        section.form-section
-          p Product: #{sale.productName}
-          p Type: #{sale.productType}
-          p Quantity: #{sale.quantity}
+      //- Main Content
+      .container
+        .form-section
+          .form-container
+            .form-header
+              h3
+                i.fas.fa-truck-loading
+                | Loading Confirmation
+              p Confirm stock loading for customer order
 
-          form(action=`/loading/load/${sale._id}` method="POST")
-            label(for="attendantName") Attendant Name:
-            input(type="text" name="attendantName" required)
-            br
-            button(type="submit") Confirm Loading
+            .order-details
+              .detail-card
+                .detail-item
+                  i.fas.fa-user
+                  strong Customer: 
+                  span #{sale.customerName}
+                .detail-item
+                  i.fas.fa-cube
+                  strong Product: 
+                  span #{sale.productName}
+                .detail-item
+                  i.fas.fa-tag
+                  strong Type: 
+                  span #{sale.productType}
+                .detail-item
+                  i.fas.fa-box
+                  strong Quantity: 
+                  span #{sale.quantity}
 
-    // Footer
+            form(action=`/loading/load/${sale._id}`, method="POST")
+              .form-group
+                label(for="attendantName")
+                  i.fas.fa-user-check
+                  | Attendant Name
+                input(type="text", name="attendantName", required, placeholder="Enter attendant name")
+              
+              .form-actions
+                button.submit-btn(type="submit")
+                  i.fas.fa-check-circle
+                  | Confirm Loading
+
+    //- Footer
     footer
       .container
         p &copy; 2025 Mayondo Wood & Furniture Ltd

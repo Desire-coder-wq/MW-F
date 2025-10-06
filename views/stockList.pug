@@ -4,81 +4,185 @@ html(lang="en")
     meta(charset="UTF-8")
     meta(name="viewport", content="width=device-width, initial-scale=1")
     title Stock List — MWF
+    link(rel="stylesheet", href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css")
     link(rel="stylesheet", href="/css/attendant-manage.css")
+    style.
+      .product-thumbnail {
+        width: 50px;
+        height: 50px;
+        object-fit: cover;
+        border-radius: 4px;
+        border: 1px solid #e2e8f0;
+      }
+      .thumbnail-placeholder {
+        width: 50px;
+        height: 50px;
+        background: #f8fafc;
+        border: 1px dashed #d1d5db;
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #94a3b8;
+      }
+
   body
     .layout
-      // Sidebar
+      //- Sidebar
       aside.sidebar
-        h2.logo Dashboard
+        .logo-container
+          img.logo-img(src="/images/logo 2.png", alt="MWF Logo")
+          .logo-text Mayondo Wood & Furniture
         nav
           ul
             li
-              a(href="/dashboard") Dashboard
+              a(href="/dashboard")
+                i.fas.fa-tachometer-alt
+                span Dashboard
             li
-              a(href="/sales") Sales Entry
+              a(href="/sales")
+                i.fas.fa-cash-register
+                span Sales Entry
             li
-              a(href="/receipt") Receipt
+              a(href="/receipt")
+                i.fas.fa-receipt
+                span Receipt
             li
-              a(href="/sales-report") Sales Report
+              a(href="/sales-report")
+                i.fas.fa-chart-bar
+                span Sales Report
             li
-              a(href="/stock-report") Stock Report
+              a(href="/stock-report")
+                i.fas.fa-chart-line
+                span Stock Report
             li
-              a(href="/stock-list", class="active") Stock List
+              a(href="/stock-list", class="active")
+                i.fas.fa-boxes
+                span Stock List
             li
-              a(href="/logout") Logout
+              a(href="/logout")
+                i.fas.fa-sign-out-alt
+                span Logout
 
-      // Main content
-      main.main-content
-        header
-          h1 Stock List
-          p View and manage all stock items in the system.
+      //- Topbar
+      #topbar
+        .header-content
+          .company-info
+            h1 Stock List
+            h3 View and manage all stock items
+          .header-actions
+            .notification-btn
+              i.fas.fa-bell
+              .notification-count 0
+            .user-profile
+              i.fas.fa-user-circle
+              span #{user ? user.name : 'User'}
 
-        section.table-section
-          table.stock-table
-            thead
-              tr
-                th #
-                th Product Name
-                th Product Type
-                th Category
-                th Cost Price
-                th Quantity
-                th Supplier
-                th Date
-                th Quality
-                th Color
-                th Measurement
-                th Total Value
-                th Actions
-            tbody
-              if stock.length
-                each item, i in stock
-                  tr
-                    td #{i + 1}
-                    td #{item.productName}
-                    td #{item.productType}
-                    td #{item.category}
-                    td #{item.costPrice}
-                    td #{item.quantity}
-                    td #{item.supplier}
-                    td #{new Date(item.date).toLocaleDateString()}
-                    td #{item.quality}
-                    td #{item.color}
-                    td #{item.measurement}
-                    td #{item.quantity * item.costPrice}
-                    td
-                      a(href=`/stock?id=${item._id}`) Edit
-                      form(action=`/api/stock/${item._id}?_method=DELETE`, method="POST", style="display:inline")
-                        button(type="submit") Delete
-              else
+      //- Main Content
+      .container
+        .table-section
+          .table-header
+            h3
+              i.fas.fa-boxes
+              | Stock Inventory
+          .table-container
+            table.stock-table
+              thead
                 tr
-                  td(colspan="13", style="text-align:center") No stock data found.
+                  th 
+                    i.fas.fa-hashtag
+                    | #
+                  th 
+                    i.fas.fa-image
+                    | Image
+                  th 
+                    i.fas.fa-cube
+                    | Product Name
+                  th 
+                    i.fas.fa-tag
+                    | Product Type
+                  th 
+                    i.fas.fa-folder
+                    | Category
+                  th 
+                    i.fas.fa-money-bill
+                    | Cost Price
+                  th 
+                    i.fas.fa-box
+                    | Quantity
+                  th 
+                    i.fas.fa-truck
+                    | Supplier
+                  th 
+                    i.fas.fa-calendar
+                    | Date
+                  th 
+                    i.fas.fa-star
+                    | Quality
+                  th 
+                    i.fas.fa-palette
+                    | Color
+                  th 
+                    i.fas.fa-ruler
+                    | Measurement
+                  th 
+                    i.fas.fa-calculator
+                    | Total Value
+                  th 
+                    i.fas.fa-cog
+                    | Actions
+              tbody
+                if stock.length
+                  each item, i in stock
+                    tr
+                      td #{i + 1}
+                      td
+                        if item.image
+                          img.product-thumbnail(src=item.image, alt=item.productName, onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';")
+                          .thumbnail-placeholder(style="display: none;")
+                            i.fas.fa-image
+                        else
+                          .thumbnail-placeholder
+                            i.fas.fa-cube
+                      td #{item.productName}
+                      td #{item.productType}
+                      td #{item.category}
+                      td #{item.costPrice.toLocaleString()}
+                      td #{item.quantity}
+                      td #{item.supplier}
+                      td #{new Date(item.date).toLocaleDateString()}
+                      td #{item.quality}
+                      td #{item.color}
+                      td #{item.measurement}
+                      td #{(item.quantity * item.costPrice).toLocaleString()}
+                      td.actions-cell
+                        a.btn-edit(href=`/stock?id=${item._id}`)
+                          i.fas.fa-edit
+                          | Edit
+                        form.delete-form(action=`/api/stock/${item._id}?_method=DELETE`, method="POST")
+                          button.btn-delete(type="submit")
+                            i.fas.fa-trash
+                            | Delete
+                else
+                  tr
+                    td(colspan="14", style="text-align:center;")
+                      i.fas.fa-inbox
+                      | No stock data found.
 
+    //- Footer
     footer
       .container
         p &copy; 2025 Mayondo Wood & Furniture Ltd
 
     script.
       // Optional: Auth & topbar scripts
+      function requireAuth() {
+        // Authentication check implementation
+      }
+      
+      function renderTopbar(title) {
+        // Topbar rendering implementation
+      }
+      
       requireAuth();
       renderTopbar("Stock List");

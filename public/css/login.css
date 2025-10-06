@@ -13,7 +13,10 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  background: linear-gradient(135deg, #e4d8c7, #e8b067);
+    /* Background image */
+  background: #f4f4f4 url('/images/embrace.png') no-repeat center center;
+  background-size: cover;  /* Changed to cover for better appearance */
+  background-attachment: fixed; /* optional: parallax effect */
 }
 
 .login-container {

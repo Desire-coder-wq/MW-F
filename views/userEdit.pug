@@ -4,82 +4,154 @@ html(lang="en")
     meta(charset="UTF-8")
     meta(name="viewport", content="width=device-width, initial-scale=1")
     title Edit User
-    link(rel="stylesheet", href="/css/userEdit.css")  
+    link(rel="stylesheet", href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css")
+    link(rel="stylesheet", href="/css/attendant-manage.css")
+
   body
-    // Sidebar (optional if you have dashboard)
-    aside.sidebar
-      h2.logo Dashboard
-      nav
-        ul
-          li: a(href="/reports") Reports
-          li: a(href="/approve-stock") Approve Stock
-          li: a(href="/add-stock") Add Stock
-          li: a(href="/sales-reports") Sales Reports
-          li: a(href="/attendants") Attendants
-          li: a(href="/profile", class="active") Profile
-          li: a(href="/logout") Logout
+    .layout
+      //- Sidebar
+      aside.sidebar
+        .logo-container
+          img.logo-img(src="/images/logo.png", alt="MWF Logo")
+          .logo-text Dashboard
+        nav
+          ul
+            li
+              a(href="/reports")
+                i.fas.fa-chart-bar
+                span Reports
+            li
+              a(href="/approve-stock")
+                i.fas.fa-check-circle
+                span Approve Stock
+            li
+              a(href="/add-stock")
+                i.fas.fa-boxes
+                span Add Stock
+            li
+              a(href="/sales-reports")
+                i.fas.fa-file-invoice-dollar
+                span Sales Reports
+            li
+              a(href="/attendants")
+                i.fas.fa-users
+                span Attendants
+            li
+              a(href="/profile", class="active")
+                i.fas.fa-user-cog
+                span Profile
+            li
+              a(href="/logout")
+                i.fas.fa-sign-out-alt
+                span Logout
 
-    // Top header
-    header#topbar
-      h1 Mayondo Wood & Furniture Ltd
-      h3 Edit User Profile
+      //- Topbar
+      #topbar
+        .header-content
+          .company-info
+            h1 Edit User Profile
+            h3 Update user information and settings
+          .header-actions
+            .notification-btn
+              i.fas.fa-bell
+              .notification-count 0
+            .user-profile
+              i.fas.fa-user-circle
+              span #{user ? user.name : 'User'}
 
-    // Main container (the card)
-    main.container
-      form(action=`/users/update/${user._id}`, method="POST", enctype="multipart/form-data", class="edit-form")
-        
-        // Profile Picture
-        .form-group.profile
-          label(for="profilePic") Profile Picture:
-          if user.profilePic
-            img.profile-img(src=user.profilePic, alt="Profile Picture")
-          input#profilePic(type="file", name="profilePic")
+      //- Main Content
+      .container
+        .form-section
+          .form-container
+            .form-header
+              h3
+                i.fas.fa-user-edit
+                | Edit User Profile
+              p Update the user's information and settings
 
-        // Name & Email
-        .form-row
-          .form-group
-            label(for="name") Name:
-            input#name(type="text", name="name", value=user.name, required)
-          .form-group
-            label(for="email") Email:
-            input#email(type="email", name="email", value=user.email, required)
+            form.edit-form(action=`/users/update/${user._id}`, method="POST", enctype="multipart/form-data")
+              //- Profile Picture
+              .profile-picture-section
+                .form-group.profile
+                  label(for="profilePic")
+                    i.fas.fa-camera
+                    | Profile Picture
+                  .profile-container
+                    if user.profilePic
+                      img.profile-img(src=user.profilePic, alt="Profile Picture")
+                    else
+                      .profile-placeholder
+                        i.fas.fa-user
+                    input#profilePic(type="file", name="profilePic", accept="image/*")
 
-        // Role & Gender
-        .form-row
-          .form-group
-            label(for="role") Role:
-            select#role(name="role", required)
-              option(value="manager", selected=(user.role==="manager")) Manager
-              option(value="attendant", selected=(user.role==="attendant")) Attendant
-          .form-group
-            label(for="gender") Gender:
-            select#gender(name="gender")
-              option(value="Male", selected=(user.gender==="Male")) Male
-              option(value="Female", selected=(user.gender==="Female")) Female
-              option(value="Other", selected=(user.gender==="Other")) Other
+              //- Name & Email
+              .form-grid
+                .form-group
+                  label(for="name")
+                    i.fas.fa-user
+                    | Name
+                  input#name(type="text", name="name", value=user.name, required, placeholder="Enter full name")
 
-        // Contact Info
-        .form-row
-          .form-group
-            label(for="phoneNumber") Phone Number:
-            input#phoneNumber(type="text", name="phoneNumber", value=user.phoneNumber || "")
-          .form-group
-            label(for="nationalId") National ID:
-            input#nationalId(type="text", name="nationalId", value=user.nationalId || "")
+                .form-group
+                  label(for="email")
+                    i.fas.fa-envelope
+                    | Email
+                  input#email(type="email", name="email", value=user.email, required, placeholder="Enter email address")
 
-        // Next of Kin Info
-        .form-row
-          .form-group
-            label(for="nextOfKinName") Next of Kin Name:
-            input#nextOfKinName(type="text", name="nextOfKinName", value=user.nextOfKinName || "")
-          .form-group
-            label(for="nextOfKinNumber") Next of Kin Phone:
-            input#nextOfKinNumber(type="text", name="nextOfKinNumber", value=user.nextOfKinNumber || "")
+              //- Role & Gender
+              .form-grid
+                .form-group
+                  label(for="role")
+                    i.fas.fa-user-tag
+                    | Role
+                  select#role(name="role", required)
+                    option(value="manager", selected=(user.role==="manager")) Manager
+                    option(value="attendant", selected=(user.role==="attendant")) Attendant
 
-        // Submit Button
-        .form-group.submit
-          button(type="submit") Save Changes
+                .form-group
+                  label(for="gender")
+                    i.fas.fa-venus-mars
+                    | Gender
+                  select#gender(name="gender")
+                    option(value="Male", selected=(user.gender==="Male")) Male
+                    option(value="Female", selected=(user.gender==="Female")) Female
+                    option(value="Other", selected=(user.gender==="Other")) Other
 
-    // Footer
+              //- Contact Info
+              .form-grid
+                .form-group
+                  label(for="phoneNumber")
+                    i.fas.fa-phone
+                    | Phone Number
+                  input#phoneNumber(type="text", name="phoneNumber", value=user.phoneNumber || "", placeholder="Enter phone number")
+
+                .form-group
+                  label(for="nationalId")
+                    i.fas.fa-id-card
+                    | National ID
+                  input#nationalId(type="text", name="nationalId", value=user.nationalId || "", placeholder="Enter national ID")
+
+              //- Next of Kin Info
+              .form-grid
+                .form-group
+                  label(for="nextOfKinName")
+                    i.fas.fa-users
+                    | Next of Kin Name
+                  input#nextOfKinName(type="text", name="nextOfKinName", value=user.nextOfKinName || "", placeholder="Enter next of kin name")
+
+                .form-group
+                  label(for="nextOfKinNumber")
+                    i.fas.fa-mobile-alt
+                    | Next of Kin Phone
+                  input#nextOfKinNumber(type="text", name="nextOfKinNumber", value=user.nextOfKinNumber || "", placeholder="Enter next of kin phone")
+
+              //- Submit Button
+              .form-actions
+                button.submit-btn(type="submit")
+                  i.fas.fa-save
+                  | Save Changes
+
+    //- Footer
     footer
-      p © 2025 Mayondo Wood & Furniture Ltd
+      .container
+        p &copy; 2025 Mayondo Wood & Furniture Ltd

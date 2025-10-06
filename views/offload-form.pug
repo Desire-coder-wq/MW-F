@@ -2,55 +2,105 @@ doctype html
 html(lang="en")
   head
     meta(charset="UTF-8")
-    meta(name="viewport" content="width=device-width, initial-scale=1")
+    meta(name="viewport", content="width=device-width, initial-scale=1")
     title MWF — Offload Stock
+    link(rel="stylesheet", href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css")
     link(rel="stylesheet", href="/css/attendant-manage.css")
 
   body
     .layout
-      // Sidebar
+      //- Sidebar
       aside.sidebar
-        h2.logo MWF
+        .logo-container
+          img.logo-img(src="/images/logo 2.png", alt="MWF Logo")
+          .logo-text Mayondo Wood & Furniture
         nav
-          ul 
-            li: a(href="/add-stock") Add Stock
-            li: a(href="/sales-report") Sales Reports
-            li: a(href="/loading/offload", class="active") Offload Stock
-            li: a(href="/loading/pending") Load Stock
-            li: a(href="/logout") Logout
+          ul
+            li
+              a(href="/add-stock")
+                i.fas.fa-boxes
+                span Add Stock
+            li
+              a(href="/sales-report")
+                i.fas.fa-chart-bar
+                span Sales Reports
+            li
+              a(href="/loading/offload", class="active")
+                i.fas.fa-truck-loading
+                span Offload Stock
+            li
+              a(href="/loading/pending")
+                i.fas.fa-hourglass-half
+                span Load Stock
+            li
+              a(href="/logout")
+                i.fas.fa-sign-out-alt
+                span Logout
 
-      // Main content
-      main.main-content
-        header
-          h1 Offload Stock
+      //- Topbar
+      #topbar
+        .header-content
+          .company-info
+            h1 Offload Stock
+            h3 Record stock offloading operations
+          .header-actions
+            .notification-btn
+              i.fas.fa-bell
+              .notification-count 0
+            .user-profile
+              i.fas.fa-user-circle
+              span #{user ? user.name : 'User'}
 
-        section.form-section
-          form(action="/loading/offload" method="POST")
-            label(for="productName") Product Name:
-            input(type="text" name="productName" required)
-            br
+      //- Main Content
+      .container
+        .form-section
+          .form-container
+            .form-header
+              h3
+                i.fas.fa-truck-loading
+                | Offload Stock Form
+              p Fill in the details below to record stock offloading
+            form(action="/loading/offload", method="POST")
+              .form-grid
+                .form-group
+                  label(for="productName")
+                    i.fas.fa-cube
+                    | Product Name
+                  input(type="text", name="productName", required, placeholder="Enter product name")
+                
+                .form-group
+                  label(for="productType")
+                    i.fas.fa-tag
+                    | Product Type
+                  select(name="productType", required)
+                    option(value="") Select Product Type
+                    option(value="wood") Wood
+                    option(value="furniture") Furniture
+                
+                .form-group
+                  label(for="quantity")
+                    i.fas.fa-box
+                    | Quantity
+                  input(type="number", name="quantity", required, placeholder="Enter quantity")
+                
+                .form-group
+                  label(for="attendantName")
+                    i.fas.fa-user
+                    | Attendant Name
+                  input(type="text", name="attendantName", required, placeholder="Enter attendant name")
+                
+                .form-group
+                  label(for="relatedStock")
+                    i.fas.fa-barcode
+                    | Stock ID
+                  input(type="text", name="relatedStock", required, placeholder="Enter stock ID")
+              
+              .form-actions
+                button.submit-btn(type="submit")
+                  i.fas.fa-save
+                  | Save Offload
 
-            label(for="productType") Product Type:
-            select(name="productType")
-              option(value="wood") Wood
-              option(value="furniture") Furniture
-            br
-
-            label(for="quantity") Quantity:
-            input(type="number" name="quantity" required)
-            br
-
-            label(for="attendantName") Attendant Name:
-            input(type="text" name="attendantName" required)
-            br
-
-            label(for="relatedStock") Stock ID:
-            input(type="text" name="relatedStock" required)
-            br
-
-            button(type="submit") Save Offload
-
-    // Footer
+    //- Footer
     footer
       .container
         p &copy; 2025 Mayondo Wood & Furniture Ltd
