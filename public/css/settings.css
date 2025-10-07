@@ -1,0 +1,439 @@
+/* Settings Page Styles */
+.settings-container {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.settings-section {
+  background: white;
+  border-radius: 12px;
+  padding: 30px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e2e8f0;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 25px;
+  padding-bottom: 15px;
+  border-bottom: 2px solid #f1f5f9;
+}
+
+.section-header i {
+  font-size: 1.5rem;
+  color: #0b880b;
+}
+
+.section-header h3 {
+  color: #1e293b;
+  margin: 0;
+  font-size: 1.4rem;
+}
+
+.settings-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 25px;
+}
+
+.setting-item {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.theme-label {
+  font-weight: 600;
+  color: #374151;
+  font-size: 0.95rem;
+  margin-bottom: 5px;
+}
+
+/* Color Picker Styles */
+.color-picker-container {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.color-picker {
+  width: 60px;
+  height: 40px;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  cursor: pointer;
+  padding: 2px;
+}
+
+.color-value {
+  font-family: 'Courier New', monospace;
+  font-weight: 600;
+  color: #64748b;
+  background: #f8fafc;
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid #e2e8f0;
+  min-width: 80px;
+  text-align: center;
+}
+
+/* Theme Mode Selector */
+.theme-mode-selector {
+  display: flex;
+  gap: 10px;
+  background: #f8fafc;
+  padding: 5px;
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+}
+
+.theme-mode-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 15px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: #64748b;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.theme-mode-btn.active {
+  background: white;
+  color: #0b880b;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.theme-mode-btn:hover:not(.active) {
+  background: rgba(11, 136, 11, 0.1);
+  color: #0b880b;
+}
+
+/* Font Size Controls */
+.font-size-control {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  background: #f8fafc;
+  padding: 10px 15px;
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+}
+
+.font-size-btn {
+  background: white;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.font-size-btn:hover {
+  background: #0b880b;
+  color: white;
+  border-color: #0b880b;
+}
+
+.font-size-slider {
+  flex: 1;
+  height: 6px;
+  border-radius: 3px;
+  background: #e2e8f0;
+  outline: none;
+}
+
+.font-size-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #0b880b;
+  cursor: pointer;
+  border: 2px solid white;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+.font-size-value {
+  font-weight: 600;
+  color: #0b880b;
+  min-width: 45px;
+  text-align: center;
+}
+
+/* Select Inputs */
+.font-family-select,
+.font-weight-select,
+.invoice-format-select,
+.auto-logout-select,
+.date-format-select,
+.language-select {
+  width: 100%;
+  padding: 12px 15px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  background: white;
+  font-size: 0.95rem;
+  color: #374151;
+  cursor: pointer;
+  transition: border-color 0.3s ease;
+}
+
+.font-family-select:focus,
+.font-weight-select:focus,
+.invoice-format-select:focus,
+.auto-logout-select:focus,
+.date-format-select:focus,
+.language-select:focus {
+  outline: none;
+  border-color: #0b880b;
+  box-shadow: 0 0 0 3px rgba(11, 136, 11, 0.1);
+}
+
+/* Logo Upload */
+.logo-upload-container {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.logo-preview {
+  width: 80px;
+  height: 80px;
+  border: 2px dashed #d1d5db;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.logo-preview img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.logo-upload {
+  display: none;
+}
+
+.upload-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.upload-btn:hover {
+  background: #2563eb;
+  transform: translateY(-2px);
+}
+
+/* Company Info Inputs */
+.company-info-inputs {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.company-input {
+  padding: 12px 15px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  transition: border-color 0.3s ease;
+}
+
+.company-input:focus {
+  outline: none;
+  border-color: #0b880b;
+  box-shadow: 0 0 0 3px rgba(11, 136, 11, 0.1);
+}
+
+/* Transport Fee */
+.transport-fee-setting {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.transport-fee-input {
+  width: 80px;
+  padding: 12px 15px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  text-align: center;
+}
+
+.percentage-sign {
+  font-weight: 600;
+  color: #0b880b;
+  font-size: 1.1rem;
+}
+
+.help-text {
+  font-size: 0.85rem;
+  color: #64748b;
+  margin-top: 5px;
+}
+
+/* Action Buttons */
+.settings-actions {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+  padding: 30px 0;
+  border-top: 1px solid #e2e8f0;
+  margin-top: 20px;
+}
+
+.save-settings-btn,
+.reset-settings-btn,
+.preview-invoice-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 15px 30px;
+  border: none;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.save-settings-btn {
+  background: linear-gradient(135deg, #0b880b, #0a6e0a);
+  color: white;
+}
+
+.save-settings-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(11, 136, 11, 0.3);
+}
+
+.reset-settings-btn {
+  background: #6b7280;
+  color: white;
+}
+
+.reset-settings-btn:hover {
+  background: #4b5563;
+  transform: translateY(-2px);
+}
+
+.preview-invoice-btn {
+  background: #3b82f6;
+  color: white;
+}
+
+.preview-invoice-btn:hover {
+  background: #2563eb;
+  transform: translateY(-2px);
+}
+
+/* Invoice Preview Modal */
+.invoice-modal-content {
+  max-width: 800px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.invoice-preview {
+  background: white;
+  padding: 40px;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+/* Dark Theme Support */
+body.dark-theme {
+  background-color: #1a1a1a;
+  color: #e5e7eb;
+}
+
+body.dark-theme .settings-section {
+  background: #2d2d2d;
+  border-color: #404040;
+}
+
+body.dark-theme .section-header {
+  border-color: #404040;
+}
+
+body.dark-theme .theme-label {
+  color: #e5e7eb;
+}
+
+body.dark-theme .color-value,
+body.dark-theme .company-input,
+body.dark-theme .font-family-select,
+body.dark-theme .font-weight-select,
+body.dark-theme .invoice-format-select,
+body.dark-theme .auto-logout-select,
+body.dark-theme .date-format-select,
+body.dark-theme .language-select,
+body.dark-theme .transport-fee-input {
+  background: #374151;
+  border-color: #4b5563;
+  color: #e5e7eb;
+}
+
+body.dark-theme .theme-mode-selector,
+body.dark-theme .font-size-control {
+  background: #374151;
+  border-color: #4b5563;
+}
+
+body.dark-theme .font-size-btn {
+  background: #4b5563;
+  border-color: #6b7280;
+  color: #e5e7eb;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .settings-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .settings-actions {
+    flex-direction: column;
+  }
+  
+  .logo-upload-container {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .color-picker-container {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

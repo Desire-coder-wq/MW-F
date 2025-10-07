@@ -11,11 +11,14 @@ const methodOverride = require("method-override");
 const path = require("path");
 const mongoose = require("mongoose");
 const MongoStore = require("connect-mongo");
+const moment = require("moment");
 
 // Import model
 const UserModel = require("./models/userModel");
 
 // Import routes
+const supplierRoutes = require('./routes/supplierRoutes');
+const customerRoutes = require('./routes/customerRoutes');
 const authRoutes = require("./routes/authRoutes");
 const stockRoutes = require("./routes/stockRoutes");
 const indexRoutes = require("./routes/indexRoutes");
@@ -89,6 +92,8 @@ app.use('/', userRoutes);
 app.use('/', manageRoutes);
 app.use("/loading", loadingRoutes);
 app.use("/", reportRoutes);
+app.use('/', supplierRoutes);
+app.use('/', customerRoutes);
 // 404 handler
 app.use((req, res) => {
   res.status(404).send('Oops! Route not found');

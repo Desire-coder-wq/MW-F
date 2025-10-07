@@ -22,19 +22,17 @@ const stockSchema = new mongoose.Schema({
     type: Number,
     required: true
   },
-  supplier: {
-    type: String,
-  },
-  quality: {
-    type: String,
-  },
-  color: {
-    type: String,
-  },
-  measurement: {
-    type: String,
-  },
-  // ADD THIS IMAGE FIELD
+
+  // ✅ Extended Supplier Information
+  supplier: { type: String, required: true },
+  supplierEmail: { type: String },
+  supplierContact: { type: String },
+  supplierAddress: { type: String },
+
+  quality: { type: String },
+  color: { type: String },
+  measurement: { type: String },
+
   image: {
     type: String,
     default: ''

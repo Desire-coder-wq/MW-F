@@ -1,0 +1,226 @@
+doctype html
+html(lang="en")
+  head
+    meta(charset="UTF-8")
+    meta(name="viewport", content="width=device-width, initial-scale=1")
+    title MWF — System Settings
+    link(rel="stylesheet", href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css")
+    link(rel="stylesheet", href="/css/attendant-manage.css")
+    link(rel="stylesheet", href="/css/settings.css")
+
+  body
+    .layout
+      //- Sidebar
+      aside.sidebar
+        .logo-container
+          img.logo-img(src="/images/logo 2.png", alt="MWF Logo")
+          .logo-text Mayondo Wood & Furniture
+        nav
+          ul
+            li
+              a(href="/dashboard")
+                i.fas.fa-home
+                span Dashboard
+            li
+              a(href="/products")
+                i.fas.fa-couch
+                span Products Gallery
+            li
+              a(href="/stock")
+                i.fas.fa-boxes
+                span Add Stock
+            li
+              a(href="/stockList")
+                i.fas.fa-clipboard-list
+                span Stock List
+            li
+              a(href="/sales-report")
+                i.fas.fa-chart-line
+                span Sales Reports
+            li
+              a(href="/settings").active
+                i.fas.fa-cog
+                span Settings
+            li
+              a(href="/logout")
+                i.fas.fa-sign-out-alt
+                span Logout
+
+      //- Topbar
+      #topbar
+        .header-content
+          .company-info
+            h1 System Settings
+            h3 Customize your MWF experience
+          .header-actions
+            .notification-btn
+              i.fas.fa-bell
+              .notification-count 0
+            .user-profile
+              i.fas.fa-user-circle
+              span#userName(data-user-name=user ? user.name : 'User')= user ? user.name : 'User'
+
+      //- Main Content
+      .container
+        .page-header
+          .header-text
+            h2(style="margin-bottom: 10px; color: #1e293b;") System Configuration
+            p(style="color: #64748b;") Customize themes, appearance, and system preferences
+
+        .settings-container
+          //- Theme Settings
+          .settings-section
+            .section-header
+              i.fas.fa-palette
+              h3 Theme Customization
+            .settings-grid
+              .setting-item
+                label.theme-label Primary Color
+                .color-picker-container
+                  input#primaryColor.color-picker(type="color", value="#0b880b")
+                  span.color-value #0b880b
+              
+              .setting-item
+                label.theme-label Secondary Color
+                .color-picker-container
+                  input#secondaryColor.color-picker(type="color", value="#3b82f6")
+                  span.color-value #3b82f6
+              
+              .setting-item
+                label.theme-label Background Color
+                .color-picker-container
+                  input#backgroundColor.color-picker(type="color", value="#f8fafc")
+                  span.color-value #f8fafc
+              
+              .setting-item
+                label.theme-label Theme Mode
+                .theme-mode-selector
+                  button.theme-mode-btn.active(data-mode="light")
+                    i.fas.fa-sun
+                    span Light
+                  button.theme-mode-btn(data-mode="dark")
+                    i.fas.fa-moon
+                    span Dark
+                  button.theme-mode-btn(data-mode="auto")
+                    i.fas.fa-adjust
+                    span Auto
+
+          //- Font Settings
+          .settings-section
+            .section-header
+              i.fas.fa-font
+              h3 Text & Font Settings
+            .settings-grid
+              .setting-item
+                label.theme-label Base Font Size
+                .font-size-control
+                  button.font-size-btn(decrease) A-
+                  input#fontSizeSlider.font-size-slider(type="range", min="12", max="24", value="16", step="1")
+                  button.font-size-btn(increase) A+
+                  span.font-size-value 16px
+              
+              .setting-item
+                label.theme-label Font Family
+                select#fontFamily.font-family-select
+                  option(value="'Inter', sans-serif") Inter
+                  option(value="'Roboto', sans-serif") Roboto
+                  option(value="'Poppins', sans-serif") Poppins
+                  option(value="'Open Sans', sans-serif") Open Sans
+                  option(value="Arial, sans-serif") Arial
+              
+              .setting-item
+                label.theme-label Font Weight
+                select#fontWeight.font-weight-select
+                  option(value="300") Light (300)
+                  option(value="400") Regular (400)
+                  option(value="500") Medium (500)
+                  option(value="600") Semi Bold (600)
+                  option(value="700") Bold (700)
+
+          //- Invoice Settings
+          .settings-section
+            .section-header
+              i.fas.fa-receipt
+              h3 Invoice & Receipt Settings
+            .settings-grid
+              .setting-item
+                label.theme-label Company Logo
+                .logo-upload-container
+                  .logo-preview
+                    img#logoPreview(src="/images/logo 2.png", alt="Company Logo")
+                  input#logoUpload.logo-upload(type="file", accept="image/*")
+                  button.upload-btn(onclick="document.getElementById('logoUpload').click()")
+                    i.fas.fa-upload
+                    span Change Logo
+              
+              .setting-item
+                label.theme-label Company Information
+                .company-info-inputs
+                  input#companyName.company-input(type="text", placeholder="Company Name", value="Mayondo Wood & Furniture Ltd")
+                  input#companyAddress.company-input(type="text", placeholder="Company Address", value="Nairobi, Kenya")
+                  input#companyPhone.company-input(type="text", placeholder="Phone Number", value="+254 700 000 000")
+                  input#companyEmail.company-input(type="email", placeholder="Email Address", value="info@mwf.co.ke")
+              
+              .setting-item
+                label.theme-label Invoice Number Format
+                select#invoiceFormat.invoice-format-select
+                  option(value="MWF-{year}-{sequence}") MWF-YYYY-0001
+                  option(value="INV-{sequence}") INV-0001
+                  option(value="{year}/{month}/{sequence}") YYYY/MM/0001
+              
+              .setting-item
+                label.theme-label Transport Fee
+                .transport-fee-setting
+                  input#transportFee.transport-fee-input(type="number", value="5", min="0", max="20", step="0.5")
+                  span.percentage-sign %
+                  .help-text 5% transport fee added when company provides transport
+
+          //- System Preferences
+          .settings-section
+            .section-header
+              i.fas.fa-sliders-h
+              h3 System Preferences
+            .settings-grid
+              .setting-item
+                label.theme-label Auto-logout Timer
+                select#autoLogout.auto-logout-select
+                  option(value="15") 15 minutes
+                  option(value="30") 30 minutes
+                  option(value="60") 1 hour
+                  option(value="120") 2 hours
+                  option(value="0") Never
+              
+              .setting-item
+                label.theme-label Default Date Format
+                select#dateFormat.date-format-select
+                  option(value="DD/MM/YYYY") DD/MM/YYYY
+                  option(value="MM/DD/YYYY") MM/DD/YYYY
+                  option(value="YYYY-MM-DD") YYYY-MM-DD
+                  option(value="DD MMM YYYY") DD MMM YYYY
+              
+              .setting-item
+                label.theme-label Language
+                select#language.language-select
+                  option(value="en") English
+                  option(value="sw") Kiswahili
+
+          //- Action Buttons
+          .settings-actions
+            button.save-settings-btn#saveSettings
+              i.fas.fa-save
+              span Save Settings
+            button.reset-settings-btn#resetSettings
+              i.fas.fa-undo
+              span Reset to Default
+            button.preview-invoice-btn#previewInvoice
+              i.fas.fa-eye
+              span Preview Invoice
+
+    //- Invoice Preview Modal
+    .modal(style="display: none;")#invoicePreviewModal
+      .modal-content.invoice-modal-content
+        span.close(style="position: absolute; right: 15px; top: 10px; cursor: pointer;") &times;
+        .invoice-preview#invoicePreview
+          //- Invoice content will be generated here by JavaScript
+
+    script(src="/js/settings.js")

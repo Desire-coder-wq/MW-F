@@ -71,9 +71,6 @@ html(lang="en")
                     i.fas.fa-hashtag
                     | #
                   th 
-                    i.fas.fa-user
-                    | Customer
-                  th 
                     i.fas.fa-cube
                     | Product
                   th 
@@ -105,7 +102,6 @@ html(lang="en")
                   each sale, i in sales
                     tr
                       td #{i + 1}
-                      td #{sale.customerName}
                       td #{sale.productName}
                       td #{sale.quantity}
                       td #{sale.price.toLocaleString()}

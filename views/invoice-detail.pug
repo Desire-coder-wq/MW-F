@@ -1,0 +1,241 @@
+doctype html
+html(lang="en")
+  head
+    meta(charset="UTF-8")
+    meta(name="viewport", content="width=device-width, initial-scale=1")
+    title MWF — Invoice #{invoice.invoiceNumber}
+    link(rel="stylesheet", href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css")
+    link(rel="stylesheet", href="/css/attendant-manage.css")
+    link(rel="stylesheet", href="/css/invoice-detail.css")
+
+  body
+    .layout
+      //- Sidebar
+      aside.sidebar
+        .logo-container
+          img.logo-img(src="/images/logo 2.png", alt="MWF Logo")
+          .logo-text Mayondo Wood & Furniture
+        nav
+          ul
+            li
+              a(href="/dashboard")
+                i.fas.fa-home
+                span Dashboard
+            li
+              a(href="/products")
+                i.fas.fa-couch
+                span Products Gallery
+            li
+              a(href="/stock")
+                i.fas.fa-boxes
+                span Add Stock
+            li
+              a(href="/stockList")
+                i.fas.fa-clipboard-list
+                span Stock List
+            li
+              a(href="/sales-report")
+                i.fas.fa-chart-line
+                span Sales Reports
+            li
+              a(href="/settings")
+                i.fas.fa-cog
+                span Settings
+            li
+              a(href="/invoices")
+                i.fas.fa-receipt
+                span Invoices
+            li
+              a(href="/logout")
+                i.fas.fa-sign-out-alt
+                span Logout
+
+      //- Topbar
+      #topbar
+        .header-content
+          .company-info
+            h1 Invoice #{invoice.invoiceNumber}
+            h3 View and manage invoice details
+          .header-actions
+            .notification-btn
+              i.fas.fa-bell
+              .notification-count 0
+            .user-profile
+              i.fas.fa-user-circle
+              span#userName(data-user-name=user ? user.name : 'User')= user ? user.name : 'User'
+
+      //- Main Content
+      .container
+        .page-header
+          .header-text
+            h2(style="margin-bottom: 10px; color: #1e293b;") Invoice Details
+            p(style="color: #64748b;") Complete information for invoice #{invoice.invoiceNumber}
+          .header-actions
+            button.get-all-btn(onclick="printInvoice()")
+              i.fas.fa-print
+              | Print Invoice
+            button.get-all-btn(onclick="downloadPDF()")
+              i.fas.fa-download
+              | Download PDF
+            button.get-all-btn(onclick="sendEmail()")
+              i.fas.fa-envelope
+              | Send Email
+
+        //- Invoice Details
+        .invoice-detail-container
+          .invoice-header
+            .company-info
+              img.logo(src="/images/logo 2.png", alt="MWF Logo")
+              h2 Mayondo Wood & Furniture Ltd
+              p Mbarara, Uganda
+              p Phone: +256-767625461
+              p Email: info@mwf.co.ug
+            
+            .invoice-meta
+              h1 INVOICE
+              .meta-item
+                strong Invoice Number:
+                span= invoice.invoiceNumber
+              .meta-item
+                strong Invoice Date:
+                span= invoice.date
+              .meta-item
+                strong Due Date:
+                span= invoice.dueDate
+              .meta-item
+                strong Status:
+                span.status(class=`status-${invoice.status}`)= invoice.status.charAt(0).toUpperCase() + invoice.status.slice(1)
+
+          .billing-info
+            .bill-to
+              h3 Bill To:
+              p= invoice.customer.name
+              p= invoice.customer.address
+              p= invoice.customer.phone
+              p= invoice.customer.email
+            
+            .ship-to
+              h3 Ship To:
+              p Same as billing address
+
+          .invoice-items
+            table
+              thead
+                tr
+                  th Item
+                  th Description
+                  th Quantity
+                  th Unit Price
+                  th Amount
+              tbody
+                each item in invoice.items
+                  tr
+                    td= item.name
+                    td= item.description
+                    td= item.quantity
+                    td UGX #{item.unitPrice.toLocaleString()}
+                    td UGX #{item.amount.toLocaleString()}
+              tfoot
+                tr
+                  td(colspan="4") Subtotal
+                  td UGX #{invoice.items.reduce((sum, item) => sum + item.amount, 0).toLocaleString()}
+                tr
+                  td(colspan="4") Transport Fee (#{invoice.transportFee}%)
+                  td UGX #{(invoice.items.reduce((sum, item) => sum + item.amount, 0) * invoice.transportFee / 100).toLocaleString()}
+                tr.total-row
+                  td(colspan="4")
+                    strong Total
+                  td
+                    strong UGX #{(invoice.items.reduce((sum, item) => sum + item.amount, 0) * (1 + invoice.transportFee / 100)).toLocaleString()}
+
+          .payment-terms
+            h3 Payment Terms
+            p Payment due within 30 days. Please make payment to:
+            .bank-details
+              p
+                strong Bank:
+                |  Equity Bank
+              p
+                strong Account Name:
+                |  Mayondo Wood & Furniture Ltd
+              p
+                strong Account Number:
+                |  +256-767625461
+              p
+                strong Branch:
+                |  Mbarara
+
+          .invoice-footer
+            .thank-you
+              p Thank you for your business!
+            .signature
+              p Authorized Signature
+              p _________________________
+              p Asingura Desire, Manager
+
+        .action-buttons
+          button.action-btn.update-btn(onclick="editInvoice()")
+            i.fas.fa-edit
+            | Edit Invoice
+          button.action-btn.view-btn(onclick="markAsPaid()")
+            i.fas.fa-check-circle
+            | Mark as Paid
+          button.action-btn.delete-btn(onclick="deleteInvoice()")
+            i.fas.fa-trash
+            | Delete Invoice
+          button.action-btn.view-btn(onclick="window.history.back()")
+            i.fas.fa-arrow-left
+            | Back to List
+
+    //- ✅ Inline Script Section (proper indentation)
+    script.
+      // Utility: show message
+      function showMessage(msg) {
+        const messageBox = document.createElement('div');
+        messageBox.textContent = msg;
+        messageBox.style.position = 'fixed';
+        messageBox.style.bottom = '20px';
+        messageBox.style.left = '50%';
+        messageBox.style.transform = 'translateX(-50%)';
+        messageBox.style.background = '#166534';
+        messageBox.style.color = '#fff';
+        messageBox.style.padding = '12px 20px';
+        messageBox.style.borderRadius = '8px';
+        messageBox.style.fontSize = '15px';
+        messageBox.style.zIndex = '9999';
+        document.body.appendChild(messageBox);
+        setTimeout(() => messageBox.remove(), 2500);
+      }
+
+      function printInvoice() {
+        window.print();
+        showMessage("Invoice sent to printer.");
+      }
+
+      function downloadPDF() {
+        showMessage("Invoice downloaded as PDF.");
+      }
+
+      function sendEmail() {
+        showMessage("Invoice emailed to customer.");
+      }
+
+      function editInvoice() {
+        showMessage("Opening invoice edit form...");
+      }
+
+      function markAsPaid() {
+        showMessage("Invoice marked as paid.");
+      }
+
+      function deleteInvoice() {
+        showMessage("Invoice deleted successfully.");
+        setTimeout(() => window.location.href = '/invoices', 1500);
+      }
+
+      // Set user name dynamically
+      const userNameEl = document.getElementById('userName');
+      if (userNameEl) {
+        const userName = userNameEl.getAttribute('data-user-name');
+        userNameEl.textContent = userName;
+      }

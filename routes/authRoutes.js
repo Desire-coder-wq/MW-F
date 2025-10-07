@@ -199,5 +199,14 @@ router.post("/logout", (req, res, next) => {
     });
   });
 });
+// Settings Route
+router.get('/settings', (req, res) => {
+    res.render('settings', {
+        title: 'MWF - Settings',
+        user: req.user || { name: 'manager' }
+    });
+});
+
+
 
 module.exports = router;

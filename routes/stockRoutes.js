@@ -1,95 +1,132 @@
 const express = require('express');
 const router = express.Router();
 const stockModel = require('../models/stockModel');
-const { generateReport } = require("./reportRoutes"); // import report generator
+const supplierModel = require('../models/supplierModel'); // ✅ new supplier model
+const { generateReport } = require("./reportRoutes");
 const UserModel = require("../models/userModel");
-const upload = require('../middleware/upload'); // Your existing upload middleware
+const upload = require('../middleware/upload');
 
+// =====================================
 // GET: Render stock entry form
-// ensureauthenticated, ensureManager
+// =====================================
 router.get('/stock', (req, res) => { 
   res.render("stock", { title: "Stock Page" });
 });
 
-// POST: Save stock to DB with image upload
-// ensureauthenticated, ensureManager,
+// =====================================
+// POST: Save stock + supplier data
+// =====================================
 router.post('/stock', upload.single('image'), async (req, res) => { 
   try {
     console.log("Received data:", req.body);
     console.log("Uploaded file:", req.file);
 
+    // --- 1️Save stock data ---
     const stock = new stockModel({
       productName: req.body.productName,
       productType: req.body.productType,
       category: req.body.category,
       costPrice: req.body.costPrice,
       quantity: req.body.quantity,
+
+      // Supplier info (kept for now)
       supplier: req.body.supplier,
+      supplierEmail: req.body.supplierEmail,
+      supplierContact: req.body.supplierContact,
+      supplierAddress: req.body.supplierAddress,
+
       date: req.body.date,
       quality: req.body.quality,
       color: req.body.color,
       measurement: req.body.measurement,
-      image: req.file ? `/uploads/${req.file.filename}` : '' // Add image path if file uploaded
+      image: req.file ? `/uploads/${req.file.filename}` : ''
     });
 
     await stock.save();
-    console.log("Saved stock:", stock);
+    console.log(" Saved stock:", stock);
 
-    // go straight to stockList after saving
+    // --- 2️ Auto-save supplier if not already in DB ---
+    if (req.body.supplier && req.body.supplier.trim() !== "") {
+      const existingSupplier = await supplierModel.findOne({ name: req.body.supplier.trim() });
+      if (!existingSupplier) {
+        const supplier = new supplierModel({
+          name: req.body.supplier,
+          email: req.body.supplierEmail,
+          contact: req.body.supplierContact,
+          address: req.body.supplierAddress
+        });
+        await supplier.save();
+        console.log("New supplier saved:", supplier);
+      } else {
+        console.log("ℹ Supplier already exists:", existingSupplier.name);
+      }
+    }
+
     res.redirect("/stockList");
   } catch (error) {
-    console.error("Error saving stock:", error);
+    console.error(" Error saving stock or supplier:", error);
     res.redirect("/stock");
   }
 });
 
-// GET: List all stock items (render with Pug)
-// ensureauthenticated,ensureManager
+// =====================================
+// GET: List all stock items
+// =====================================
 router.get("/stockList", async (req, res) => {
   try {
-    const stock = await stockModel.find().sort({$natural:-1});
+    const stock = await stockModel.find().sort({ $natural: -1 });
     res.render("stockList", { stock });
   } catch (err) {
-    console.error("Error fetching stock:", err);
+    console.error(" Error fetching stock:", err);
     res.status(500).send("Server error");
   }
 });
 
-// DELETE: Remove stock from MongoDB
+// =====================================
+// DELETE: Remove a stock item
+// =====================================
 router.post("/stock/:id", async (req, res) => {
   try {
     await stockModel.findByIdAndDelete(req.params.id);
     res.redirect("/stockList");
   } catch (err) {
-    console.error("Error deleting stock:", err);
+    console.error(" Error deleting stock:", err);
     res.status(500).send("Server error");
   }
 });
 
+// =====================================
+// EDIT: Render edit form for stock item
+// =====================================
 router.get("/stock-edit/:id", async (req, res) => {
   try {
     const stock = await stockModel.findById(req.params.id);
-    res.render("stockEdit", { stock }); // Fixed: changed { user } to { stock }
+    res.render("stockEdit", { stock });
   } catch (err) {
-    console.error("Error fetching stock for edit:", err);
+    console.error(" Error fetching stock for edit:", err);
     res.status(500).send("Server error");
   }
 });
 
-// UPDATE STOCK with image upload
+// =====================================
+// UPDATE STOCK
+// =====================================
 router.post("/stock/update/:id", upload.single('image'), async (req, res) => {
   try {
-    const { 
-      productName, 
-      productType, 
-      category, 
-      quantity, 
-      costPrice, 
-      supplier, 
-      date, 
-      quality, 
-      color, 
-      measurement 
+    const {
+      productName,
+      productType,
+      category,
+      quantity,
+      costPrice,
+      supplier,
+      supplierEmail,
+      supplierContact,
+      supplierAddress,
+      date,
+      quality,
+      color,
+      measurement
     } = req.body;
 
     const updateData = {
@@ -99,18 +136,34 @@ router.post("/stock/update/:id", upload.single('image'), async (req, res) => {
       quantity,
       costPrice,
       supplier,
+      supplierEmail,
+      supplierContact,
+      supplierAddress,
       date,
       quality,
       color,
       measurement
     };
 
-    // If a new image is uploaded, add it to update data
-    if (req.file) {
-      updateData.image = `/uploads/${req.file.filename}`;
-    }
+    if (req.file) updateData.image = `/uploads/${req.file.filename}`;
 
     await stockModel.findByIdAndUpdate(req.params.id, updateData);
+
+    //  Also ensure supplier info is synced
+    if (supplier && supplier.trim() !== "") {
+      const existingSupplier = await supplierModel.findOne({ name: supplier.trim() });
+      if (!existingSupplier) {
+        const newSupplier = new supplierModel({
+          name: supplier,
+          email: supplierEmail,
+          contact: supplierContact,
+          address: supplierAddress
+        });
+        await newSupplier.save();
+        console.log(" New supplier added from update:", newSupplier);
+      }
+    }
+
     res.redirect("/stockList");
   } catch (err) {
     console.error("Error updating stock:", err);
@@ -118,87 +171,61 @@ router.post("/stock/update/:id", upload.single('image'), async (req, res) => {
   }
 });
 
-// GET: Products Gallery - Display all products with images in card layout
+// =====================================
+// PRODUCTS GALLERY (Render Page)
+// =====================================
 router.get("/products", async (req, res) => {
   try {
-    const products = await stockModel.find().sort({$natural:-1});
+    const products = await stockModel.find().sort({ $natural: -1 });
     res.render("products", { 
       title: "MWF — Products Gallery",
-      products: products,
+      products,
       user: req.session.user 
     });
   } catch (err) {
-    console.error("Error fetching products for gallery:", err);
+    console.error(" Error fetching products:", err);
     res.status(500).send("Server error");
   }
 });
 
-// API: Get all products (for AJAX calls)
+// =====================================
+// PRODUCTS API (JSON Data)
+// =====================================
 router.get("/products/api", async (req, res) => {
   try {
-    const products = await stockModel.find().sort({$natural:-1});
-    res.json({
-      success: true,
-      data: products,
-      message: 'Products retrieved successfully'
-    });
+    const products = await stockModel.find().sort({ $natural: -1 });
+    res.json({ success: true, data: products });
   } catch (err) {
-    console.error("Error fetching products API:", err);
-    res.status(500).json({
-      success: false,
-      message: 'Failed to fetch products',
-      error: err.message
-    });
+    console.error(" Error fetching products API:", err);
+    res.status(500).json({ success: false, message: err.message });
   }
 });
 
-// API: Get single product
+// =====================================
+// GET: Single Product (API)
+// =====================================
 router.get("/products/:id", async (req, res) => {
   try {
     const product = await stockModel.findById(req.params.id);
-    if (!product) {
-      return res.status(404).json({
-        success: false,
-        message: 'Product not found'
-      });
-    }
-    res.json({
-      success: true,
-      data: product,
-      message: 'Product retrieved successfully'
-    });
+    if (!product) return res.status(404).json({ success: false, message: 'Product not found' });
+    res.json({ success: true, data: product });
   } catch (err) {
-    console.error("Error fetching single product:", err);
-    res.status(500).json({
-      success: false,
-      message: 'Failed to fetch product',
-      error: err.message
-    });
+    console.error(" Error fetching product:", err);
+    res.status(500).json({ success: false, message: err.message });
   }
 });
 
-// API: Delete product
+// =====================================
+// DELETE: Product via API
+// =====================================
 router.delete("/products/:id", async (req, res) => {
   try {
     const product = await stockModel.findByIdAndDelete(req.params.id);
-    if (!product) {
-      return res.status(404).json({
-        success: false,
-        message: 'Product not found'
-      });
-    }
-    res.json({
-      success: true,
-      data: product,
-      message: 'Product deleted successfully'
-    });
+    if (!product) return res.status(404).json({ success: false, message: 'Product not found' });
+    res.json({ success: true, data: product });
   } catch (err) {
     console.error("Error deleting product:", err);
-    res.status(500).json({
-      success: false,
-      message: 'Failed to delete product',
-      error: err.message
-    });
+    res.status(500).json({ success: false, message: err.message });
   }
 });
 

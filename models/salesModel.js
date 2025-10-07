@@ -3,23 +3,37 @@ const mongoose = require("mongoose");
 const salesSchema = new mongoose.Schema({
   salesAgent: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "UserModel", // correct
+    ref: "UserModel",
     required: true
   },
-  customerName: { type: String, required: true, trim: true },
+
+  //  CUSTOMER INFORMATION
+  customer: {
+    name: { type: String, required: true, trim: true },
+    phone: { type: String, trim: true },
+    email: { type: String, trim: true },
+    address: { type: String, trim: true },
+  },
+
+  //  PRODUCT INFORMATION
   productName: { type: String, required: true, trim: true },
+  productType: { type: String, trim: true },
   quantity: { type: Number, required: true, min: 1 },
   price: { type: Number, required: true, min: 0 },
+
+  //  PAYMENT & TRANSPORT
   transport: { type: Boolean, default: false },
   paymentType: { type: String, required: true, trim: true },
   date: { type: Date, default: Date.now },
   notes: { type: String, trim: true },
+
+  //  TOTAL
   total: { type: Number, required: true, min: 0 }
 });
 
-salesSchema.pre("save", function(next) {
-  this.total = this.transport 
-    ? this.quantity * this.price * 1.05 
+salesSchema.pre("save", function (next) {
+  this.total = this.transport
+    ? this.quantity * this.price * 1.05
     : this.quantity * this.price;
   next();
 });

@@ -1,0 +1,124 @@
+doctype html
+html(lang="en")
+  head
+    meta(charset="UTF-8")
+    meta(name="viewport", content="width=device-width, initial-scale=1")
+    title= title
+    link(rel="stylesheet", href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css")
+    link(rel="stylesheet", href="/css/attendant-manage.css")
+
+  body
+    .layout
+      aside.sidebar
+        .logo-container
+          img.logo-img(src="/images/logo 2.png", alt="MWF Logo")
+          .logo-text Mayondo Wood & Furniture
+        nav
+          ul
+            li
+              a(href="/stockList")
+                i.fas.fa-boxes
+                span Stock
+            li
+              a(href="/suppliers", class="active")
+                i.fas.fa-truck
+                span Suppliers
+            li
+              a(href="/customers")
+                i.fas.fa-users
+                span Customers
+            li
+              a(href="/logout")
+                i.fas.fa-sign-out-alt
+                span Logout
+
+      .main-content
+        .container
+          .suppliers-header
+            .header-text
+              h1 Suppliers Information
+              p Here are all suppliers automatically captured from stock entries.
+            .supplier-actions
+              button.export-btn
+                i.fas.fa-download
+                | Export Suppliers
+
+          .supplier-stats
+            .supplier-stat-card
+              .supplier-stat-icon(style="background: #dcfce7; color: #166534;")
+                i.fas.fa-truck
+              .supplier-stat-info
+                h3 #{suppliers.length}
+                p Total Suppliers
+            .supplier-stat-card
+              .supplier-stat-icon(style="background: #fef3c7; color: #92400e;")
+                i.fas.fa-envelope
+              .supplier-stat-info
+                h3 #{suppliersWithEmail}
+                p With Email
+            .supplier-stat-card
+              .supplier-stat-icon(style="background: #dcfce7; color: #166534;")
+                i.fas.fa-phone
+              .supplier-stat-info
+                h3 #{suppliersWithContact}
+                p With Contact
+            .supplier-stat-card
+              .supplier-stat-icon(style="background: #fef3c7; color: #92400e;")
+                i.fas.fa-map-marker-alt
+              .supplier-stat-info
+                h3 #{suppliersWithAddress}
+                p With Address
+
+          .table-section
+            .table-container
+              table.suppliers-table
+                thead
+                  tr
+                    th 
+                      i.fas.fa-user
+                      | Supplier Name
+                    th 
+                      i.fas.fa-envelope
+                      | Email
+                    th 
+                      i.fas.fa-phone
+                      | Contact
+                    th 
+                      i.fas.fa-map-marker-alt
+                      | Address
+                    th 
+                      i.fas.fa-calendar
+                      | Date Added
+                    th 
+                      i.fas.fa-cog
+                      | Actions
+                tbody
+                  each supplier in suppliers
+                    tr
+                      td= supplier.name
+                      td= supplier.email || '-'
+                      td= supplier.contact || '-'
+                      td= supplier.address || '-'
+                      td= supplier.dateAdded.toDateString()
+                      td.actions-cell
+                        form.delete-form(action=`/suppliers/${supplier._id}/delete`, method="POST")
+                          button.btn-delete(type="submit")
+                            i.fas.fa-trash
+                            | Delete
+
+        footer
+          .container
+            p &copy; 2025 Mayondo Wood & Furniture Ltd
+
+    script.
+      // Calculate supplier statistics
+      const suppliers = !{JSON.stringify(suppliers)};
+      const suppliersWithEmail = suppliers.filter(s => s.email && s.email !== '-').length;
+      const suppliersWithContact = suppliers.filter(s => s.contact && s.contact !== '-').length;
+      const suppliersWithAddress = suppliers.filter(s => s.address && s.address !== '-').length;
+
+      // Update statistics in the DOM
+      document.querySelectorAll('.supplier-stat-info h3')[0].textContent = suppliers.length;
+      document.querySelectorAll('.supplier-stat-info h3')[1].textContent = suppliersWithEmail;
+      document.querySelectorAll('.supplier-stat-info h3')[2].textContent = suppliersWithContact;
+      document.querySelectorAll('.supplier-stat-info h3')[3].textContent = suppliersWithAddress;

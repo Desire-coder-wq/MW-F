@@ -1,0 +1,176 @@
+doctype html
+html(lang="en")
+  head
+    meta(charset="UTF-8")
+    meta(name="viewport", content="width=device-width, initial-scale=1")
+    title MWF — Products Gallery
+    link(rel="stylesheet", href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css")
+    link(rel="stylesheet", href="/css/attendant-manage.css")
+    link(rel="stylesheet", href="/css/products-gallery.css")
+
+  body
+    .layout
+      //- Sidebar
+      aside.sidebar
+        .logo-container
+          img.logo-img(src="/images/logo 2.png", alt="MWF Logo")
+          .logo-text Mayondo Wood & Furniture
+        nav
+          ul
+            li
+              a(href="/dashboard")
+                i.fas.fa-home
+                span Dashboard
+            li
+              a(href="/products")
+                i.fas.fa-couch
+                span Products Gallery
+            li
+              a(href="/stock")
+                i.fas.fa-boxes
+                span Add Stock
+            li
+              a(href="/stockList")
+                i.fas.fa-clipboard-list
+                span Stock List
+            li
+              a(href="/sales-report")
+                i.fas.fa-chart-line
+                span Sales Reports
+            li
+              a(href="/logout")
+                i.fas.fa-sign-out-alt
+                span Logout
+
+      //- Topbar
+      #topbar
+        .header-content
+          .company-info
+            h1 Products Gallery
+            h3 Explore our premium furniture collection
+          .header-actions
+            .notification-btn
+              i.fas.fa-bell
+              .notification-count 0
+            .user-profile
+              i.fas.fa-user-circle
+              span#userName(data-user-name=user ? user.name : 'User')= user ? user.name : 'User'
+
+      //- Main Content
+      .container
+        .page-header
+          .header-text
+            h2(style="margin-bottom: 10px; color: #1e293b;") Furniture Collection
+            p(style="color: #64748b;") Discover our handcrafted furniture and premium raw materials
+          button.get-all-btn#getAllProducts
+            i.fas.fa-sync-alt
+            | Refresh Products
+
+        //- Carousel Section
+        .carousel
+          .carousel-inner
+            .carousel-slide.active(style="background-image: url('https://images.unsplash.com/photo-1555041469-a586c61ea9bc?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80')")
+              .slide-content
+                h2 Premium Furniture
+                p Handcrafted with excellence and attention to detail
+            .carousel-slide(style="background-image: url('https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80')")
+              .slide-content
+                h2 Luxury Bedroom Sets
+                p Create your perfect sanctuary with our bedroom collections
+            .carousel-slide(style="background-image: url('https://images.unsplash.com/photo-1586023492125-27b2c045efd7?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80')")
+              .slide-content
+                h2 Office Solutions
+                p Ergonomic and stylish furniture for modern workplaces
+            .carousel-slide(style="background-image: url('https://images.unsplash.com/photo-1544551763-46a013bb70d5?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80')")
+              .slide-content
+                h2 Quality Raw Materials
+                p Premium wood and materials for all your projects
+          
+          .carousel-controls
+            button.carousel-control.prev
+              i.fas.fa-chevron-left
+            button.carousel-control.next
+              i.fas.fa-chevron-right
+          
+          .carousel-indicators
+            .indicator.active
+            .indicator
+            .indicator
+            .indicator
+
+        //- Single Product View
+        .single-product-view#singleProductView
+          .single-product-content#singleProductContent
+
+        //- Products Cards Section
+        .cards#productsContainer
+          each product in products
+            .card.product-card
+              if product.image
+                img.product-image(src=product.image, alt=product.productName, onerror="handleImageError(this)")
+                .product-image(style="display: none; background: linear-gradient(135deg, #f0fdf4, #dcfce7); align-items: center; justify-content: center; color: #0b880b; font-size: 3rem;")
+                  i(data-product-name=product.productName)
+              else
+                .product-image(style="display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #f0fdf4, #dcfce7); color: #0b880b; font-size: 3rem;")
+                  i(data-product-name=product.productName)
+              
+              .card-content
+                h4= product.productName
+                .product-info
+                  strong Type: 
+                  span= product.productType
+                .product-info
+                  strong Category: 
+                  span= product.category
+                .product-info
+                  strong Quantity: 
+                  span= product.quantity + ' units'
+                .product-info
+                  strong Price: 
+                  span= 'KSH ' + product.costPrice.toLocaleString()
+                .product-info
+                  strong Supplier: 
+                  span= product.supplier
+                if product.quality
+                  .product-info
+                    strong Quality: 
+                    span= product.quality
+                if product.color
+                  .product-info
+                    strong Color: 
+                    span= product.color
+                if product.measurement
+                  .product-info
+                    strong Measurement: 
+                    span= product.measurement
+                .product-info
+                  strong Date Added: 
+                  span= new Date(product.date).toLocaleDateString()
+
+              .card-actions
+                button.action-btn.view-btn(onclick="viewProduct('" + product._id + "')")
+                  i.fas.fa-eye
+                  | View Details
+                button.action-btn.update-btn(onclick="updateProduct('" + product._id + "')")
+                  i.fas.fa-edit
+                  | Update
+                button.action-btn.delete-btn(onclick="deleteProduct('" + product._id + "')")
+                  i.fas.fa-trash
+                  | Delete
+
+    //- Footer
+    footer
+      .container
+        p &copy; 2025 Mayondo Wood & Furniture Ltd
+
+    //- Success Modal
+    .modal(style="display: none;")#successModal
+      .modal-content(style="max-width: 400px; text-align: center;")
+        span.close(style="position: absolute; right: 15px; top: 10px; cursor: pointer;") &times;
+        .modal-icon(style="font-size: 48px; color: #0b880b; margin-bottom: 20px;")
+          i.fas.fa-check-circle
+        h3(style="margin-bottom: 15px;") Success!
+        p#successMessage Operation completed successfully
+        button.get-all-btn(style="margin-top: 20px;") OK
+
+    script(src="/js/products-gallery.js")

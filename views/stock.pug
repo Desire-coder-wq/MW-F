@@ -157,12 +157,43 @@ html(lang="en")
                       | Quantity
                     input#quantity(type="number", name="quantity", min="1", required)
 
+              //- Supplier Information Section
+              fieldset.form-fieldset
+                legend.fieldset-legend
+                  i.fas.fa-truck
+                  | Supplier Information
+
+                .form-grid
                   .form-group
                     label(for="supplier")
-                      i.fas.fa-truck
-                      | Supplier
+                      i.fas.fa-user-tie
+                      | Supplier Name
                     input#supplier(type="text", name="supplier", required)
 
+                  .form-group
+                    label(for="supplierEmail")
+                      i.fas.fa-envelope
+                      | Supplier Email
+                    input#supplierEmail(type="email", name="supplierEmail", placeholder="example@supplier.com")
+
+                  .form-group
+                    label(for="supplierContact")
+                      i.fas.fa-phone
+                      | Supplier Contact
+                    input#supplierContact(type="text", name="supplierContact", placeholder="+256...")
+
+                  .form-group
+                    label(for="supplierAddress")
+                      i.fas.fa-map-marker-alt
+                      | Supplier Address
+                    input#supplierAddress(type="text", name="supplierAddress", placeholder="Enter supplier address")
+
+              fieldset.form-fieldset
+                legend.fieldset-legend
+                  i.fas.fa-clipboard-check
+                  | Additional Details
+
+                .form-grid
                   .form-group
                     label(for="date")
                       i.fas.fa-calendar
@@ -206,7 +237,24 @@ html(lang="en")
                   i.fas.fa-plus-circle
                   | Add Stock
 
-    //- Footer
+        //- Suppliers and Customers Table Section (placeholder for now)
+        .info-section
+          h3
+            i.fas.fa-table
+            | Suppliers and Customers Information
+          table
+            thead
+              tr
+                th Supplier Name
+                th Email
+                th Contact
+                th Address
+                th Customer Name
+                th Customer Contact
+                th Customer Email
+            tbody
+              //- This will later be dynamically filled from backend
+
     footer
       .container
         p &copy; 2025 Mayondo Wood & Furniture Ltd
@@ -222,11 +270,9 @@ html(lang="en")
       
       if (input.files && input.files[0]) {
         const reader = new FileReader();
-        
         reader.onload = function(e) {
           preview.innerHTML = '<img src="' + e.target.result + '" alt="Image preview">';
         }
-        
         reader.readAsDataURL(input.files[0]);
       } else {
         preview.innerHTML = '<div class="image-preview-placeholder"><i class="fas fa-camera"></i><p>No image selected</p></div>';

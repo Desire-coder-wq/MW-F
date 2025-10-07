@@ -1,0 +1,136 @@
+doctype html
+html(lang="en")
+  head
+    meta(charset="UTF-8")
+    meta(name="viewport", content="width=device-width, initial-scale=1")
+    title= title
+    link(rel="stylesheet", href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css")
+    link(rel="stylesheet", href="/css/attendant-manage.css")
+
+  body
+    .layout
+      aside.sidebar
+        .logo-container
+          img.logo-img(src="/images/logo 2.png", alt="MWF Logo")
+          .logo-text Mayondo Wood & Furniture
+        nav
+          ul
+            li
+              a(href="/stockList")
+                i.fas.fa-boxes
+                span Stock
+            li
+              a(href="/suppliers")
+                i.fas.fa-truck
+                span Suppliers
+            li
+              a(href="/customers", class="active")
+                i.fas.fa-users
+                span Customers
+            li
+              a(href="/logout")
+                i.fas.fa-sign-out-alt
+                span Logout
+
+      .main-content
+        .container
+          .customers-header
+            .header-text
+              h1 Customers Information
+              p Here are all customers automatically captured from sales entries.
+            .customer-actions
+              button.export-btn(type="button")
+                i.fas.fa-download
+                | Export Customers
+
+          // Stats Section
+          .customer-stats
+            .customer-stat-card
+              .customer-stat-icon(style="background: #dcfce7; color: #166534;")
+                i.fas.fa-users
+              .customer-stat-info
+                h3 0
+                p Total Customers
+            .customer-stat-card
+              .customer-stat-icon(style="background: #fef3c7; color: #92400e;")
+                i.fas.fa-shopping-cart
+              .customer-stat-info
+                h3 0
+                p Active Customers
+            .customer-stat-card
+              .customer-stat-icon(style="background: #dcfce7; color: #166534;")
+                i.fas.fa-envelope
+              .customer-stat-info
+                h3 0
+                p With Email
+            .customer-stat-card
+              .customer-stat-icon(style="background: #fef3c7; color: #92400e;")
+                i.fas.fa-phone
+              .customer-stat-info
+                h3 0
+                p With Contact
+
+          // Table Section
+          .table-section
+            .table-container
+              if customers && customers.length
+                table.customers-table
+                  thead
+                    tr
+                      th
+                        i.fas.fa-user
+                        |  Customer Name
+                      th
+                        i.fas.fa-envelope
+                        |  Email
+                      th
+                        i.fas.fa-phone
+                        |  Contact
+                      th
+                        i.fas.fa-map-marker-alt
+                        |  Address
+                      th
+                        i.fas.fa-calendar
+                        |  Date Added
+                      th
+                        i.fas.fa-cog
+                        |  Actions
+                  tbody
+                    each customer in customers
+                      tr
+                        td= customer.name
+                        td= customer.email || '-'
+                        // Contact matches schema field
+                        td= customer.contact || '-'
+                        td= customer.address || '-'
+                        td= customer.dateAdded ? new Date(customer.dateAdded).toDateString() : '-'
+                        td.actions-cell
+                          form.delete-form(action=`/customers/${customer._id}/delete`, method="POST")
+                            button.btn-delete(type="submit")
+                              i.fas.fa-trash
+                              |  Delete
+              else
+                p.no-data No customer records found.
+
+        footer
+          .container
+            p &copy; 2025 Mayondo Wood & Furniture Ltd
+
+    // Inline script (Safe JSON escape)
+    script.
+      const customers = !{JSON.stringify(customers || [])};
+
+      document.addEventListener("DOMContentLoaded", () => {
+        const totalCustomers = customers.length;
+        const activeCustomers = totalCustomers; // can refine later
+        const customersWithEmail = customers.filter(c => c.email && c.email !== '-').length;
+        const customersWithContact = customers.filter(c => c.contact && c.contact !== '-').length;
+
+        const stats = document.querySelectorAll('.customer-stat-info h3');
+        if (stats.length >= 4) {
+          stats[0].textContent = totalCustomers;
+          stats[1].textContent = activeCustomers;
+          stats[2].textContent = customersWithEmail;
+          stats[3].textContent = customersWithContact;
+        }
+      });

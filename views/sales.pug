@@ -9,7 +9,6 @@ html(lang="en")
 
   body
     .layout
-      //- Sidebar
       aside.sidebar
         .logo-container
           img.logo-img(src="/images/logo 2.png", alt="MWF Logo")
@@ -41,7 +40,6 @@ html(lang="en")
                 i.fas.fa-sign-out-alt
                 span Logout
 
-      //- Topbar
       #topbar
         .header-content
           .company-info
@@ -55,7 +53,6 @@ html(lang="en")
               i.fas.fa-user-circle
               span #{user ? user.name : 'User'}
 
-      //- Main Content
       .container
         .form-section
           .form-container
@@ -70,9 +67,19 @@ html(lang="en")
                 legend.fieldset-legend(style="color:green")
                   i.fas.fa-user
                   | Customer Information
-                .form-group
-                  label(for="customerName") Customer Name:
-                  input#customerName(type="text", name="customerName", required)
+                .form-grid
+                  .form-group
+                    label(for="customerName") Full Name:
+                    input#customerName(type="text", name="customerName", required)
+                  .form-group
+                    label(for="customerPhone") Phone Number:
+                    input#customerPhone(type="text", name="customerPhone", placeholder="+2567...", required)
+                  .form-group
+                    label(for="customerEmail") Email Address:
+                    input#customerEmail(type="email", name="customerEmail", placeholder="customer@email.com")
+                  .form-group
+                    label(for="customerAddress") Address:
+                    input#customerAddress(type="text", name="customerAddress", placeholder="Town / Area")
 
               fieldset.form-fieldset
                 legend.fieldset-legend(style="color:green")
@@ -92,21 +99,17 @@ html(lang="en")
                       option(value="dinningTable") Dinning Table
                       option(value="Tv-stand") Tv-stand
                       option(value="Office-chair") Office-chair
-
                   .form-group
                     label(for="productType") Product Type:
                     select#productType(name="productType", required)
                       option(value="Wood") Wood
                       option(value="Furniture") Furniture
-
                   .form-group
                     label(for="quantity") Quantity:
                     input#quantity(type="number", name="quantity", min="1", required)
-
                   .form-group
                     label(for="price") Price per Unit (UGX):
                     input#price(type="number", name="price", min="0", required)
-
                   .form-group
                     label(for="date") Date of Sale:
                     input#date(type="date", name="date", required)
@@ -122,7 +125,6 @@ html(lang="en")
                       option(value="Cash") Cash
                       option(value="Cheque") Cheque
                       option(value="Bank Overdraft") Bank Overdraft
-
                   .form-group
                     label(for="transport") Transport Required? (adds 5% to total):
                     select#transport(name="transport", required)
@@ -141,7 +143,6 @@ html(lang="en")
                   i.fas.fa-save
                   | Record Sale
 
-    //- Footer
     footer
       .container
         p &copy; 2025 Mayondo Wood & Furniture Ltd

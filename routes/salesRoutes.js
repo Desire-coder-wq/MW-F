@@ -1,9 +1,10 @@
 const express = require('express');
 const router = express.Router();
-
+const moment = require("moment");
 const UserModel = require("../models/userModel");
 const Sales = require('../models/salesModel');
 const Stock = require('../models/stockModel');
+const Customer = require('../models/customerModel'); // Add this
 
 const { ensureauthenticated, ensureAgent, ensureManager } = require('../middleware/auth');
 
@@ -25,25 +26,40 @@ router.get('/sales', ensureauthenticated, ensureAgent, async (req, res) => {
 // ------------------- POST New Sale (Attendant only) -------------------
 router.post('/sales', ensureauthenticated, ensureAgent, async (req, res) => {
   try {
-    const { customerName, productName, quantity, price, transport, paymentType, date, notes } = req.body;
+    const {
+      customerName,
+      customerPhone,
+      customerEmail,
+      customerAddress,
+      productName,
+      productType,
+      quantity,
+      price,
+      transport,
+      paymentType,
+      date,
+      notes
+    } = req.body;
     const userId = req.user._id;
 
-    // Validate stock
     const stock = await Stock.findOne({ productName });
     if (!stock) return res.status(400).send('No stock found for this product');
-    if (stock.quantity < Number(quantity)) return res.status(400).send(`Insufficient stock — only ${stock.quantity} available`);
+    if (stock.quantity < Number(quantity))
+      return res.status(400).send(`Insufficient stock — only ${stock.quantity} available`);
 
-    // Transport boolean
     const transportRequired = transport.toLowerCase() === "yes";
-
-    // Total calculation
     const total = Number(quantity) * Number(price) * (transportRequired ? 1.05 : 1);
 
-    // Save sale
     const sale = new Sales({
       salesAgent: userId,
-      customerName,
+      customer: {
+        name: customerName,
+        phone: customerPhone,
+        email: customerEmail,
+        address: customerAddress
+      },
       productName,
+      productType,
       quantity: Number(quantity),
       price: Number(price),
       total,
@@ -54,7 +70,6 @@ router.post('/sales', ensureauthenticated, ensureAgent, async (req, res) => {
     });
     await sale.save();
 
-    // Update stock
     stock.quantity -= Number(quantity);
     await stock.save();
 
@@ -185,6 +200,106 @@ router.get('/receipt/:id', ensureauthenticated, async (req, res) => {
   } catch (err) {
     console.error("Error fetching receipt:", err.message);
     res.status(500).send("Error fetching receipt");
+  }
+});
+
+
+
+// ===================================================
+// 📜 ROUTE: List all invoices
+// ===================================================
+router.get("/invoices", async (req, res) => {
+  try {
+    // 1️⃣ Fetch all sales as invoices
+    const sales = await Sales.find().populate("salesAgent", "name").lean();
+
+    // 2️⃣ Format invoices for display
+    const invoices = sales.map((sale) => ({
+      id: sale._id,
+      invoiceNumber: `MWF-${moment(sale.date).format("YYYYMMDD")}-${sale._id
+        .toString()
+        .slice(-4)}`,
+      date: moment(sale.date).format("MMM DD, YYYY"),
+      customer: sale.customerName || "Walk-in Customer",
+      amount: sale.total || 0,
+      status: sale.paymentType?.toLowerCase() === "cash" ? "paid" : "pending",
+      items: sale.quantity || 1,
+      paymentMethod: sale.paymentType || "Unknown",
+    }));
+
+    // 3️⃣ Compute statistics
+    const totalRevenue = invoices.reduce((sum, inv) => sum + inv.amount, 0);
+    const pendingInvoices = invoices.filter(
+      (i) => i.status === "pending"
+    ).length;
+    const paidInvoices = invoices.filter((i) => i.status === "paid").length;
+    const thisMonthInvoices = invoices.filter((i) =>
+      moment(i.date, "MMM DD, YYYY").isSame(moment(), "month")
+    ).length;
+
+    // 4️⃣ Render invoices page
+    res.render("invoices", {
+      title: "MWF — Invoices & Receipts",
+      user: req.user || { name: "Admin" },
+      invoices,
+      totalRevenue,
+      pendingInvoices,
+      paidInvoices,
+      thisMonthInvoices,
+    });
+  } catch (err) {
+    console.error(" Error fetching invoices:", err.message);
+    res.status(500).send("Error fetching invoices");
+  }
+});
+
+// ===================================================
+//  ROUTE: View a single invoice by ID
+// ===================================================
+router.get("/invoice/:id", async (req, res) => {
+  try {
+    const sale = await Sales.findById(req.params.id)
+      .populate("salesAgent", "name")
+      .lean();
+
+    if (!sale) return res.status(404).send("Invoice not found");
+
+    // Format invoice details
+    const invoice = {
+      id: sale._id,
+      invoiceNumber: `MWF-${moment(sale.date).format("YYYYMMDD")}-${sale._id
+        .toString()
+        .slice(-4)}`,
+      date: moment(sale.date).format("MMM DD, YYYY"),
+      dueDate: moment(sale.date).add(10, "days").format("MMM DD, YYYY"),
+      customer: {
+        name: sale.customerName || "Client",
+        address: sale.notes || "Mbarara, Uganda",
+        phone: sale.phone || "+256-700000000",
+        email: "client@mwf.co.ug",
+      },
+      items: [
+        {
+          name: sale.productName || "Product",
+          description: "Product sold",
+          quantity: sale.quantity || 1,
+          unitPrice: sale.price || 0,
+          amount: sale.total || 0,
+        },
+      ],
+      transportFee: sale.transport ? 5 : 0,
+      status: sale.paymentType?.toLowerCase() === "cash" ? "paid" : "pending",
+      paymentMethod: sale.paymentType || "Unknown",
+    };
+
+    res.render("invoice-detail", {
+      title: `Invoice ${invoice.invoiceNumber}`,
+      user: req.user || { name: "Manager" },
+      invoice,
+    });
+  } catch (err) {
+    console.error(" Error fetching invoice:", err.message);
+    res.status(500).send("Error fetching invoice");
   }
 });
 
