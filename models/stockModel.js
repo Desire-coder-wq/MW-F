@@ -23,7 +23,7 @@ const stockSchema = new mongoose.Schema({
     required: true
   },
 
-  // ✅ Extended Supplier Information
+  // Extended Supplier Information
   supplier: { type: String, required: true },
   supplierEmail: { type: String },
   supplierContact: { type: String },

@@ -6,6 +6,101 @@ html(lang="en")
     title Attendant Dashboard - MWF
     link(rel="stylesheet", href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css")
     link(rel="stylesheet", href="/css/attendant-manage.css")
+    style.
+      .cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 20px;
+        padding: 20px;
+      }
+      .card {
+        background: white;
+        border-radius: 12px;
+        padding: 20px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border: 1px solid #e0e0e0;
+        height: 140px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+      }
+      .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 15px rgba(0,0,0,0.15);
+      }
+      .card-icon {
+        font-size: 24px;
+        color: #2c5aa0;
+        margin-bottom: 10px;
+      }
+      .card-content h4 {
+        margin: 0 0 8px 0;
+        font-size: 16px;
+        color: #333;
+      }
+      .card-content p {
+        margin: 0;
+        font-size: 13px;
+        color: #666;
+        line-height: 1.4;
+      }
+      .card-action {
+        text-align: right;
+        margin-top: 10px;
+      }
+      .go-btn {
+        background: #2c5aa0;
+        color: white;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 12px;
+        transition: background 0.3s ease;
+      }
+      .go-btn:hover {
+        background: #1e3d6f;
+      }
+      .notification-dropdown {
+        display: none;
+        position: absolute;
+        top: 60px;
+        right: 20px;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        width: 300px;
+        max-height: 400px;
+        overflow-y: auto;
+        z-index: 1000;
+      }
+      .notification-item {
+        padding: 15px;
+        border-bottom: 1px solid #f0f0f0;
+        cursor: pointer;
+      }
+      .notification-item:hover {
+        background: #f8f9fa;
+      }
+      .notification-item.unread {
+        background: #f0f7ff;
+      }
+      .notification-title {
+        font-weight: bold;
+        color: #333;
+        margin-bottom: 5px;
+      }
+      .notification-message {
+        color: #666;
+        font-size: 14px;
+      }
+      .notification-time {
+        color: #999;
+        font-size: 12px;
+        margin-top: 5px;
+      }
 
   body
     .layout
@@ -17,7 +112,7 @@ html(lang="en")
         nav
           ul
             li
-              a(href="/salesEntry")
+              a(href="/sales")
                 i.fas.fa-cash-register
                 span Record Sale
             li
@@ -37,6 +132,10 @@ html(lang="en")
                 i.fas.fa-chart-bar
                 span Sales Summary
             li
+              a(href="/attendant/tasks")
+                i.fas.fa-tasks
+                span My Tasks
+            li
               a(href="/logout")
                 i.fas.fa-sign-out-alt
                 span Logout
@@ -48,9 +147,15 @@ html(lang="en")
             h1 Attendant Dashboard
             h3 Manage your daily tasks and operations
           .header-actions
-            .notification-btn
+            .notification-btn(onclick="toggleNotifications()")
               i.fas.fa-bell
-              .notification-count 0
+              .notification-count#notificationCount 0
+              #notificationDropdown.notification-dropdown
+                .notification-header(style="padding: 15px; border-bottom: 1px solid #f0f0f0;")
+                  h4(style="margin: 0;") Notifications
+                #notificationList
+                  .notification-item
+                    .notification-title No new notifications
             .user-profile
               i.fas.fa-user-circle
               span#attendantName Attendant
@@ -109,6 +214,16 @@ html(lang="en")
             .card-action
               button.go-btn Go
 
+          //- Card: My Tasks
+          .card(onclick="location.href='/attendant/tasks'")
+            .card-icon
+              i.fas.fa-tasks
+            .card-content
+              h4 My Tasks
+              p View assigned tasks
+            .card-action
+              button.go-btn Go
+
           //- Card: Offload Raw Materials
           .card(onclick="location.href='/loading/offload'")
             .card-icon
@@ -149,4 +264,62 @@ html(lang="en")
     document.addEventListener('DOMContentLoaded', function() {
       const attendantName = '#{user ? user.name : "Attendant"}';
       document.getElementById('attendantName').textContent = attendantName;
+      
+      // Load notifications
+      loadNotifications();
+    });
+
+    function toggleNotifications() {
+      const dropdown = document.getElementById('notificationDropdown');
+      dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+    }
+
+    async function loadNotifications() {
+      try {
+        const response = await fetch('/attendant/tasks');
+        const tasks = await response.json();
+        
+        const notificationList = document.getElementById('notificationList');
+        const notificationCount = document.getElementById('notificationCount');
+        
+        if (tasks && tasks.length > 0) {
+          // Filter pending and in-progress tasks
+          const activeTasks = tasks.filter(task => task.status !== 'completed');
+          notificationCount.textContent = activeTasks.length;
+          
+          notificationList.innerHTML = '';
+          activeTasks.forEach(task => {
+            const notificationItem = document.createElement('div');
+            notificationItem.className = 'notification-item unread';
+            notificationItem.innerHTML = `
+              <div class="notification-title">New Task: ${task.taskType}</div>
+              <div class="notification-message">${task.taskDescription}</div>
+              <div class="notification-time">Due: ${new Date(task.dueDate).toLocaleDateString()}</div>
+            `;
+            notificationItem.onclick = () => {
+              window.location.href = '/attendant/tasks';
+            };
+            notificationList.appendChild(notificationItem);
+          });
+        } else {
+          notificationCount.textContent = '0';
+          notificationList.innerHTML = `
+            <div class="notification-item">
+              <div class="notification-title">No new notifications</div>
+            </div>
+          `;
+        }
+      } catch (error) {
+        console.error('Error loading notifications:', error);
+      }
+    }
+
+    // Close notifications when clicking outside
+    document.addEventListener('click', function(event) {
+      const notificationBtn = document.querySelector('.notification-btn');
+      const dropdown = document.getElementById('notificationDropdown');
+      
+      if (!notificationBtn.contains(event.target) && !dropdown.contains(event.target)) {
+        dropdown.style.display = 'none';
+      }
     });

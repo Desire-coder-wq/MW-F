@@ -7,6 +7,50 @@ html(lang="en")
     link(rel="stylesheet", href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css")
     link(rel="stylesheet", href="/css/attendant-manage.css")
 
+    style.
+      .image-upload-section {
+        grid-column: 1 / -1;
+        margin-bottom: 20px;
+      }
+      .image-preview {
+        width: 200px;
+        height: 200px;
+        border: 2px dashed #d1d5db;
+        border-radius: 8px;
+        margin-bottom: 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        background: #f8fafc;
+      }
+      .image-preview img {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+        background: white;
+      }
+      .image-preview-placeholder {
+        text-align: center;
+        color: #64748b;
+      }
+      .image-preview-placeholder i {
+        font-size: 3rem;
+        margin-bottom: 10px;
+      }
+      .upload-info {
+        color: #64748b;
+        font-size: 0.9rem;
+        margin-top: 10px;
+      }
+      .debug-info {
+        background: #f3f4f6;
+        padding: 10px;
+        border-radius: 5px;
+        margin: 10px 0;
+        font-size: 0.8rem;
+      }
+
   body
     .layout
       //- Sidebar
@@ -25,6 +69,10 @@ html(lang="en")
                 i.fas.fa-boxes
                 span Submit Stock
             li
+              a(href="/attendant/tasks")
+                i.fas.fa-tasks
+                span My Tasks
+            li
               a(href="/logout")
                 i.fas.fa-sign-out-alt
                 span Logout
@@ -41,7 +89,7 @@ html(lang="en")
               .notification-count 0
             .user-profile
               i.fas.fa-user-circle
-              span Attendant
+              span#attendantName #{user ? user.name : 'Attendant'}
 
       //- Main Content
       .container
@@ -53,83 +101,137 @@ html(lang="en")
                 | Stock Submission Form
               p Fill in the details below to submit a new stock request
 
-            form.stock-form(action="/attendant/add-stock", method="POST")
-              .form-grid
-                .form-group
-                  label(for="productName")
-                    i.fas.fa-cube
-                    | Product Name
-                  select#productName(name="productName", required)
-                    option(value="", disabled selected) -- Select Product --
-                    option(value="timber") Timber
-                    option(value="poles") Poles
-                    option(value="hardwood") Hardwood
-                    option(value="softwood") Softwood
-                    option(value="sofa") Sofa
-                    option(value="bed") Bed
-                    option(value="dinningTable") Dining Table
-                    option(value="Tv-stand") TV Stand
-                    option(value="Office-chair") Office Chair
+            //- Debug info - remove after fixing
+            .debug-info
+              strong Debug Info: 
+              | Make sure your app has: app.use(express.static('public'))
 
-                .form-group
-                  label(for="productType")
-                    i.fas.fa-tag
-                    | Product Type
-                  select#productType(name="productType", required)
-                    option(value="", disabled selected) -- Select Type --
-                    option(value="wood") Wood
-                    option(value="furniture") Furniture
+            form.stock-form(action="/attendant/add-stock", method="POST", enctype="multipart/form-data")
+              //- Product Details
+              fieldset.form-fieldset
+                legend.fieldset-legend
+                  i.fas.fa-boxes
+                  | Product Details
+                .form-grid
+                  .form-group
+                    label(for="productName")
+                      i.fas.fa-cube
+                      | Product Name
+                    select#productName(name="productName", required)
+                      option(value="", disabled, selected) -- Select Product --
+                      option(value="timber") Timber
+                      option(value="poles") Poles
+                      option(value="hardwood") Hardwood
+                      option(value="softwood") Softwood
+                      option(value="sofa") Sofa
+                      option(value="bed") Bed
+                      option(value="diningTable") Dining Table
+                      option(value="tvStand") TV Stand
+                      option(value="officeChair") Office Chair
 
-                .form-group
-                  label(for="category")
-                    i.fas.fa-folder
-                    | Category
-                  select#category(name="category", required)
-                    option(value="", disabled selected) -- Select Category --
-                    option(value="Raw Materials") Raw Materials
-                    option(value="Finished Products") Finished Products
+                  .form-group
+                    label(for="productType")
+                      i.fas.fa-tag
+                      | Product Type
+                    select#productType(name="productType", required)
+                      option(value="", disabled, selected) -- Select Type --
+                      option(value="wood") Wood
+                      option(value="furniture") Furniture
 
-                .form-group
-                  label(for="costPrice")
-                    i.fas.fa-money-bill-wave
-                    | Cost Price (UGX)
-                  input#costPrice(type="number", name="costPrice", min="0", step="0.01", required, placeholder="Enter cost price")
+                  .form-group
+                    label(for="category")
+                      i.fas.fa-folder
+                      | Category
+                    select#category(name="category", required)
+                      option(value="", disabled, selected) -- Select Category --
+                      option(value="Raw Materials") Raw Materials
+                      option(value="Finished Products") Finished Products
 
-                .form-group
-                  label(for="quantity")
-                    i.fas.fa-box
-                    | Quantity
-                  input#quantity(type="number", name="quantity", min="1", required, placeholder="Enter quantity")
+                  .form-group
+                    label(for="costPrice")
+                      i.fas.fa-money-bill-wave
+                      | Cost Price (UGX)
+                    input#costPrice(type="number", name="costPrice", min="0", step="0.01", required)
 
-                .form-group
-                  label(for="supplier")
-                    i.fas.fa-truck
-                    | Supplier
-                  input#supplier(type="text", name="supplier", required, placeholder="Enter supplier name")
+                  .form-group
+                    label(for="quantity")
+                      i.fas.fa-box
+                      | Quantity
+                    input#quantity(type="number", name="quantity", min="1", required)
 
-                .form-group
-                  label(for="date")
-                    i.fas.fa-calendar
-                    | Date
-                  input#date(type="date", name="date", required)
+              //- Supplier Information
+              fieldset.form-fieldset
+                legend.fieldset-legend
+                  i.fas.fa-truck
+                  | Supplier Information
+                .form-grid
+                  .form-group
+                    label(for="supplier")
+                      i.fas.fa-user-tie
+                      | Supplier Name
+                    input#supplier(type="text", name="supplier", required)
 
-                .form-group
-                  label(for="quality")
-                    i.fas.fa-star
-                    | Quality
-                  input#quality(type="text", name="quality", placeholder="Enter quality rating")
+                  .form-group
+                    label(for="supplierEmail")
+                      i.fas.fa-envelope
+                      | Supplier Email
+                    input#supplierEmail(type="email", name="supplierEmail", placeholder="example@supplier.com")
 
-                .form-group
-                  label(for="color")
-                    i.fas.fa-palette
-                    | Color
-                  input#color(type="text", name="color", placeholder="Enter color")
+                  .form-group
+                    label(for="supplierContact")
+                      i.fas.fa-phone
+                      | Supplier Contact
+                    input#supplierContact(type="text", name="supplierContact", placeholder="+256...")
 
-                .form-group
-                  label(for="measurement")
-                    i.fas.fa-ruler-combined
-                    | Measurement
-                  input#measurement(type="text", name="measurement", placeholder="Enter measurements")
+                  .form-group
+                    label(for="supplierAddress")
+                      i.fas.fa-map-marker-alt
+                      | Supplier Address
+                    input#supplierAddress(type="text", name="supplierAddress", placeholder="Enter supplier address")
+
+              //- Additional Details
+              fieldset.form-fieldset
+                legend.fieldset-legend
+                  i.fas.fa-clipboard-check
+                  | Additional Details
+                .form-grid
+                  .form-group
+                    label(for="date")
+                      i.fas.fa-calendar
+                      | Date
+                    input#date(type="date", name="date", required)
+
+                  .form-group
+                    label(for="quality")
+                      i.fas.fa-star
+                      | Quality
+                    input#quality(type="text", name="quality")
+
+                  .form-group
+                    label(for="color")
+                      i.fas.fa-palette
+                      | Color
+                    input#color(type="text", name="color")
+
+                  .form-group
+                    label(for="measurement")
+                      i.fas.fa-ruler-combined
+                      | Measurement
+                    input#measurement(type="text", name="measurement")
+
+                  //- Image Upload
+                  .image-upload-section
+                    .form-group
+                      label(for="image")
+                        i.fas.fa-image
+                        | Product Image
+                      .image-preview#imagePreview
+                        .image-preview-placeholder
+                          i.fas.fa-camera
+                          p No image selected
+                      input#image(type="file", name="image", accept="image/*", onchange="previewImage(this)")
+                      .upload-info
+                        | Supported formats: JPG, PNG, GIF, WebP (Max: 5MB)
 
               .form-actions
                 button.submit-btn(type="submit")
@@ -140,3 +242,26 @@ html(lang="en")
     footer
       .container
         p &copy; 2025 Mayondo Wood & Furniture Ltd
+
+  script.
+    document.addEventListener('DOMContentLoaded', function() {
+      const today = new Date().toISOString().split('T')[0];
+      document.getElementById('date').value = today;
+
+      const attendantName = '#{user ? user.name : "Attendant"}';
+      document.getElementById('attendantName').textContent = attendantName;
+    });
+
+    function previewImage(input) {
+      const preview = document.getElementById('imagePreview');
+      
+      if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          preview.innerHTML = '<img src="' + e.target.result + '" alt="Image preview">';
+        }
+        reader.readAsDataURL(input.files[0]);
+      } else {
+        preview.innerHTML = '<div class="image-preview-placeholder"><i class="fas fa-camera"></i><p>No image selected</p></div>';
+      }
+    }

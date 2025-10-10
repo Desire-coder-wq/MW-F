@@ -27,6 +27,7 @@ const userRoutes = require("./routes/userRoutes");
 const manageRoutes = require("./routes/manageRoutes");
 const loadingRoutes = require("./routes/loadingRoutes");
 const reportRoutes = require("./routes/reportRoutes");
+const managerRoutes = require("./routes/managerRoutes");
 // 2. Instantiations
 const app = express();
 const port = process.env.PORT || 3000;
@@ -45,7 +46,7 @@ mongoose.connect(process.env.MONGODB_URL, {
   dbName: "mayondo_wood_and_furniture"
 })
 .then(() => {
-    console.log("✅ Successfully connected to MongoDB");
+    console.log(" Successfully connected to MongoDB");
 
     // 6. Bootstrapping Server - only after DB connection
     app.listen(port, () => {
@@ -53,7 +54,7 @@ mongoose.connect(process.env.MONGODB_URL, {
     });
 })
 .catch((err) => {
-    console.error("❌ MongoDB connection error:", err);
+    console.error(" MongoDB connection error:", err);
 });
 
 // Set view engine to Pug
@@ -94,6 +95,7 @@ app.use("/loading", loadingRoutes);
 app.use("/", reportRoutes);
 app.use('/', supplierRoutes);
 app.use('/', customerRoutes);
+app.use("/manager", managerRoutes);
 // 404 handler
 app.use((req, res) => {
   res.status(404).send('Oops! Route not found');

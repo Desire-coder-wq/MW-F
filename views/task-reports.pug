@@ -1,0 +1,199 @@
+doctype html
+html(lang="en")
+  head
+    meta(charset="UTF-8")
+    meta(name="viewport", content="width=device-width, initial-scale=1")
+    title Task Reports - MWF
+    link(rel="stylesheet", href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css")
+    link(rel="stylesheet", href="/css/attendant-manage.css")
+    style.
+      .table-section {
+        background: white;
+        border-radius: 10px;
+        padding: 20px;
+        margin: 20px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      }
+      .table-header {
+        display: flex;
+        justify-content: between;
+        align-items: center;
+        margin-bottom: 20px;
+        padding-bottom: 15px;
+        border-bottom: 2px solid #f0f0f0;
+      }
+      .table-header h3 {
+        color: #2c5aa0;
+        margin: 0;
+      }
+      .table-container {
+        overflow-x: auto;
+      }
+      .tasks-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 10px;
+      }
+      .tasks-table th {
+        background: #2c5aa0;
+        color: white;
+        padding: 12px 15px;
+        text-align: left;
+        font-weight: 600;
+      }
+      .tasks-table td {
+        padding: 12px 15px;
+        border-bottom: 1px solid #e0e0e0;
+      }
+      .tasks-table tr:hover {
+        background: #f8f9fa;
+      }
+      .status-pending {
+        background: #fff3cd;
+        color: #856404;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 12px;
+      }
+      .status-in-progress {
+        background: #cce7ff;
+        color: #004085;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 12px;
+      }
+      .status-completed {
+        background: #d4edda;
+        color: #155724;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 12px;
+      }
+      .priority-high {
+        color: #dc3545;
+        font-weight: bold;
+      }
+      .priority-medium {
+        color: #ffc107;
+        font-weight: bold;
+      }
+      .priority-low {
+        color: #28a745;
+        font-weight: bold;
+      }
+
+  body
+    .layout
+      //- Sidebar
+      aside.sidebar
+        .logo-container
+          img.logo-img(src="/images/logo 2.png", alt="MWF Logo")
+          .logo-text Mayondo Wood & Furniture
+        nav
+          ul
+            li
+              a(href="/reports")
+                i.fas.fa-chart-bar
+                span Reports
+            li
+              a(href="/approve-stock")
+                i.fas.fa-check-circle
+                span Approve Stock
+            li
+              a(href="/stock")
+                i.fas.fa-boxes
+                span Add Stock
+            li
+              a(href="/sales-report")
+                i.fas.fa-chart-line
+                span Sales Reports
+            li
+              a(href="/attendants")
+                i.fas.fa-users
+                span Attendants
+            li
+              a(href="/loading/pending")
+                i.fas.fa-clock
+                span Pending Sales
+            li
+              a(href="/task-reports", class="active")
+                i.fas.fa-clipboard-check
+                span Task Reports
+            li
+              a(href="/logout")
+                i.fas.fa-sign-out-alt
+                span Logout
+
+      //- Topbar
+      #topbar
+        .header-content
+          .company-info
+            h1 Task Reports
+            h3 Monitor task completion and progress
+          .header-actions
+            .notification-btn
+              i.fas.fa-bell
+              .notification-count 0
+            .user-profile
+              i.fas.fa-user-circle
+              span Manager
+
+      //- Main Content
+      .container
+        .table-section
+          .table-header
+            h3
+              i.fas.fa-clipboard-check
+              | Task Assignment Reports
+          .table-container
+            if tasks && tasks.length
+              table.tasks-table
+                thead
+                  tr
+                    th 
+                      i.fas.fa-user
+                      | Attendant
+                    th 
+                      i.fas.fa-tasks
+                      | Task Type
+                    th 
+                      i.fas.fa-align-left
+                      | Description
+                    th 
+                      i.fas.fa-flag
+                      | Priority
+                    th 
+                      i.fas.fa-calendar
+                      | Due Date
+                    th 
+                      i.fas.fa-check-circle
+                      | Status
+                    th 
+                      i.fas.fa-calendar-alt
+                      | Assigned Date
+                tbody
+                  each task in tasks
+                    tr
+                      td= task.attendantName
+                      td= task.taskType
+                      td= task.taskDescription
+                      td(class=`priority-${task.priority}`)= task.priority
+                      td= new Date(task.dueDate).toLocaleDateString()
+                      td
+                        span(class=`status-${task.status.replace(' ', '-')}`)= task.status
+                      td= new Date(task.assignedAt).toLocaleDateString()
+            else
+              .no-data
+                i.fas.fa-clipboard-list
+                p No tasks have been assigned yet.
+
+    //- Footer
+    footer
+      .container
+        p &copy; 2025 Mayondo Wood & Furniture Ltd
+
+  script.
+    document.addEventListener('DOMContentLoaded', function() {
+      // You can add any client-side functionality here
+      console.log('Task reports page loaded');
+    });

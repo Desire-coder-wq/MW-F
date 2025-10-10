@@ -7,9 +7,109 @@ html(lang="en")
     link(rel="stylesheet", href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css")
     link(rel="stylesheet", href="/css/attendant-manage.css")
 
+    style.
+      .table-container {
+        overflow-x: auto;
+        background: #fff;
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+      }
+
+      table.stock-approval-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.95rem;
+      }
+
+      table.stock-approval-table th, 
+      table.stock-approval-table td {
+        border: 1px solid #e5e7eb;
+        padding: 10px 12px;
+        text-align: left;
+      }
+
+      table.stock-approval-table th {
+        background: #f3f4f6;
+        font-weight: 600;
+        color: #374151;
+      }
+
+      table.stock-approval-table tr:nth-child(even) {
+        background: #f9fafb;
+      }
+
+      .pending-status {
+        color: #f59e0b;
+        font-weight: 600;
+      }
+
+      .approved-status {
+        color: #10b981;
+        font-weight: 600;
+      }
+
+      .rejected-status {
+        color: #ef4444;
+        font-weight: 600;
+      }
+
+      .actions-cell {
+        display: flex;
+        gap: 6px;
+      }
+
+      button.approve-btn, 
+      button.reject-btn, 
+      button.disabled {
+        border: none;
+        border-radius: 6px;
+        padding: 6px 10px;
+        cursor: pointer;
+        font-size: 0.85rem;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+      }
+
+      .approve-btn {
+        background: #10b981;
+        color: white;
+      }
+      .approve-btn:hover {
+        background: #059669;
+      }
+
+      .reject-btn {
+        background: #ef4444;
+        color: white;
+      }
+      .reject-btn:hover {
+        background: #dc2626;
+      }
+
+      button.disabled {
+        background: #d1d5db;
+        color: #6b7280;
+        cursor: not-allowed;
+      }
+
+      .stock-img {
+        width: 80px;
+        height: 80px;
+        border-radius: 6px;
+        object-fit: cover;
+        border: 1px solid #d1d5db;
+      }
+
+      .no-image {
+        color: #9ca3af;
+        font-style: italic;
+      }
+
   body
     .layout
-      //- Sidebar
+      // Sidebar
       aside.sidebar
         .logo-container
           img.logo-img(src="/images/logo 2.png", alt="MWF Logo")
@@ -37,7 +137,7 @@ html(lang="en")
                 i.fas.fa-sign-out-alt
                 span Logout
 
-      //- Topbar
+      // Topbar
       #topbar
         .header-content
           .company-info
@@ -51,7 +151,7 @@ html(lang="en")
               i.fas.fa-user-circle
               span #{user ? user.name : 'User'}
 
-      //- Main Content
+      // Main Content
       .container
         .table-section
           .table-header
@@ -62,12 +162,14 @@ html(lang="en")
             table.stock-approval-table
               thead
                 tr
+                  th #
                   th Product Name
                   th Product Type
                   th Category
                   th Quantity
                   th Supplier
-                  th Date
+                  th Cost (UGX)
+                  th Image
                   th Quality
                   th Color
                   th Measurement
@@ -76,14 +178,20 @@ html(lang="en")
                   th Actions
               tbody
                 if submissions && submissions.length
-                  each req in submissions
+                  each req, i in submissions
                     tr
+                      td #{i + 1}
                       td= req.productName
                       td= req.productType
                       td= req.category
                       td= req.quantity
                       td= req.supplier
-                      td= req.date ? new Date(req.date).toLocaleDateString() : "N/A"
+                      td= req.costPrice ? req.costPrice.toLocaleString() : "N/A"
+                      td
+                        if req.image
+                          img.stock-img(src=req.image, alt=req.productName)
+                        else
+                          span.no-image No image
                       td= req.quality || "N/A"
                       td= req.color || "N/A"
                       td= req.measurement || "N/A"
@@ -104,14 +212,14 @@ html(lang="en")
                           button.disabled(disabled)= req.status
                 else
                   tr
-                    td(colspan="12") No stock submissions found.
+                    td(colspan="14") No stock submissions found.
 
-    //- Footer
+    // Footer
     footer
       .container
         p &copy; 2025 Mayondo Wood & Furniture Ltd
 
-    //- Scripts
+    // Scripts
     script(src="/js/approve-stock.js")
     script.
       function confirmReject() {

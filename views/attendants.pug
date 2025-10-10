@@ -6,6 +6,123 @@ html(lang="en")
     title MWF — Attendants
     link(rel="stylesheet", href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css")
     link(rel="stylesheet", href="/css/attendant-manage.css")
+    style.
+      .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0,0,0,0.5);
+        overflow: auto;
+      }
+      .modal-content {
+        background-color: white;
+        margin: 50px auto;
+        padding: 25px;
+        border-radius: 10px;
+        width: 90%;
+        max-width: 500px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        position: relative;
+      }
+      .close {
+        color: #aaa;
+        position: absolute;
+        top: 15px;
+        right: 20px;
+        font-size: 28px;
+        font-weight: bold;
+        cursor: pointer;
+      }
+      .close:hover {
+        color: black;
+      }
+      .form-group {
+        margin-bottom: 15px;
+      }
+      .form-group label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: bold;
+        color: #333;
+        font-size: 14px;
+      }
+      .form-group input, .form-group select, .form-group textarea {
+        width: 100%;
+        padding: 8px 10px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        font-size: 14px;
+        box-sizing: border-box;
+      }
+      .form-group textarea {
+        height: 80px;
+        resize: vertical;
+      }
+      .form-group.checkbox {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin: 20px 0;
+      }
+      .form-group.checkbox input {
+        width: auto;
+      }
+      .form-group.checkbox label {
+        margin: 0;
+        font-weight: normal;
+      }
+      .btn-assign {
+        background: #2c5aa0;
+        color: white;
+        border: none;
+        padding: 12px 25px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 14px;
+        width: 100%;
+        margin-top: 10px;
+      }
+      .btn-assign:hover {
+        background: #1e3d6f;
+      }
+      .btn-task {
+        background: #28a745;
+        color: white;
+        border: none;
+        padding: 6px 12px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 12px;
+        margin-left: 5px;
+      }
+      .btn-task:hover {
+        background: #218838;
+      }
+      .alert-message {
+        padding: 10px 15px;
+        margin: 10px 0;
+        border-radius: 4px;
+        font-weight: 500;
+      }
+      .alert-success {
+        background: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+      }
+      .alert-error {
+        background: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+      }
+      .modal-title {
+        margin: 0 0 20px 0;
+        color: #2c5aa0;
+        font-size: 20px;
+      }
 
   body
     .layout
@@ -29,7 +146,7 @@ html(lang="en")
                 i.fas.fa-boxes
                 span Add Stock
             li
-              a(href="/sales-reports")
+              a(href="/sales-report")
                 i.fas.fa-file-invoice-dollar
                 span Sales Reports
             li
@@ -37,9 +154,9 @@ html(lang="en")
                 i.fas.fa-users
                 span Attendants
             li
-              a(href="#", id="editProfileBtn")
-                i.fas.fa-user-cog
-                span Profile
+              a(href="/task-reports")
+                i.fas.fa-clipboard-check
+                span Task Reports
             li
               a(href="/logout")
                 i.fas.fa-sign-out-alt
@@ -61,11 +178,20 @@ html(lang="en")
 
       //- Main Content
       .container
+        //- Display messages
+        if message
+          .alert-message.alert-success= message
+        if error
+          .alert-message.alert-error= error
+
         .table-section
           .table-header
             h3
               i.fas.fa-users
               | Attendants List
+            button.btn-assign(onclick="openAssignTaskModal()")
+              i.fas.fa-tasks
+              | Assign New Task
           .table-container
             table.attendants-table
               thead
@@ -99,7 +225,10 @@ html(lang="en")
                         span(class=att.status ? att.status.toLowerCase() + "-status" : "inactive-status")= att.status
                       td= att.lastActive ? att.lastActive.toLocaleString() : ""
                       td.actions-cell
-                        form(action=`/attendants/${att._id}/toggle`, method="POST")
+                        button.btn-task(onclick=`openAssignTaskModal('${att._id}', '${att.user ? att.user.name : ""}')`)
+                          i.fas.fa-tasks
+                          | Assign Task
+                        form(action=`/attendants/${att._id}/toggle`, method="POST", style="display: inline;")
                           button(type="submit", class=att.status === "Active" ? "btn-delete" : "btn-edit")
                             i.fas.fa-power-off
                             | #{att.status === "Active" ? "Disable" : "Enable"}
@@ -109,7 +238,95 @@ html(lang="en")
                       i.fas.fa-users
                       | No attendants found.
 
+    //- Task Assignment Modal - SIMPLIFIED VERSION
+    #taskModal.modal
+      .modal-content
+        span.close(onclick="closeAssignTaskModal()") &times;
+        h3.modal-title
+          i.fas.fa-tasks
+          | Assign Task to Attendant
+        
+        form#taskForm(action="/attendants/assign-task", method="POST")
+          .form-group
+            label(for="attendantSelect") Select Attendant:
+            select#attendantSelect(name="attendantId", required)
+              option(value="") -- Select Attendant --
+              each att in attendants
+                option(value=att._id)= att.user ? att.user.name : ""
+          
+          .form-group
+            label(for="taskType") Task Type:
+            select#taskType(name="taskType", required)
+              option(value="") -- Select Task Type --
+              option(value="stock_management") Stock Management
+              option(value="sales_processing") Sales Processing
+              option(value="customer_service") Customer Service
+              option(value="loading_supervision") Loading Supervision
+              option(value="offloading_supervision") Offloading Supervision
+              option(value="inventory_check") Inventory Check
+              option(value="report_generation") Report Generation
+          
+          .form-group
+            label(for="taskDescription") Task Description:
+            textarea#taskDescription(name="taskDescription", placeholder="Describe the task...", required)
+          
+          .form-group
+            label(for="dueDate") Due Date:
+            input#dueDate(type="datetime-local", name="dueDate", required)
+          
+          .form-group
+            label(for="priority") Priority:
+            select#priority(name="priority", required)
+              option(value="low") Low
+              option(value="medium") Medium
+              option(value="high") High
+          
+          .form-group.checkbox
+            input(type="checkbox", name="sendEmail", id="sendEmail", checked)
+            label(for="sendEmail") Send email notification to attendant
+          
+          button.btn-assign(type="submit")
+            i.fas.fa-paper-plane
+            | Assign Task
+
     //- Footer
     footer
       .container
         p &copy; 2025 Mayondo Wood & Furniture Ltd
+
+  script.
+    function openAssignTaskModal(attendantId = '', attendantName = '') {
+      const modal = document.getElementById('taskModal');
+      const attendantSelect = document.getElementById('attendantSelect');
+      
+      if (attendantId && attendantName) {
+        attendantSelect.value = attendantId;
+      }
+      
+      modal.style.display = 'block';
+      
+      // Set minimum date to today
+      const today = new Date().toISOString().slice(0, 16);
+      document.getElementById('dueDate').min = today;
+    }
+
+    function closeAssignTaskModal() {
+      const modal = document.getElementById('taskModal');
+      modal.style.display = 'none';
+      // Reset form when closing
+      document.getElementById('taskForm').reset();
+    }
+
+    // Close modal when clicking outside
+    window.onclick = function(event) {
+      const modal = document.getElementById('taskModal');
+      if (event.target === modal) {
+        closeAssignTaskModal();
+      }
+    }
+
+    // Set manager name if available
+    document.addEventListener('DOMContentLoaded', function() {
+      const managerName = '#{user ? user.name : "Manager"}';
+      document.querySelector('.user-profile span').textContent = managerName;
+    });

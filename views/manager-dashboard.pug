@@ -6,6 +6,100 @@ html(lang="en")
     title Manager Dashboard - MWF
     link(rel="stylesheet", href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css")
     link(rel="stylesheet", href="/css/attendant-manage.css")
+    style.
+      /* ===== Cards Styling ===== */
+      .cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 25px;
+        padding: 25px;
+      }
+      .card {
+        background: white;
+        border-radius: 12px;
+        padding: 25px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border: 1px solid #e0e0e0;
+        height: 160px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+      }
+      .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 15px rgba(0,0,0,0.15);
+      }
+      .card-icon {
+        font-size: 26px;
+        color: #2c5aa0;
+        margin-bottom: 12px;
+      }
+      .card-content h4 {
+        margin: 0 0 10px 0;
+        font-size: 18px;
+        color: #333;
+      }
+      .card-content p {
+        margin: 0;
+        font-size: 14px;
+        color: #666;
+        line-height: 1.4;
+      }
+      .card-action {
+        text-align: right;
+        margin-top: 12px;
+      }
+      .go-btn {
+        background: #2c5aa0;
+        color: white;
+        border: none;
+        padding: 10px 18px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 13px;
+        transition: background 0.3s ease;
+      }
+      .go-btn:hover {
+        background: #1e3d6f;
+      }
+
+      /* ===== Profile Styling ===== */
+      .user-profile {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        position: relative;
+      }
+      .profile-pic {
+        width: 46px;
+        height: 46px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 2px solid #2c5aa0;
+        cursor: pointer;
+      }
+      #managerName {
+        font-weight: 600;
+        color: #333;
+      }
+      .update-link {
+        display: none;
+        position: absolute;
+        top: 55px;
+        right: 0;
+        background: white;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        padding: 6px 12px;
+        font-size: 13px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        z-index: 10;
+      }
+      .user-profile:hover .update-link {
+        display: block;
+      }
 
   body
     .layout
@@ -41,6 +135,10 @@ html(lang="en")
                 i.fas.fa-clock
                 span Pending Sales
             li
+              a(href="/assign-tasks")
+                i.fas.fa-tasks
+                span Assign Tasks
+            li
               a(href="/logout")
                 i.fas.fa-sign-out-alt
                 span Logout
@@ -56,12 +154,15 @@ html(lang="en")
               i.fas.fa-bell
               .notification-count 0
             .user-profile
-              i.fas.fa-user-circle
-              span#managerName Manager
+              if user && user.profilePic
+                img.profile-pic(src=user.profilePic alt="Profile Picture" onclick="window.location='/manager/update-profile'")
+              else
+                img.profile-pic(src="/images/default-profile.png" alt="Default Profile" onclick="window.location='/update-profile'")
+              span#managerName #{user ? user.name : "Manager"}
+              a.update-link(href="/manager/update-profile") Update Profile
 
       //- Main Content
       .container
-        //- Cards Section
         .cards
           .card(onclick="location.href='/userList'")
             .card-icon
@@ -153,6 +254,24 @@ html(lang="en")
             .card-action
               button.go-btn Go
 
+          .card(onclick="location.href='/loading/reports'")
+            .card-icon
+              i.fas.fa-clipboard-list
+            .card-content
+              h4 Loading Reports
+              p View loading activities and reports
+            .card-action
+              button.go-btn Go
+
+          .card(onclick="location.href='/loading/report'")
+            .card-icon
+              i.fas.fa-clipboard-check
+            .card-content
+              h4 Offloading Reports
+              p View offloading activities and reports
+            .card-action
+              button.go-btn Go
+
           .card(onclick="location.href='/register'")
             .card-icon
               i.fas.fa-user-plus
@@ -161,21 +280,40 @@ html(lang="en")
               p Register users here
             .card-action
               button.go-btn Go
+
           .card(onclick="location.href='/invoices'")
             .card-icon
-              i.fas.fa-user-plus
+              i.fas.fa-file-invoice
             .card-content
-              h4 Folow up sold products
-              p view invoices
+              h4 Sales Follow-up
+              p Track sold products and invoices
+            .card-action
+              button.go-btn Go
+
+          .card(onclick="location.href='/assign-tasks'")
+            .card-icon
+              i.fas.fa-tasks
+            .card-content
+              h4 Assign Tasks
+              p Assign tasks to attendants
+            .card-action
+              button.go-btn Go
+
+          .card(onclick="location.href='/task-reports'")
+            .card-icon
+              i.fas.fa-clipboard-user
+            .card-content
+              h4 Task Reports
+              p Monitor task completion
             .card-action
               button.go-btn Go
 
           .card(onclick="location.href='/settings'")
             .card-icon
-              i.fas.fa-user-plus
+              i.fas.fa-cogs
             .card-content
-              h4 settings update
-              p change settings here
+              h4 System Settings
+              p Manage system configuration
             .card-action
               button.go-btn Go
 
@@ -185,7 +323,6 @@ html(lang="en")
         p &copy; 2025 Mayondo Wood & Furniture Ltd
 
   script.
-    // Set manager name if available
     document.addEventListener('DOMContentLoaded', function() {
       const managerName = '#{user ? user.name : "Manager"}';
       document.getElementById('managerName').textContent = managerName;

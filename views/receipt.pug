@@ -7,15 +7,15 @@ html(lang="en")
     link(rel="stylesheet", href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css")
     link(rel="stylesheet", href="/css/attendant-manage.css")
 
-
   body
-    .receipt-layout
-      // Sidebar
-      aside.receipt-sidebar
-        .logo-container
-          img.logo-img(src="/images/logo 2.png", alt="MWF Logo")
-          .logo-text Mayondo Wood & Furniture
-        nav
+    .layout
+      // Sidebar (styled like Sales Report page)
+      aside.sidebar
+        .sidebar-header
+          .logo-container
+            img.logo-img(src="/images/logo 2.png", alt="MWF Logo")
+            .logo-text Mayondo Wood & Furniture
+        nav.sidebar-nav
           ul
             li
               a(href="/sales-entry")
@@ -42,8 +42,8 @@ html(lang="en")
                 i.fas.fa-sign-out-alt
                 span Logout
 
-      // Main content
-      .receipt-main
+      // Main content area
+      main.main-content
         .receipt-container
           .receipt-header
             img.receipt-logo(src="/images/logo 2.png", alt="MWF Logo")
@@ -76,7 +76,7 @@ html(lang="en")
             .info-row
               span.info-label Sales Agent:
               span.info-value= sale.salesAgent && sale.salesAgent.name ? sale.salesAgent.name : 'N/A'
-            
+
             .total-row.info-row
               span.info-label TOTAL AMOUNT:
               span.info-value= sale.total ? sale.total.toLocaleString() : '0'
@@ -89,6 +89,7 @@ html(lang="en")
               i.fas.fa-print
               | Print Receipt
 
-          .receipt-footer
+          // Footer styled like the Sales Report page
+          footer.footer
             p Thank you for your business! We value your support and look forward to serving you again.
             p.mt-2 For inquiries: contact@mayondowood.com | +256-7676254

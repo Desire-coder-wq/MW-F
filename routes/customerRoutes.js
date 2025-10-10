@@ -3,7 +3,7 @@ const router = express.Router();
 const Customer = require("../models/customerModel");
 const { ensureauthenticated, ensureManager } = require("../middleware/auth");
 
-// ------------------- GET Customers List -------------------
+// ------ GET Customers List --------
 router.get('/customers', ensureauthenticated, ensureManager, async (req, res) => {
   try {
     const customers = await Customer.find().sort({ dateAdded: -1 }).lean();
@@ -18,7 +18,7 @@ router.get('/customers', ensureauthenticated, ensureManager, async (req, res) =>
   }
 });
 
-// ------------------- DELETE Customer -------------------
+// ------- DELETE Customer ---------
 router.post("/customers/:id/delete", ensureauthenticated, ensureManager, async (req, res) => {
   try {
     await Customer.findByIdAndDelete(req.params.id);

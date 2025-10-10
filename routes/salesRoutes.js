@@ -206,14 +206,14 @@ router.get('/receipt/:id', ensureauthenticated, async (req, res) => {
 
 
 // ===================================================
-// 📜 ROUTE: List all invoices
+// ROUTE: List all invoices
 // ===================================================
 router.get("/invoices", async (req, res) => {
   try {
-    // 1️⃣ Fetch all sales as invoices
+    // 1️ Fetch all sales as invoices
     const sales = await Sales.find().populate("salesAgent", "name").lean();
 
-    // 2️⃣ Format invoices for display
+    // 2️ Format invoices for display
     const invoices = sales.map((sale) => ({
       id: sale._id,
       invoiceNumber: `MWF-${moment(sale.date).format("YYYYMMDD")}-${sale._id
@@ -227,7 +227,7 @@ router.get("/invoices", async (req, res) => {
       paymentMethod: sale.paymentType || "Unknown",
     }));
 
-    // 3️⃣ Compute statistics
+    // 3️Compute statistics
     const totalRevenue = invoices.reduce((sum, inv) => sum + inv.amount, 0);
     const pendingInvoices = invoices.filter(
       (i) => i.status === "pending"
@@ -237,7 +237,7 @@ router.get("/invoices", async (req, res) => {
       moment(i.date, "MMM DD, YYYY").isSame(moment(), "month")
     ).length;
 
-    // 4️⃣ Render invoices page
+    // 4️Render invoices page
     res.render("invoices", {
       title: "MWF — Invoices & Receipts",
       user: req.user || { name: "Admin" },
