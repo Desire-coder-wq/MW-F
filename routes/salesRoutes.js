@@ -4,7 +4,8 @@ const moment = require("moment");
 const UserModel = require("../models/userModel");
 const Sales = require('../models/salesModel');
 const Stock = require('../models/stockModel');
-const Customer = require('../models/customerModel'); // Add this
+const Customer = require('../models/customerModel');
+const NotificationManager = require('../utils/notifications'); // ADD THIS LINE
 
 const { ensureauthenticated, ensureAgent, ensureManager } = require('../middleware/auth');
 
@@ -15,7 +16,7 @@ router.get('/sales', ensureauthenticated, ensureAgent, async (req, res) => {
     res.render("sales", { 
       title: "Sales Entry", 
       stock,
-      user: req.user  // Use req.user consistently
+      user: req.user
     });
   } catch (err) {
     console.error("Error fetching sales form:", err.message);
@@ -42,22 +43,40 @@ router.post('/sales', ensureauthenticated, ensureAgent, async (req, res) => {
     } = req.body;
     const userId = req.user._id;
 
-    const stock = await Stock.findOne({ productName });
-    if (!stock) return res.status(400).send('No stock found for this product');
-    if (stock.quantity < Number(quantity))
-      return res.status(400).send(`Insufficient stock — only ${stock.quantity} available`);
+    // ======= Atomic stock reduction =======
+    const stockUpdate = await Stock.findOneAndUpdate(
+      { productName, quantity: { $gte: Number(quantity) } },
+      { $inc: { quantity: -Number(quantity) } },
+      { new: true }
+    );
+    if (!stockUpdate) return res.status(400).send(`Insufficient stock for ${productName}`);
 
     const transportRequired = transport.toLowerCase() === "yes";
     const total = Number(quantity) * Number(price) * (transportRequired ? 1.05 : 1);
 
-    const sale = new Sales({
-      salesAgent: userId,
-      customer: {
+    // ======= Save Customer =======
+    let customer = await Customer.findOne({ 
+      $or: [
+        { phone: customerPhone },
+        { email: customerEmail }
+      ]
+    });
+
+    if (!customer && customerName && customerPhone) {
+      customer = new Customer({
         name: customerName,
         phone: customerPhone,
-        email: customerEmail,
-        address: customerAddress
-      },
+        email: customerEmail || '',
+        address: customerAddress || '',
+        dateAdded: new Date()
+      });
+      await customer.save();
+    }
+
+    // ======= Save Sale =======
+    const sale = new Sales({
+      salesAgent: userId,
+      customer: { name: customerName, phone: customerPhone, email: customerEmail, address: customerAddress },
       productName,
       productType,
       quantity: Number(quantity),
@@ -70,8 +89,32 @@ router.post('/sales', ensureauthenticated, ensureAgent, async (req, res) => {
     });
     await sale.save();
 
-    stock.quantity -= Number(quantity);
-    await stock.save();
+    // ======= NOTIFICATION: Notify manager about sale =======
+    try {
+      // Notify about pending sale that needs loading
+      await NotificationManager.notifyPendingSales(
+        sale._id,
+        req.user._id,
+        req.user.name,
+        customerName,
+        total
+      );
+
+      // Notify about large sales (over $1000)
+      if (total > 1000) {
+        await NotificationManager.notifyLargeSale(
+          sale._id,
+          req.user._id,
+          req.user.name,
+          total,
+          customerName
+        );
+      }
+      console.log(" Sale notifications sent to manager");
+    } catch (notifyError) {
+      console.error("Error sending sale notifications:", notifyError);
+      // Don't fail the request if notification fails
+    }
 
     res.redirect('/sales-list');
   } catch (err) {
@@ -83,7 +126,7 @@ router.post('/sales', ensureauthenticated, ensureAgent, async (req, res) => {
 // ------------------- GET Sales List -------------------
 router.get('/sales-list', ensureauthenticated, async (req, res) => {
   try {
-    const currentUser = req.user;  // Always use req.user
+    const currentUser = req.user;
     if (!currentUser) return res.redirect('/login');
 
     let sales;
@@ -124,27 +167,44 @@ router.post('/sales/edit/:id', ensureauthenticated, ensureManager, async (req, r
     const sale = await Sales.findById(req.params.id);
     if (!sale) return res.status(404).send("Sale not found");
 
-    const { customerName, productName, quantity, price, transport, paymentType, date, notes } = req.body;
+    const { customerName, customerPhone, customerEmail, customerAddress, productName, quantity, price, transport, paymentType, date, notes } = req.body;
 
-    // Update stock if product/quantity changed
-    if (sale.productName !== productName || sale.quantity != quantity) {
-      const oldStock = await Stock.findOne({ productName: sale.productName });
-      if (oldStock) {
-        oldStock.quantity += sale.quantity;
-        await oldStock.save();
+    // ======= Update Customer =======
+    if (customerName && customerPhone) {
+      let customer = await Customer.findOne({ 
+        $or: [{ phone: customerPhone }, { email: customerEmail }]
+      });
+      if (!customer) {
+        customer = new Customer({ name: customerName, phone: customerPhone, email: customerEmail || '', address: customerAddress || '', dateAdded: new Date() });
+        await customer.save();
+      } else {
+        customer.name = customerName;
+        if (customerEmail) customer.email = customerEmail;
+        if (customerAddress) customer.address = customerAddress;
+        await customer.save();
       }
-
-      const newStock = await Stock.findOne({ productName });
-      if (!newStock) return res.status(400).send("Product not found");
-      if (newStock.quantity < Number(quantity)) return res.status(400).send(`Insufficient stock — only ${newStock.quantity} available`);
-
-      newStock.quantity -= Number(quantity);
-      await newStock.save();
     }
 
-    // Update sale
+    // ======= Update Stock Atomically if product/quantity changed =======
+    if (sale.productName !== productName || sale.quantity != quantity) {
+      // Restore old stock
+      await Stock.updateOne(
+        { productName: sale.productName },
+        { $inc: { quantity: sale.quantity } }
+      );
+
+      // Reduce new stock
+      const updated = await Stock.findOneAndUpdate(
+        { productName, quantity: { $gte: Number(quantity) } },
+        { $inc: { quantity: -Number(quantity) } },
+        { new: true }
+      );
+      if (!updated) return res.status(400).send(`Insufficient stock for ${productName}`);
+    }
+
+    // ======= Update Sale =======
     const transportBool = transport.toLowerCase() === 'yes';
-    sale.customerName = customerName;
+    sale.customer = { name: customerName, phone: customerPhone, email: customerEmail, address: customerAddress };
     sale.productName = productName;
     sale.quantity = Number(quantity);
     sale.price = Number(price);
@@ -169,11 +229,10 @@ router.post('/sales/delete/:id', ensureauthenticated, ensureManager, async (req,
     if (!sale) return res.status(404).send("Sale not found");
 
     // Restore stock
-    const stock = await Stock.findOne({ productName: sale.productName });
-    if (stock) {
-      stock.quantity += sale.quantity;
-      await stock.save();
-    }
+    await Stock.updateOne(
+      { productName: sale.productName },
+      { $inc: { quantity: sale.quantity } }
+    );
 
     await sale.deleteOne();
     res.redirect('/sales-list');
@@ -203,41 +262,27 @@ router.get('/receipt/:id', ensureauthenticated, async (req, res) => {
   }
 });
 
-
-
-// ===================================================
-// ROUTE: List all invoices
-// ===================================================
+// ------------------- Invoices List & Single Invoice Routes (unchanged) -------------------
 router.get("/invoices", async (req, res) => {
   try {
-    // 1️ Fetch all sales as invoices
     const sales = await Sales.find().populate("salesAgent", "name").lean();
-
-    // 2️ Format invoices for display
     const invoices = sales.map((sale) => ({
       id: sale._id,
-      invoiceNumber: `MWF-${moment(sale.date).format("YYYYMMDD")}-${sale._id
-        .toString()
-        .slice(-4)}`,
+      invoiceNumber: `MWF-${moment(sale.date).format("YYYYMMDD")}-${sale._id.toString().slice(-4)}`,
       date: moment(sale.date).format("MMM DD, YYYY"),
-      customer: sale.customerName || "Walk-in Customer",
+      customer: sale.customer.name || "Walk-in Customer",
       amount: sale.total || 0,
       status: sale.paymentType?.toLowerCase() === "cash" ? "paid" : "pending",
       items: sale.quantity || 1,
       paymentMethod: sale.paymentType || "Unknown",
     }));
-
-    // 3️Compute statistics
     const totalRevenue = invoices.reduce((sum, inv) => sum + inv.amount, 0);
-    const pendingInvoices = invoices.filter(
-      (i) => i.status === "pending"
-    ).length;
+    const pendingInvoices = invoices.filter((i) => i.status === "pending").length;
     const paidInvoices = invoices.filter((i) => i.status === "paid").length;
     const thisMonthInvoices = invoices.filter((i) =>
       moment(i.date, "MMM DD, YYYY").isSame(moment(), "month")
     ).length;
 
-    // 4️Render invoices page
     res.render("invoices", {
       title: "MWF — Invoices & Receipts",
       user: req.user || { name: "Admin" },
@@ -253,30 +298,23 @@ router.get("/invoices", async (req, res) => {
   }
 });
 
-// ===================================================
-//  ROUTE: View a single invoice by ID
-// ===================================================
 router.get("/invoice/:id", async (req, res) => {
   try {
     const sale = await Sales.findById(req.params.id)
       .populate("salesAgent", "name")
       .lean();
-
     if (!sale) return res.status(404).send("Invoice not found");
 
-    // Format invoice details
     const invoice = {
       id: sale._id,
-      invoiceNumber: `MWF-${moment(sale.date).format("YYYYMMDD")}-${sale._id
-        .toString()
-        .slice(-4)}`,
+      invoiceNumber: `MWF-${moment(sale.date).format("YYYYMMDD")}-${sale._id.toString().slice(-4)}`,
       date: moment(sale.date).format("MMM DD, YYYY"),
       dueDate: moment(sale.date).add(10, "days").format("MMM DD, YYYY"),
       customer: {
-        name: sale.customerName || "Client",
-        address: sale.notes || "Mbarara, Uganda",
-        phone: sale.phone || "+256-700000000",
-        email: "client@mwf.co.ug",
+        name: sale.customer.name || "Client",
+        address: sale.customer.address || "Mbarara, Uganda",
+        phone: sale.customer.phone || "+256-700000000",
+        email: sale.customer.email || "client@mwf.co.ug",
       },
       items: [
         {

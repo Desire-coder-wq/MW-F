@@ -15,7 +15,7 @@ body {
   align-items: center;
 
   /* Background image */
-  background: #f4f4f4 url('/images/embrace.png') no-repeat center center;
+  background: #f4f4f4 url('/images/All\ \(1\).jpeg') no-repeat center center;
   background-size: cover;  /* Changed to cover for better appearance */
   background-attachment: fixed; /* optional: parallax effect */
 }

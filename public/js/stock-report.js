@@ -1,107 +1,117 @@
 document.addEventListener("DOMContentLoaded", () => {
-  // Get stock data from hidden JSON
   const stocks = JSON.parse(document.getElementById("chart-data").textContent);
 
   // ---- Export Functions ----
   window.exportPDF = function() {
     const { jsPDF } = window.jspdf;
-    const doc = new jsPDF();
-    doc.text("MWF Stock Report", 10, 10);
-    if (document.querySelector("table")) {
-      doc.autoTable({ html: "table" }); // requires jspdf-autotable plugin
+
+    // Ensure jspdf-autotable is loaded
+    if (!docAutoTableLoaded()) {
+      alert("PDF export requires jsPDF AutoTable plugin.");
+      return;
     }
+
+    const doc = new jsPDF();
+    doc.setFontSize(18);
+    doc.text("MWF Stock Report", 14, 20);
+
+    const table = document.querySelector("table");
+    if (table) {
+      doc.autoTable({
+        html: table,
+        startY: 30,
+        theme: "grid",
+        headStyles: { fillColor: [54, 162, 235] },
+        styles: { fontSize: 10 }
+      });
+    }
+
     doc.save("stock-report.pdf");
   };
 
+  // Helper to check if autoTable plugin exists
+  function docAutoTableLoaded() {
+    try {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      return typeof doc.autoTable === "function";
+    } catch {
+      return false;
+    }
+  }
+
   window.exportExcel = function() {
-    if (document.querySelector("table")) {
-      const wb = XLSX.utils.table_to_book(document.querySelector("table"), { sheet: "Stock Report" });
+    const table = document.querySelector("table");
+    if (table) {
+      const wb = XLSX.utils.table_to_book(table, { sheet: "Stock Report" });
       XLSX.writeFile(wb, "stock-report.xlsx");
     }
   };
 
   // ---- Charts ----
-  const stockLevelsCanvas = document.getElementById("stockLevelsChart");
-  const stockExpensesCanvas = document.getElementById("stockExpensesChart");
-  const lowStockCanvas = document.getElementById("lowStockChart");
+  function createChart(canvasId, type, labels, data, labelText, colors = []) {
+    const ctx = document.getElementById(canvasId);
+    if (!ctx) return;
 
-  // Prepare data arrays
+    if (labels.length > 0) {
+      new Chart(ctx, {
+        type,
+        data: {
+          labels,
+          datasets: [{
+            label: labelText,
+            data,
+            backgroundColor: colors.length > 0 ? colors : "rgba(54, 162, 235, 0.7)"
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: { display: true },
+            tooltip: { enabled: true }
+          }
+        }
+      });
+    } else {
+      const context = ctx.getContext("2d");
+      context.font = "16px Arial";
+      context.fillText("No data available", 50, 50);
+    }
+  }
+
+  // --- Stock Levels Chart ---
   const labels = stocks.map(s => s.productName);
   const quantities = stocks.map(s => s.quantity);
-  const rawMaterials = stocks.filter(s => s.category === "Raw Materails");
-  const expenses = rawMaterials.map(s => s.costPrice * s.quantity);
-  const lowStock = stocks.filter(s => s.quantity < 5);
+  createChart("stockLevelsChart", "bar", labels, quantities, "Stock Quantity");
 
-  // ---- Stock Levels Chart ----
-  if (stocks.length > 0) {
-    new Chart(stockLevelsCanvas, {
-      type: "bar",
-      data: {
-        labels,
-        datasets: [{
-          label: "Stock Quantity",
-          data: quantities,
-          backgroundColor: "rgba(54, 162, 235, 0.7)"
-        }]
-      },
-      options: { responsive: true }
-    });
-  } else {
-    const ctx = stockLevelsCanvas.getContext("2d");
-    ctx.font = "16px Arial";
-    ctx.fillText("No stock data yet", 50, 50);
-  }
+  // --- Low Stock Chart ---
+  const lowStock = stocks.filter(s => s.quantity < 10);
+  createChart(
+    "lowStockChart",
+    "bar",
+    lowStock.map(s => s.productName),
+    lowStock.map(s => s.quantity),
+    "Low Stock (<10)"
+  );
 
-  // ---- Expenses Chart ----
-  if (rawMaterials.length > 0) {
-    new Chart(stockExpensesCanvas, {
-      type: "pie",
-      data: {
-        labels: rawMaterials.map(s => s.productName),
-        datasets: [{
-          label: "Expenses",
-          data: expenses,
-          backgroundColor: [
-            "rgba(255, 99, 132, 0.7)",
-            "rgba(54, 162, 235, 0.7)",
-            "rgba(255, 206, 86, 0.7)",
-            "rgba(75, 192, 192, 0.7)",
-            "rgba(153, 102, 255, 0.7)"
-          ]
-        }]
-      },
-      options: { responsive: true }
-    });
-  } else {
-    const ctx = stockExpensesCanvas.getContext("2d");
-    ctx.font = "16px Arial";
-    ctx.fillText("No expenses recorded yet", 50, 50);
-  }
+  // --- Expenses by Raw Materials ---
+  const rawMaterials = stocks.filter(s => s.category.toLowerCase().includes("raw"));
+  createChart(
+    "stockExpensesChart",
+    "pie",
+    rawMaterials.map(s => s.productName),
+    rawMaterials.map(s => s.quantity * s.costPrice),
+    "Expenses"
+  );
 
-  // ---- Low Stock Chart ----
-  if (lowStock.length > 0) {
-    new Chart(lowStockCanvas, {
-      type: "bar",
-      data: {
-        labels: lowStock.map(s => s.productName),
-        datasets: [{
-          label: "Low Stock (below 5)",
-          data: lowStock.map(s => s.quantity),
-          backgroundColor: "rgba(255, 99, 132, 0.8)"
-        }]
-      },
-      options: {
-        responsive: true,
-        plugins: { title: { display: true, text: "Low Stock Alert" } },
-        scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
-      }
-    });
-  } else {
-    // Remove canvas and show green success message
-    lowStockCanvas.insertAdjacentHTML(
-      "beforebegin",
-      "<p style='color: green; font-weight: bold;'>✅ No low stock issues detected!</p>"
-    );
-    lowStockCanvas.remove();
-  }
+  // --- Stock by Type ---
+  const typesMap = {};
+  stocks.forEach(s => { typesMap[s.productType] = (typesMap[s.productType] || 0) + s.quantity; });
+  createChart(
+    "stockTypeChart",
+    "doughnut",
+    Object.keys(typesMap),
+    Object.values(typesMap),
+    "Stock by Type"
+  );
 });

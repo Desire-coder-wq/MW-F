@@ -3,7 +3,6 @@ const router = express.Router();
 const multer = require("multer");
 const path = require("path");
 const User = require("../models/userModel");
-
 // Multer config for profile pictures
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {

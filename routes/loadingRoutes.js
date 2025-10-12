@@ -1,34 +1,56 @@
 const express = require("express");
 const router = express.Router();
+const NotificationManager = require('../utils/notifications'); // ADD THIS LINE
 
-const loadingModel = require("../models/loadingModel");
-const stockModel = require("../models/stockModel");
-const salesModel = require("../models/salesModel");
+const Loading = require("../models/loadingModel");
+const Stock = require("../models/stockModel");
+const Sale = require("../models/salesModel"); // your actual SalesModel
+const Customer = require("../models/customerModel");
+
+const { ensureAgent, ensureauthenticated } = require("../middleware/auth");
 
 // ------------------- OFFLOADING -------------------
-// Show form
-router.get("/offload", (req, res) => {
-  res.render("offload-form"); // views/offload-form.pug
+router.get("/offload", ensureAgent, async (req, res) => {
+  try {
+    const user = req.user;
+    const stocks = await Stock.find().sort({ dateAdded: -1 });
+    res.render("offload-form", { user, stocks });
+  } catch (err) {
+    res.status(500).send(err.message);
+  }
 });
 
-// Handle submission
-router.post("/offload", async (req, res) => {
+router.post("/offload", ensureAgent, async (req, res) => {
   try {
-    const { productName, productType, quantity, attendantName, relatedStock } = req.body;
+    const user = req.user;
+    const { productName, productType, quantity, relatedStock } = req.body;
 
-    // Save record
-    const record = new loadingModel({
+    const record = new Loading({
       productName,
       productType,
       quantity,
       operationType: "offloading",
-      attendantName,
-      relatedStock
+      attendantName: user.name,
+      relatedStock,
     });
     await record.save();
 
-    // Increase stock
-    await stockModel.findByIdAndUpdate(relatedStock, { $inc: { quantity: quantity } });
+    await Stock.findByIdAndUpdate(relatedStock, { $inc: { quantity } });
+
+    // ======= NOTIFICATION: Notify manager about offloading =======
+    try {
+      await NotificationManager.notifyOffloadRequest(
+        relatedStock,
+        req.user._id,
+        req.user.name,
+        productName,
+        quantity
+      );
+      console.log(" Offloading notification sent to manager");
+    } catch (notifyError) {
+      console.error("Error sending offloading notification:", notifyError);
+      // Don't fail the request if notification fails
+    }
 
     res.redirect("/loading/report");
   } catch (err) {
@@ -37,48 +59,46 @@ router.post("/offload", async (req, res) => {
 });
 
 // ------------------- LOADING -------------------
-// List all sales that need loading
-router.get("/pending", async (req, res) => {
+router.get("/pending", ensureAgent, async (req, res) => {
   try {
-    // You can filter for only unpaid or not-yet-loaded sales
-    const sales = await salesModel.find();
-    res.render("pending-sales", { sales });
-  } catch (err) {
-    res.status(500).send(err.message);
-  }
-});
-// Show form (need saleId so we know which sale we’re loading)
-router.get("/load/:saleId", async (req, res) => {
-  try {
-    const sale = await salesModel.findById(req.params.saleId);
-    if (!sale) return res.status(404).send("Sale not found");
-
-    res.render("load-form", { sale }); // views/load-form.pug
+    const user = req.user;
+    const sales = await Sale.find().populate("customer");
+    res.render("pending-sales", { sales, user });
   } catch (err) {
     res.status(500).send(err.message);
   }
 });
 
-// Handle submission
-router.post("/load/:saleId", async (req, res) => {
+router.get("/load/:saleId", ensureAgent, async (req, res) => {
   try {
-    const { attendantName } = req.body;
-    const sale = await salesModel.findById(req.params.saleId);
+    const user = req.user;
+    const sale = await Sale.findById(req.params.saleId).populate("customer");
     if (!sale) return res.status(404).send("Sale not found");
 
-    // Save record
-    const record = new loadingModel({
+    res.render("load-form", { sale, user });
+  } catch (err) {
+    res.status(500).send(err.message);
+  }
+});
+
+router.post("/load/:saleId", ensureAgent, async (req, res) => {
+  try {
+    const user = req.user;
+    const sale = await Sale.findById(req.params.saleId).populate("customer");
+    if (!sale) return res.status(404).send("Sale not found");
+
+    const record = new Loading({
       productName: sale.productName,
       productType: sale.productType,
       quantity: sale.quantity,
       operationType: "loading",
-      attendantName,
-      relatedSale: sale._id
+      attendantName: user.name,
+      relatedSale: sale._id,
+      customerName: sale.customer?.name || "N/A",
     });
     await record.save();
 
-    // Decrease stock
-    await stockModel.findOneAndUpdate(
+    await Stock.findOneAndUpdate(
       { productName: sale.productName },
       { $inc: { quantity: -sale.quantity } }
     );
@@ -90,10 +110,15 @@ router.post("/load/:saleId", async (req, res) => {
 });
 
 // ------------------- REPORT -------------------
-router.get("/report", async (req, res) => {
+router.get("/report", ensureauthenticated, async (req, res) => {
   try {
-    const report = await loadingModel.find().populate("relatedSale").populate("relatedStock");
-    res.render("loading-report", { report }); // views/loading-report.pug
+    const user = req.user;
+    const report = await Loading.find()
+      .populate({ path: "relatedSale", select: "productName customer" }) // populate correctly
+      .populate({ path: "relatedStock", select: "productName quantity" })
+      .sort({ dateTime: -1 });
+
+    res.render("loading-report", { report, user });
   } catch (err) {
     res.status(500).send(err.message);
   }

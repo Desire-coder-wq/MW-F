@@ -6,6 +6,7 @@ const stockSubmissionSchema = new mongoose.Schema(
     productType: { type: String, required: true },
     category: { type: String, required: true },
     costPrice: { type: Number, required: true },
+    sellingPrice: { type: Number, required: true },
     quantity: { type: Number, required: true },
 
     // Store supplier name directly (optional)

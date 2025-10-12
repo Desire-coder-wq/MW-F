@@ -12,29 +12,23 @@ const Stock = require("../models/stockModel");
 const Task = require("../models/taskModel");
 const { ensureauthenticated, ensureManager, ensureAgent } = require("../middleware/auth");
 
+// ==================== NOTIFICATION MANAGER ====================
+const NotificationManager = require("../utils/notifications");
+
 // ==================== MULTER CONFIG ====================
 
 // Ensure uploads directory exists
 const uploadDir = path.join(__dirname, "../uploads");
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir, { recursive: true });
-  console.log(" Upload directory created:", uploadDir);
-}
+if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
 
 // Configure multer storage
 const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    console.log(" Saving file to:", uploadDir);
-    cb(null, uploadDir);
-  },
+  destination: (req, file, cb) => cb(null, uploadDir),
   filename: (req, file, cb) => {
-    const uniqueName =
-      Date.now() + "-" + Math.round(Math.random() * 1e9) + path.extname(file.originalname);
-    console.log(" Generated filename:", uniqueName);
+    const uniqueName = Date.now() + "-" + Math.round(Math.random() * 1e9) + path.extname(file.originalname);
     cb(null, uniqueName);
   },
 });
-
 const upload = multer({
   storage,
   fileFilter: (req, file, cb) => {
@@ -119,7 +113,7 @@ router.post("/attendants/assign-task", ensureauthenticated, ensureManager, async
 
 // ==================== ATTENDANT TASKS ====================
 
-// GET: Attendant’s own tasks
+// GET: Attendant's own tasks
 router.get("/attendant/tasks", ensureauthenticated, ensureAgent, async (req, res) => {
   try {
     const attendant = await Attendant.findOne({ user: req.session.user._id });
@@ -144,6 +138,88 @@ router.get("/attendant/tasks", ensureauthenticated, ensureAgent, async (req, res
   }
 });
 
+// POST: Update task status (attendant marks task as completed)
+router.post("/attendant/tasks/:id/complete", ensureauthenticated, ensureAgent, async (req, res) => {
+  try {
+    const task = await Task.findById(req.params.id);
+    if (!task) return res.status(404).json({ error: "Task not found" });
+
+    // Verify the task belongs to the current attendant
+    const attendant = await Attendant.findOne({ user: req.session.user._id });
+    if (!attendant || task.attendantId.toString() !== attendant._id.toString()) {
+      return res.status(403).json({ error: "Not authorized to update this task" });
+    }
+
+    // Update task status
+    task.status = "Completed";
+    task.completedAt = new Date();
+    await task.save();
+
+    // Notify manager that task is completed
+    try {
+      await NotificationManager.notifyTaskCompletion(
+        task._id,
+        req.session.user._id,
+        req.session.user.name,
+        task.taskType,
+        task.taskDescription
+      );
+      console.log(" Task completion notification sent to manager");
+    } catch (notifyError) {
+      console.error("Error sending task completion notification:", notifyError);
+      // Don't fail the request if notification fails
+    }
+
+    res.json({ 
+      success: true,
+      message: "Task marked as completed", 
+      task: {
+        _id: task._id,
+        status: task.status,
+        completedAt: task.completedAt
+      }
+    });
+  } catch (err) {
+    console.error(" Error completing task:", err);
+    res.status(500).json({ 
+      success: false,
+      error: "Failed to update task" 
+    });
+  }
+});
+
+// POST: Update task status to In Progress (start task)
+router.post("/attendant/tasks/:id/start", ensureauthenticated, ensureAgent, async (req, res) => {
+  try {
+    const task = await Task.findById(req.params.id);
+    if (!task) return res.status(404).json({ error: "Task not found" });
+
+    // Verify the task belongs to the current attendant
+    const attendant = await Attendant.findOne({ user: req.session.user._id });
+    if (!attendant || task.attendantId.toString() !== attendant._id.toString()) {
+      return res.status(403).json({ error: "Not authorized to update this task" });
+    }
+
+    // Update task status to In Progress
+    task.status = "In Progress";
+    await task.save();
+
+    res.json({ 
+      success: true,
+      message: "Task started successfully", 
+      task: {
+        _id: task._id,
+        status: task.status
+      }
+    });
+  } catch (err) {
+    console.error(" Error starting task:", err);
+    res.status(500).json({ 
+      success: false,
+      error: "Failed to start task" 
+    });
+  }
+});
 // ==================== STOCK SUBMISSION ====================
 
 // GET: Render stock submission form
@@ -162,7 +238,7 @@ router.get("/attendant/add-stock", ensureauthenticated, ensureAgent, async (req,
   }
 });
 
-// POST: Submit stock (with image)
+// POST: Submit stock (with sellingPrice)
 router.post(
   "/attendant/add-stock",
   ensureauthenticated,
@@ -170,30 +246,24 @@ router.post(
   upload.single("image"),
   async (req, res) => {
     try {
-      console.log("===  STOCK SUBMISSION STARTED ===");
-      console.log(" Form Data:", req.body);
-      console.log("Uploaded File:", req.file);
-
-      const { productName, quantity, costPrice, supplier } = req.body;
-      if (!productName || !quantity || !costPrice || !supplier) {
+      const { productName, quantity, costPrice, sellingPrice, supplier } = req.body;
+      if (!productName || !quantity || !costPrice || !sellingPrice || !supplier) {
         const suppliers = await Supplier.find().lean();
         return res.render("attendant-add-stock", {
           title: "Submit Stock",
           suppliers,
-          error: "Product name, quantity, cost price, and supplier are required",
+          error: "Product name, quantity, cost price, selling price, and supplier are required",
         });
       }
 
-      // Ensure consistent image path format
       const imagePath = req.file ? `/uploads/${req.file.filename}` : "";
-
-      console.log(" Image path saved as:", imagePath);
 
       const submission = new StockSubmission({
         productName,
         productType: req.body.productType,
         category: req.body.category,
         costPrice: parseFloat(costPrice),
+        sellingPrice: parseFloat(sellingPrice), // <--- added
         quantity: parseInt(quantity),
         supplier,
         supplierEmail: req.body.supplierEmail,
@@ -211,6 +281,21 @@ router.post(
       await submission.save();
       console.log(" Stock submission saved:", submission._id);
 
+      // ==================== NOTIFICATION: Stock requires approval ====================
+      try {
+        await NotificationManager.notifyStockAddition(
+          submission._id,
+          req.session.user._id,
+          req.session.user.name,
+          productName,
+          quantity
+        );
+        console.log(" Stock approval notification sent to manager");
+      } catch (notifyError) {
+        console.error("Error sending stock approval notification:", notifyError);
+        // Don't fail the request if notification fails
+      }
+
       // Auto-save supplier if not exists
       if (supplier && supplier.trim() !== "") {
         const supplierName = supplier.trim();
@@ -227,9 +312,6 @@ router.post(
             addedBy: req.session.user._id,
           });
           await newSupplier.save();
-          console.log(" Supplier saved:", newSupplier.name);
-        } else {
-          console.log(" Supplier exists:", existingSupplier.name);
         }
       }
 
@@ -256,9 +338,6 @@ router.get("/approve-stock", ensureauthenticated, ensureManager, async (req, res
       .sort({ createdAt: -1 })
       .lean();
 
-    // Add debug logs for images
-    submissions.forEach((s) => console.log(`🖼️ ${s.productName} → ${s.image}`));
-
     res.render("approve-stock", {
       title: "Approve Stock",
       submissions,
@@ -282,12 +361,13 @@ router.post("/stock-submissions/:id/approve", ensureauthenticated, ensureManager
     submission.approvedAt = new Date();
     await submission.save();
 
-    // Save approved stock
+    // Save approved stock to main collection
     const newStock = new Stock({
       productName: submission.productName,
       productType: submission.productType,
       category: submission.category,
       costPrice: submission.costPrice,
+      sellingPrice: submission.sellingPrice, // <--- added
       quantity: submission.quantity,
       supplier: submission.supplier,
       supplierEmail: submission.supplierEmail,
@@ -304,6 +384,21 @@ router.post("/stock-submissions/:id/approve", ensureauthenticated, ensureManager
 
     await newStock.save();
     console.log(" Stock approved & added to main collection");
+
+    // ==================== NOTIFICATION: Stock approved ====================
+    try {
+      await NotificationManager.notifyStockApproval(
+        submission._id,
+        req.session.user._id,
+        req.session.user.name,
+        submission.productName,
+        submission.quantity
+      );
+      console.log(" Stock approval notification sent");
+    } catch (notifyError) {
+      console.error("Error sending stock approval notification:", notifyError);
+      // Don't fail the request if notification fails
+    }
 
     res.redirect("/approve-stock?message=Stock approved successfully");
   } catch (err) {
@@ -323,6 +418,21 @@ router.post("/stock-submissions/:id/reject", ensureauthenticated, ensureManager,
     submission.rejectedAt = new Date();
     await submission.save();
 
+    // ==================== NOTIFICATION: Stock rejected ====================
+    try {
+      await NotificationManager.notifyStockRejection(
+        submission._id,
+        req.session.user._id,
+        req.session.user.name,
+        submission.productName,
+        submission.quantity
+      );
+      console.log(" Stock rejection notification sent");
+    } catch (notifyError) {
+      console.error("Error sending stock rejection notification:", notifyError);
+      // Don't fail the request if notification fails
+    }
+
     res.redirect("/approve-stock?message=Stock rejected");
   } catch (err) {
     console.error("Error rejecting stock:", err);
@@ -331,19 +441,19 @@ router.post("/stock-submissions/:id/reject", ensureauthenticated, ensureManager,
 });
 
 // ==================== TASK REPORTS ====================
-
 router.get("/task-reports", ensureauthenticated, ensureManager, async (req, res) => {
   try {
     const tasks = await Task.find().sort({ assignedAt: -1 }).lean();
+
     res.render("task-reports", {
       title: "Task Reports - MWF",
       tasks,
-      message: req.query.message,
-      error: req.query.error,
+      message: req.query.message || null,
+      error: req.query.error || null,
     });
   } catch (err) {
     console.error(" Error fetching task reports:", err);
-    res.status(500).send("Error fetching reports");
+    res.status(500).send("Error fetching task reports");
   }
 });
 

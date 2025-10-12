@@ -42,6 +42,183 @@ html(lang="en")
         margin-top: 10px;
       }
 
+      /* Notification Styles */
+      .notification-btn {
+        position: relative;
+        cursor: pointer;
+        font-size: 20px;
+        color: #666;
+        padding: 8px;
+        border-radius: 50%;
+        transition: all 0.3s ease;
+        background: none;
+        border: none;
+      }
+
+      .notification-btn:hover {
+        background: #f0f0f0;
+        color: #1e7230;
+      }
+
+      .notification-count {
+        position: absolute;
+        top: -5px;
+        right: -5px;
+        background: #e74c3c;
+        color: white;
+        border-radius: 50%;
+        width: 18px;
+        height: 18px;
+        font-size: 11px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        border: 2px solid white;
+      }
+
+      .notification-dropdown {
+        position: absolute;
+        top: 100%;
+        right: 0;
+        width: 350px;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+        border: 1px solid #e0e0e0;
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(-10px);
+        transition: all 0.3s ease;
+        z-index: 1000;
+      }
+
+      .notification-dropdown.active {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+      }
+
+      .notification-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 15px 20px;
+        border-bottom: 1px solid #e0e0e0;
+        background: #f8f9fa;
+        border-radius: 8px 8px 0 0;
+      }
+
+      .notification-header h4 {
+        margin: 0;
+        color: #1e7230;
+        font-size: 16px;
+        font-weight: 600;
+      }
+
+      .mark-read {
+        color: #1e7230;
+        font-size: 12px;
+        cursor: pointer;
+        text-decoration: underline;
+        transition: color 0.3s ease;
+      }
+
+      .mark-read:hover {
+        color: #155a24;
+      }
+
+      .notification-list {
+        max-height: 300px;
+        overflow-y: auto;
+      }
+
+      .notification-item {
+        display: flex;
+        align-items: flex-start;
+        padding: 15px 20px;
+        border-bottom: 1px solid #f0f0f0;
+        transition: background-color 0.3s ease;
+        cursor: pointer;
+      }
+
+      .notification-item:hover {
+        background: #f8f9fa;
+      }
+
+      .notification-item.unread {
+        background: #f0f9f0;
+        border-left: 3px solid #1e7230;
+      }
+
+      .notification-item:last-child {
+        border-bottom: none;
+      }
+
+      .notification-icon {
+        margin-right: 12px;
+        color: #1e7230;
+        font-size: 16px;
+        margin-top: 2px;
+      }
+
+      .notification-item.unread .notification-icon {
+        color: #e74c3c;
+      }
+
+      .notification-content {
+        flex: 1;
+      }
+
+      .notification-content p {
+        margin: 0 0 5px 0;
+        color: #333;
+        font-size: 14px;
+        line-height: 1.4;
+      }
+
+      .notification-time {
+        color: #666;
+        font-size: 12px;
+      }
+
+      .notification-footer {
+        padding: 12px 20px;
+        border-top: 1px solid #e0e0e0;
+        text-align: center;
+        background: #f8f9fa;
+        border-radius: 0 0 8px 8px;
+      }
+
+      .notification-footer a {
+        color: #1e7230;
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 500;
+        transition: color 0.3s ease;
+      }
+
+      .notification-footer a:hover {
+        color: #155a24;
+        text-decoration: underline;
+      }
+
+      /* Header Actions */
+      .header-actions {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        position: relative;
+      }
+
+      /* Responsive Design */
+      @media (max-width: 768px) {
+        .notification-dropdown {
+          width: 300px;
+          right: -50px;
+        }
+      }
+
   body
     .layout
       //- Sidebar
@@ -87,9 +264,34 @@ html(lang="en")
             h1 Stock Entry
             h3 Add new stock to inventory
           .header-actions
-            .notification-btn
+            .notification-btn#notificationBtn
               i.fas.fa-bell
-              .notification-count 0
+              .notification-count 3
+              .notification-dropdown#notificationDropdown
+                .notification-header
+                  h4 Notifications
+                  span.mark-read Mark all as read
+                .notification-list
+                  .notification-item.unread
+                    .notification-icon
+                      i.fas.fa-exclamation-circle
+                    .notification-content
+                      p New stock request requires approval
+                      span.notification-time 2 min ago
+                  .notification-item.unread
+                    .notification-icon
+                      i.fas.fa-shopping-cart
+                    .notification-content
+                      p Large sale completed by attendant John
+                      span.notification-time 15 min ago
+                  .notification-item
+                    .notification-icon
+                      i.fas.fa-tasks
+                    .notification-content
+                      p Task "Inventory Check" is due tomorrow
+                      span.notification-time 1 hour ago
+                .notification-footer
+                  a(href="/notifications") View all notifications
             .user-profile
               i.fas.fa-user-circle
               span #{user ? user.name : 'User'}
@@ -150,6 +352,12 @@ html(lang="en")
                       i.fas.fa-money-bill
                       | Cost Price (UGX)
                     input#costPrice(type="number", name="costPrice", min="0", step="0.01", required)
+
+                  .form-group
+                    label(for="sellingPrice")
+                      i.fas.fa-tag
+                      | Selling Price (UGX)
+                    input#sellingPrice(type="number", name="sellingPrice", min="0", step="0.01", required)
 
                   .form-group
                     label(for="quantity")
@@ -263,6 +471,35 @@ html(lang="en")
     document.addEventListener('DOMContentLoaded', function() {
       const today = new Date().toISOString().split('T')[0];
       document.getElementById('date').value = today;
+
+      // Notification functionality
+      const notificationBtn = document.getElementById('notificationBtn');
+      const notificationDropdown = document.getElementById('notificationDropdown');
+      
+      if (notificationBtn && notificationDropdown) {
+        notificationBtn.addEventListener('click', function(e) {
+          e.stopPropagation();
+          notificationDropdown.classList.toggle('active');
+        });
+
+        // Close notification dropdown when clicking elsewhere
+        document.addEventListener('click', function() {
+          notificationDropdown.classList.remove('active');
+        });
+
+        // Mark notification as read
+        const markReadBtn = document.querySelector('.mark-read');
+        const unreadNotifications = document.querySelectorAll('.notification-item.unread');
+        
+        if (markReadBtn) {
+          markReadBtn.addEventListener('click', function() {
+            unreadNotifications.forEach(item => {
+              item.classList.remove('unread');
+            });
+            document.querySelector('.notification-count').textContent = '0';
+          });
+        }
+      }
     });
 
     function previewImage(input) {

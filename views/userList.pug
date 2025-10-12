@@ -2,143 +2,119 @@ doctype html
 html(lang="en")
   head
     meta(charset="UTF-8")
-    meta(name="viewport", content="width=device-width, initial-scale=1")
-    title MWF — User List
-    link(rel="stylesheet", href="/css/sales-report.css")
+    meta(name="viewport", content="width=device-width,initial-scale=1")
+    title User List - Manager Dashboard
     link(rel="stylesheet", href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css")
+    link(rel="stylesheet", href="/css/attendant-manage.css")
 
   body
     // ---- Sidebar ----
     aside.sidebar
+      .sidebar-toggle
+        i.fas.fa-bars
       .logo-container
-        img.logo-img(src="/images/logo 2.png", alt="MWF Logo", onerror="this.style.display='none'")
-        h2.logo-text Mayondo Wood & Furniture
+        img.logo-img(src="/images/logo 2.png", alt="MWF Logo")
+        .logo-text Mayondo Wood & Furniture
       nav
         ul
           li
-            a(href="/dashboard")
-              i.fas.fa-tachometer-alt
-              span Dashboard
+            a(href="/reports")
+              i.fas.fa-chart-bar
+              span Reports
           li
-            a(href="/sales")
-              i.fas.fa-cash-register
-              span Sales Entry
+            a(href="/approve-stock")
+              i.fas.fa-check-circle
+              span Approve Stock
+          li
+            a(href="/stock")
+              i.fas.fa-boxes
+              span Add Stock
           li
             a(href="/sales-report")
               i.fas.fa-chart-line
-              span Sales Report
-          li
-            a(href="/reports")
-              i.fas.fa-chart-bar
-              span Stock Report
-          li
-            a(href="/stockList")
-              i.fas.fa-boxes
-              span Stock List
+              span Sales Reports
           li
             a(href="/userList", class="active")
               i.fas.fa-users
-              span User List
+              span Users
           li
             a(href="/logout")
               i.fas.fa-sign-out-alt
               span Logout
 
-    // ---- Header ----
-    header#topbar
+    // ---- Topbar ----
+    #topbar
       .header-content
         .company-info
-          h1 Mayondo Wood & Furniture Ltd
-          h3 User Management
+          h1 User Management
+          h3 View and manage system users
         .header-actions
-          button.notification-btn
+          .notification-btn#notificationBtn
             i.fas.fa-bell
-            span.notification-count 3
-          .user-profile
-            i.fas.fa-user-circle
-            span Admin
+            .notification-count 3
+            .notification-dropdown#notificationDropdown
+              .notification-header
+                h4 Notifications
+                span.mark-read Mark all as read
+              .notification-list
+                .notification-item.unread
+                  .notification-icon
+                    i.fas.fa-exclamation-circle
+                  .notification-content
+                    p New stock request requires approval
+                    span.notification-time 2 min ago
+                .notification-item.unread
+                  .notification-icon
+                    i.fas.fa-shopping-cart
+                  .notification-content
+                    p Large sale completed by attendant John
+                    span.notification-time 15 min ago
+              .notification-footer
+                a(href="/notifications") View all notifications
 
     // ---- Main Content ----
-    main.container
+    .container
       .section
-        .table-header
-          h3
-            i.fas.fa-users
-            | User List
+        h3.section-title
+          i.fas.fa-users
+          | Registered Users
 
-        .report-table
-          table#userTable
-            thead
-              tr
-                th 
-                  i.fas.fa-hashtag
-                  | #
-                th 
-                  i.fas.fa-image
-                  | Profile
-                th 
-                  i.fas.fa-user
-                  | Name
-                th 
-                  i.fas.fa-envelope
-                  | Email
-                th 
-                  i.fas.fa-user-tag
-                  | Role
-                th 
-                  i.fas.fa-venus-mars
-                  | Gender
-                th 
-                  i.fas.fa-phone
-                  | Phone
-                th 
-                  i.fas.fa-id-card
-                  | National ID
-                th 
-                  i.fas.fa-user-friends
-                  | Next of Kin
-                th 
-                  i.fas.fa-mobile-alt
-                  | Next of Kin Phone
-                th 
-                  i.fas.fa-cogs
-                  | Actions
-            tbody
-              if user.length
-                each item, i in user
-                  tr
-                    td #{i + 1}
-                    td
-                      img(
-                        src=item.profilePic || '/images/default-avatar.png',
-                        alt="Profile",
-                        width="50",
-                        height="50",
-                        style="border-radius:50%"
-                      )
-                    td #{item.name}
-                    td #{item.email}
-                    td #{item.role}
-                    td #{item.gender || 'N/A'}
-                    td #{item.phoneNumber || 'N/A'}
-                    td #{item.nationalID || 'N/A'}
-                    td #{item.nextOfKinName || 'N/A'}
-                    td #{item.nextOfKinPhone || 'N/A'}
-                    td.actions-cell
-                      a.edit-btn(href=`/user-edit/${item._id}`)
-                        i.fas.fa-edit
-                        | Edit
-                      form.delete-form(
-                        action=`/users/${item._id}?_method=DELETE`,
-                        method="POST",
-                        onsubmit="return confirmDelete()"
-                      )
-                        button.delete-btn(type="submit")
-                          i.fas.fa-trash
-                          | Delete
-              else
-                tr
-                  td(colspan="11") No users found.
+        // ---- User Cards ----
+        if user.length
+          .cards-grid
+            each item, i in user
+              .user-card
+                img.profile-img(src=item.profilePic || '/images/default-avatar.png', alt=item.name)
+                .card-content
+                  h4 #{item.name}
+                  p
+                    strong Role: 
+                    | #{item.role}
+                  p
+                    strong Email: 
+                    | #{item.email}
+                  p
+                    strong Phone: 
+                    | #{item.phoneNumber || 'N/A'}
+                  p
+                    strong National ID: 
+                    | #{item.nationalID || 'N/A'}
+                  p
+                    strong Next of Kin: 
+                    | #{item.nextOfKinName || 'N/A'}
+                  p
+                    strong Next of Kin Phone: 
+                    | #{item.nextOfKinPhone || 'N/A'}
+                  .card-actions
+                    a.edit-btn(href=`/user-edit/${item._id}`)
+                      i.fas.fa-edit
+                      | Edit
+                    form.delete-form(action=`/users/${item._id}?_method=DELETE`, method="POST", onsubmit="return confirmDelete()")
+                      button.delete-btn(type="submit")
+                        i.fas.fa-trash
+                        | Delete
+        else
+          p No users found.
 
     // ---- Footer ----
     footer
@@ -149,3 +125,31 @@ html(lang="en")
       function confirmDelete() {
         return confirm("Are you sure you want to delete this user? This action cannot be undone.");
       }
+
+      document.addEventListener('DOMContentLoaded', function() {
+        // Sidebar toggle functionality
+        const sidebarToggle = document.querySelector('.sidebar-toggle');
+        const sidebar = document.querySelector('.sidebar');
+        sidebarToggle.addEventListener('click', function() {
+          sidebar.classList.toggle('collapsed');
+        });
+
+        // Notification dropdown
+        const notificationBtn = document.getElementById('notificationBtn');
+        const notificationDropdown = document.getElementById('notificationDropdown');
+        notificationBtn.addEventListener('click', function(e) {
+          e.stopPropagation();
+          notificationDropdown.classList.toggle('active');
+        });
+        document.addEventListener('click', function() {
+          notificationDropdown.classList.remove('active');
+        });
+
+        // Mark notifications as read
+        const markReadBtn = document.querySelector('.mark-read');
+        const unreadNotifications = document.querySelectorAll('.notification-item.unread');
+        markReadBtn.addEventListener('click', function() {
+          unreadNotifications.forEach(item => item.classList.remove('unread'));
+          document.querySelector('.notification-count').textContent = '0';
+        });
+      });

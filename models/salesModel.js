@@ -17,7 +17,7 @@ const salesSchema = new mongoose.Schema({
 
   //  PRODUCT INFORMATION
   productName: { type: String, required: true, trim: true },
-  productType: { type: String, trim: true },
+  productType: { type: String, enum: ["wood", "furniture"], required: true },
   quantity: { type: Number, required: true, min: 1 },
   price: { type: Number, required: true, min: 0 },
 

@@ -9,7 +9,6 @@ html(lang="en")
 
   body
     .layout
-      //- Sidebar
       aside.sidebar
         .logo-container
           img.logo-img(src="/images/logo 2.png", alt="MWF Logo")
@@ -41,15 +40,10 @@ html(lang="en")
                 i.fas.fa-hourglass-half
                 span Load Stock
             li
-              a(href="#", id="editProfileBtn")
-                i.fas.fa-user-cog
-                span Profile
-            li
               a(href="/logout")
                 i.fas.fa-sign-out-alt
                 span Logout
 
-      //- Topbar
       #topbar
         .header-content
           .company-info
@@ -63,7 +57,6 @@ html(lang="en")
               i.fas.fa-user-circle
               span #{user ? user.name : 'User'}
 
-      //- Main Content
       .container
         .table-section
           .table-header
@@ -74,23 +67,23 @@ html(lang="en")
             table.pending-sales-table
               thead
                 tr
-                  th 
+                  th
                     i.fas.fa-user
                     | Customer
-                  th 
+                  th
                     i.fas.fa-cube
                     | Product
-                  th 
+                  th
                     i.fas.fa-box
                     | Quantity
-                  th 
+                  th
                     i.fas.fa-cog
                     | Action
               tbody
                 if sales && sales.length
                   each sale in sales
                     tr
-                      td= sale.customerName
+                      td= sale.customer ? sale.customer.name : 'N/A'
                       td= sale.productName
                       td= sale.quantity
                       td.actions-cell
@@ -103,7 +96,6 @@ html(lang="en")
                       i.fas.fa-check-circle
                       | No pending sales found
 
-    //- Footer
     footer
       .container
         p &copy; 2025 Mayondo Wood & Furniture Ltd

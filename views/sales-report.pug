@@ -4,11 +4,172 @@ html(lang="en")
     meta(charset="UTF-8")
     meta(name="viewport", content="width=device-width, initial-scale=1")
     title MWF — Sales Report
-    link(rel="stylesheet", href="/css/sales-report.css")
+    link(rel="stylesheet", href="/css/attendant-manage.css")
     link(rel="stylesheet", href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css")
-    script(src="https://cdn.jsdelivr.net/npm/chart.js") 
+    script(src="https://cdn.jsdelivr.net/npm/chart.js")
     script(src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js")
     script(src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js")
+
+    style.
+      /* ===== FILTERS ===== */
+      .filters {
+        background: white;
+        border-radius: 10px;
+        padding: 20px;
+        margin: 20px 0;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      }
+      .filters h3 {
+        color: #2c5aa0;
+        margin-bottom: 15px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .filters form {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+        align-items: end;
+      }
+      .form-group {
+        display: flex;
+        flex-direction: column;
+      }
+      .form-group label {
+        font-weight: 600;
+        margin-bottom: 5px;
+        color: #333;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .form-group input,
+      .form-group select {
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        font-size: 14px;
+      }
+      .filters button {
+        background: #2c5aa0;
+        color: white;
+        border: none;
+        padding: 10px 15px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: background 0.3s;
+      }
+      .filters button:hover {
+        background: #1e3d6f;
+      }
+
+      /* ===== TABLE ===== */
+      .report-table {
+        background: white;
+        border-radius: 10px;
+        padding: 20px;
+        margin: 20px 0;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        overflow-x: auto;
+      }
+      .table-header h3 {
+        color: #2c5aa0;
+        margin-bottom: 15px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .report-table table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 10px;
+      }
+      .report-table th {
+        background: #2c5aa0;
+        color: white;
+        padding: 12px 15px;
+        text-align: left;
+        font-weight: 600;
+      }
+      .report-table td {
+        padding: 12px 15px;
+        border-bottom: 1px solid #e0e0e0;
+      }
+      .report-table tr:hover {
+        background: #f8f9fa;
+      }
+
+      /* ===== EXPORT & BACK BUTTONS ===== */
+      .export-buttons {
+        display: flex;
+        gap: 15px;
+        margin: 20px 0;
+        flex-wrap: wrap;
+      }
+      .export-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 20px;
+        background: #2c5aa0;
+        color: white;
+        text-decoration: none;
+        border-radius: 6px;
+        font-weight: 600;
+        transition: background 0.3s;
+      }
+      .export-btn:hover {
+        background: #1e3d6f;
+        color: white;
+      }
+
+      /* ===== CHARTS ===== */
+      .charts-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+        gap: 20px;
+        margin: 20px 0;
+      }
+      .chart-container {
+        background: white;
+        border-radius: 10px;
+        padding: 20px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        height: 300px;
+      }
+      .chart-header {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 15px;
+        color: #2c5aa0;
+      }
+      .chart-header h3 {
+        margin: 0;
+        font-size: 16px;
+      }
+      .chart-container canvas {
+        max-height: 200px !important;
+        width: 100% !important;
+      }
+
+      /* ===== RESPONSIVE ===== */
+      @media (max-width: 768px) {
+        .filters form {
+          grid-template-columns: 1fr;
+        }
+        .charts-grid {
+          grid-template-columns: 1fr;
+        }
+        .chart-container {
+          height: 250px;
+        }
+      }
 
   body
     // ---- Sidebar ----
@@ -27,7 +188,7 @@ html(lang="en")
               i.fas.fa-check-circle
               span Approve Stock
           li
-            a(href="/add-stock")
+            a(href="/stock")
               i.fas.fa-plus-circle
               span Add Stock
           li
@@ -82,8 +243,8 @@ html(lang="en")
             i.fas.fa-star
           .card-content
             h4 Best Selling Product
-            if topProducts && topProducts.length > 0
-              p #{topProducts[0]._id} (#{topProducts[0].totalQuantity} units)
+            if productTable && productTable.length > 0
+              p #{productTable[0].productName} (#{productTable[0].totalQuantity} units)
             else
               p No sales yet
         .card
@@ -98,27 +259,50 @@ html(lang="en")
 
       // ---- Filters ----
       .filters
-        h3 
+        h3
           i.fas.fa-filter
           | Filter Sales Report
         form(action="/sales-report", method="GET")
           .form-group
             label(for="fromDate")
               i.fas.fa-calendar-alt
-              | From:
-            input(type="date", name="fromDate", value=fromDate, id="fromDate")
-
+              | From Date:
+            input(type="date", name="from", value=from, id="fromDate")
           .form-group
             label(for="toDate")
               i.fas.fa-calendar-check
-              | To:
-            input(type="date", name="toDate", value=toDate, id="toDate")
-
+              | To Date:
+            input(type="date", name="to", value=to, id="toDate")
           button(type="submit")
             i.fas.fa-search
-            | Apply Filter
+            | Apply Filters
 
-      // ---- Table ----
+      // ---- Product Summary Table ----
+      .report-table
+        .table-header
+          h3
+            i.fas.fa-boxes
+            | Product Sales Summary
+        table
+          thead
+            tr
+              th #
+              th Product Name
+              th Total Quantity Sold
+              th Total Sales (UGX)
+          tbody
+            if productTable && productTable.length > 0
+              each item, i in productTable
+                tr
+                  td #{i + 1}
+                  td #{item.productName}
+                  td #{item.totalQuantity}
+                  td UGX #{item.totalRevenue.toLocaleString()}
+            else
+              tr
+                td(colspan="4") No product sales summary available.
+
+      // ---- Detailed Sales Table ----
       .report-table
         .table-header
           h3
@@ -127,60 +311,43 @@ html(lang="en")
         table
           thead
             tr
-              th 
-                i.fas.fa-hashtag
-                | #
-              th 
-                i.fas.fa-user
-                | Customer Name
-              th 
-                i.fas.fa-cube
-                | Product Name
-              th 
-                i.fas.fa-box
-                | Quantity
-              th 
-                i.fas.fa-money-bill
-                | Price
-              th 
-                i.fas.fa-truck
-                | Transport
-              th 
-                i.fas.fa-money-bill-wave
-                | Total Amount
-              th 
-                i.fas.fa-credit-card
-                | Payment Type
-              th 
-                i.fas.fa-calendar
-                | Date
-              th 
-                i.fas.fa-user-tie
-                | Sales Agent
+              th #
+              th Customer
+              th Product
+              th Quantity
+              th Price
+              th Transport
+              th Total
+              th Payment Type
+              th Date
+              th Sales Agent
           tbody
             if sales && sales.length > 0
               each sale, i in sales
                 tr
                   td #{i + 1}
-                  td #{sale.customerName}
+                  td #{sale.customer ? sale.customer.name : sale.customerName || 'N/A'}
                   td #{sale.productName}
                   td #{sale.quantity}
                   td #{sale.price ? sale.price.toLocaleString() : '0'} UGX
                   td #{sale.transport ? 'Yes (5%)' : 'No'}
                   td #{sale.total ? sale.total.toLocaleString() : '0'} UGX
-                  td #{sale.paymentType}
+                  td #{sale.paymentType || 'N/A'}
                   td #{sale.date ? new Date(sale.date).toLocaleDateString() : 'N/A'}
                   td #{sale.salesAgent && sale.salesAgent.name ? sale.salesAgent.name : 'Unknown'}
             else
               tr
                 td(colspan="10") No sales records found.
 
-      // ---- Export ----
+      // ---- Back & Export Buttons ----
       .export-buttons
-        button.export-btn(onclick="exportPDF()")
+        a.export-btn(href="/manager-dashboard")
+          i.fas.fa-arrow-left
+          | Back to Dashboard
+        a.export-btn(href=`/sales-report/pdf?from=${from || ''}&to=${to || ''}`)
           i.fas.fa-file-pdf
           | Export to PDF
-        button.export-btn(onclick="exportExcel()")
+        a.export-btn(href=`/sales-report/excel?from=${from || ''}&to=${to || ''}`)
           i.fas.fa-file-excel
           | Export to Excel
 
@@ -191,22 +358,18 @@ html(lang="en")
             .chart-header
               i.fas.fa-chart-pie
               h3 Top Products by Sales
-            canvas#productChart(width="400" height="300")
+            canvas#productChart(width="400" height="200")
           .chart-container
             .chart-header
               i.fas.fa-chart-bar
               h3 Top Agents by Revenue
-            canvas#agentChart(width="400" height="300")
+            canvas#agentChart(width="400" height="200")
 
-    // ---- Hidden Chart Data ----
+    // ---- Chart Data ----
     script.
-      // Pass data from server to frontend JavaScript
       const chartData = {
         topProducts: !{JSON.stringify(topProducts || [])},
         topAgents: !{JSON.stringify(topAgents || [])}
       };
-  // ---- Footer ----
-    footer
-      .container
-        p © 2025 Mayondo Wood & Furniture Ltd
+
     script(src="/js/sales-report.js")

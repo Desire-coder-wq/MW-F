@@ -108,6 +108,9 @@ html(lang="en")
                     i.fas.fa-money-bill
                     | Cost Price
                   th 
+                    i.fas.fa-money-bill
+                    | Selling Price   
+                  th 
                     i.fas.fa-box
                     | Quantity
                   th 
@@ -147,14 +150,15 @@ html(lang="en")
                       td #{item.productName}
                       td #{item.productType}
                       td #{item.category}
-                      td #{item.costPrice.toLocaleString()}
-                      td #{item.quantity}
-                      td #{item.supplier}
-                      td #{new Date(item.date).toLocaleDateString()}
-                      td #{item.quality}
-                      td #{item.color}
-                      td #{item.measurement}
-                      td #{(item.quantity * item.costPrice).toLocaleString()}
+                      td #{item.costPrice != null ? item.costPrice.toLocaleString() : '0'}
+                      td #{item.sellingPrice != null ? item.sellingPrice.toLocaleString() : '0'}
+                      td #{item.quantity != null ? item.quantity : '0'}
+                      td #{item.supplier || '-'}
+                      td #{item.date ? new Date(item.date).toLocaleDateString() : '-'}
+                      td #{item.quality || '-'}
+                      td #{item.color || '-'}
+                      td #{item.measurement || '-'}
+                      td #{item.quantity && item.costPrice ? (item.quantity * item.costPrice).toLocaleString() : '0'}
                       td.actions-cell
                         a.btn-edit(href=`/stock?id=${item._id}`)
                           i.fas.fa-edit

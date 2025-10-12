@@ -1,0 +1,198 @@
+//- notification-script.pug
+script.
+  document.addEventListener('DOMContentLoaded', function() {
+    // Initialize Socket.io connection
+    const socket = io();
+
+    // Notification functionality
+    document.querySelectorAll('.mark-read-btn').forEach(button => {
+      button.addEventListener('click', function(e) {
+        e.stopPropagation();
+        const notificationId = this.getAttribute('data-id');
+        markAsRead(notificationId, this);
+      });
+    });
+
+    // Mark all as read
+    const markAllBtn = document.getElementById('markAllRead');
+    if (markAllBtn) {
+      markAllBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        markAllAsRead();
+      });
+    }
+
+    function markAsRead(notificationId, button) {
+      fetch(`/notifications/${notificationId}/read`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          // Update UI
+          const notificationItem = button.closest('.notification-item');
+          notificationItem.classList.remove('unread');
+          notificationItem.classList.add('read');
+          button.remove();
+          
+          // Update badge count
+          updateBadgeCount(-1);
+        }
+      })
+      .catch(error => console.error('Error:', error));
+    }
+
+    function markAllAsRead() {
+      fetch('/notifications/mark-all-read', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          // Update all notifications to read
+          document.querySelectorAll('.notification-item.unread').forEach(item => {
+            item.classList.remove('unread');
+            item.classList.add('read');
+          });
+          
+          // Remove all mark-as-read buttons
+          document.querySelectorAll('.mark-read-btn').forEach(btn => btn.remove());
+          
+          // Update badge count to zero
+          updateBadgeCount(-999);
+          
+          // Hide the mark all button
+          const markAllBtn = document.getElementById('markAllRead');
+          if (markAllBtn) markAllBtn.remove();
+        }
+      })
+      .catch(error => console.error('Error:', error));
+    }
+
+    function updateBadgeCount(change) {
+      const badge = document.querySelector('.notification-bell .badge');
+      if (badge) {
+        let currentCount = parseInt(badge.textContent) || 0;
+        currentCount += change;
+        
+        if (currentCount <= 0) {
+          badge.remove();
+        } else {
+          badge.textContent = currentCount;
+        }
+      }
+    }
+
+    // Real-time notifications
+    socket.on('connect', function() {
+      console.log('Connected to server');
+    });
+
+    socket.on('new_notification', function(notification) {
+      // Update notification count
+      updateBadgeCount(1);
+      
+      // Add new notification to dropdown
+      addNotificationToDropdown(notification);
+    });
+
+    function addNotificationToDropdown(notification) {
+      const notificationList = document.querySelector('.notification-dropdown');
+      if (!notificationList) return;
+
+      const newNotificationItem = createNotificationElement(notification);
+      
+      const header = notificationList.querySelector('.dropdown-header');
+      const noNotifications = notificationList.querySelector('.text-center.py-3');
+      
+      let insertAfter = header;
+      
+      if (noNotifications) {
+        noNotifications.remove();
+      }
+      
+      if (insertAfter) {
+        insertAfter.parentNode.insertBefore(newNotificationItem, insertAfter.nextSibling);
+      }
+      
+      // Show mark all read button if it doesn't exist
+      if (!document.getElementById('markAllRead') && document.querySelector('.notification-bell .badge')) {
+        const dropdownHeader = document.querySelector('.dropdown-header .d-flex');
+        if (dropdownHeader && !dropdownHeader.querySelector('#markAllRead')) {
+          const markAllBtn = document.createElement('button');
+          markAllBtn.className = 'btn btn-sm btn-outline-primary';
+          markAllBtn.id = 'markAllRead';
+          markAllBtn.textContent = 'Mark all read';
+          markAllBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            markAllAsRead();
+          });
+          dropdownHeader.appendChild(markAllBtn);
+        }
+      }
+    }
+
+    function createNotificationElement(notification) {
+      const li = document.createElement('li');
+      const isUnread = notification.status === 'unread';
+      const priority = notification.priority || 'medium';
+      const iconClass = getNotificationIcon(notification.type);
+      
+      li.innerHTML = `
+        <div class="notification-item ${isUnread ? 'unread' : 'read'}" 
+             data-id="${notification._id}"
+             ${notification.actionUrl ? `onclick="window.location.href='${notification.actionUrl}'" style="cursor: pointer;"` : ''}>
+          <div class="d-flex align-items-start">
+            <div class="notification-icon priority-${priority}">
+              <i class="fas ${iconClass}"></i>
+            </div>
+            <div class="notification-content flex-grow-1">
+              <div class="d-flex justify-content-between align-items-start">
+                <div>
+                  <p class="mb-1 fw-bold">${notification.title}</p>
+                  <p class="mb-1 text-muted">${notification.message}</p>
+                  <small class="text-muted">${new Date(notification.createdAt).toLocaleString()}</small>
+                </div>
+                ${isUnread ? `
+                  <button class="btn btn-sm btn-outline-success mark-read-btn" data-id="${notification._id}" onclick="event.stopPropagation()">
+                    <i class="fas fa-check"></i>
+                  </button>
+                ` : ''}
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+      
+      // Add click event for mark as read button
+      if (isUnread) {
+        const markReadBtn = li.querySelector('.mark-read-btn');
+        markReadBtn.addEventListener('click', function(e) {
+          e.stopPropagation();
+          markAsRead(notification._id, this);
+        });
+      }
+      
+      return li;
+    }
+
+    function getNotificationIcon(type) {
+      const icons = {
+        'stock_approval': 'fa-boxes',
+        'pending_sales': 'fa-truck-loading',
+        'offload_request': 'fa-truck-moving',
+        'low_stock': 'fa-exclamation-triangle',
+        'new_sale': 'fa-shopping-cart',
+        'task_completed': 'fa-tasks',
+        'stock_approved': 'fa-check-circle',
+        'stock_rejected': 'fa-times-circle'
+      };
+      return icons[type] || 'fa-bell';
+    }
+  });

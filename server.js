@@ -12,6 +12,9 @@ const path = require("path");
 const mongoose = require("mongoose");
 const MongoStore = require("connect-mongo");
 const moment = require("moment");
+const http = require("http");
+const socketIo = require('socket.io');
+
 
 // Import model
 const UserModel = require("./models/userModel");
@@ -28,9 +31,27 @@ const manageRoutes = require("./routes/manageRoutes");
 const loadingRoutes = require("./routes/loadingRoutes");
 const reportRoutes = require("./routes/reportRoutes");
 const managerRoutes = require("./routes/managerRoutes");
+const notificationRoutes = require('./routes/notifications');
+
+
+
 // 2. Instantiations
 const app = express();
 const port = process.env.PORT || 3000;
+
+
+// create the actual server first
+const server = http.createServer(app);
+//  now attach socket.io to that server
+
+const io = socketIo(server);
+
+io.on("connection", (socket) => {
+  console.log("A user connected");
+  socket.on("disconnect", () => {
+    console.log("User disconnected");
+  });
+});
 
 // 3. Configurations
 // Verify MONGODB_URL exists
@@ -96,6 +117,7 @@ app.use("/", reportRoutes);
 app.use('/', supplierRoutes);
 app.use('/', customerRoutes);
 app.use("/manager", managerRoutes);
+app.use('/', notificationRoutes);
 // 404 handler
 app.use((req, res) => {
   res.status(404).send('Oops! Route not found');

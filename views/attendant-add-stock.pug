@@ -154,6 +154,12 @@ html(lang="en")
                     input#costPrice(type="number", name="costPrice", min="0", step="0.01", required)
 
                   .form-group
+                    label(for="sellingPrice")
+                      i.fas.fa-dollar-sign
+                      | Selling Price (UGX)
+                    input#sellingPrice(type="number", name="sellingPrice", min="0", step="0.01", required)
+
+                  .form-group
                     label(for="quantity")
                       i.fas.fa-box
                       | Quantity

@@ -6,8 +6,8 @@ document.addEventListener("DOMContentLoaded", () => {
 function initializeCharts() {
   // Product Chart
   const productCtx = document.getElementById("productChart").getContext("2d");
-  const productLabels = chartData.topProducts.map(item => item._id);
-  const productData = chartData.topProducts.map(item => item.totalQuantity);
+  const productLabels = chartData.topProducts.length ? chartData.topProducts.map(item => item._id) : ["No data"];
+  const productData = chartData.topProducts.length ? chartData.topProducts.map(item => item.totalQuantity) : [0];
 
   new Chart(productCtx, {
     type: "pie",
@@ -32,8 +32,8 @@ function initializeCharts() {
 
   // Agent Chart
   const agentCtx = document.getElementById("agentChart").getContext("2d");
-  const agentLabels = chartData.topAgents.map(item => item._id || "Unknown");
-  const agentData = chartData.topAgents.map(item => item.totalRevenue);
+  const agentLabels = chartData.topAgents.length ? chartData.topAgents.map(item => item._id) : ["No data"];
+  const agentData = chartData.topAgents.length ? chartData.topAgents.map(item => item.totalRevenue) : [0];
 
   new Chart(agentCtx, {
     type: "bar",
@@ -52,9 +52,7 @@ function initializeCharts() {
       scales: {
         y: {
           beginAtZero: true,
-          ticks: {
-            callback: value => value.toLocaleString() + " UGX"
-          }
+          ticks: { callback: value => value.toLocaleString() + " UGX" }
         }
       },
       plugins: {

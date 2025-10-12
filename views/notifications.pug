@@ -1,0 +1,358 @@
+doctype html
+html(lang="en")
+  head
+    meta(charset="UTF-8")
+    meta(name="viewport", content="width=device-width, initial-scale=1")
+    title Notifications - MWF
+    link(rel="stylesheet", href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css")
+    link(href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css", rel="stylesheet")
+    link(rel="stylesheet", href="/css/attendant-manage.css")
+    style.
+      .notifications-page {
+        padding: 20px;
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+      .page-header {
+        display: flex;
+        justify-content: between;
+        align-items: center;
+        margin-bottom: 30px;
+        padding-bottom: 15px;
+        border-bottom: 2px solid #e9ecef;
+      }
+      .page-actions {
+        display: flex;
+        gap: 10px;
+      }
+      .notification-card {
+        border: 1px solid #e9ecef;
+        border-radius: 8px;
+        margin-bottom: 15px;
+        transition: all 0.3s ease;
+        background: white;
+      }
+      .notification-card.unread {
+        border-left: 4px solid #3498db;
+        background: #f8f9fa;
+      }
+      .notification-card:hover {
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        transform: translateY(-2px);
+      }
+      .notification-header {
+        display: flex;
+        justify-content: between;
+        align-items: start;
+        padding: 15px;
+      }
+      .notification-content {
+        flex: 1;
+      }
+      .notification-meta {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        margin-bottom: 8px;
+      }
+      .notification-type {
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 0.8rem;
+        font-weight: 500;
+      }
+      .notification-type.stock_approval { background: #e3f2fd; color: #1976d2; }
+      .notification-type.pending_sales { background: #fff3e0; color: #f57c00; }
+      .notification-type.offload_request { background: #e8f5e8; color: #388e3c; }
+      .notification-type.low_stock { background: #ffebee; color: #d32f2f; }
+      .notification-type.new_sale { background: #f3e5f5; color: #7b1fa2; }
+      .notification-type.task_completed { background: #e0f2f1; color: #00796b; }
+      .notification-priority {
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 0.8rem;
+        font-weight: 500;
+      }
+      .notification-priority.urgent { background: #ffebee; color: #d32f2f; }
+      .notification-priority.high { background: #fff3e0; color: #f57c00; }
+      .notification-priority.medium { background: #e3f2fd; color: #1976d2; }
+      .notification-priority.low { background: #f5f5f5; color: #616161; }
+      .notification-title {
+        font-weight: 600;
+        font-size: 1.1rem;
+        margin-bottom: 8px;
+        color: #2c3e50;
+      }
+      .notification-message {
+        color: #5a6c7d;
+        margin-bottom: 10px;
+        line-height: 1.5;
+      }
+      .notification-time {
+        color: #8e9ba7;
+        font-size: 0.85rem;
+      }
+      .notification-actions {
+        display: flex;
+        gap: 8px;
+        margin-left: 15px;
+      }
+      .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        color: #6c757d;
+      }
+      .empty-state i {
+        font-size: 4rem;
+        margin-bottom: 20px;
+        color: #dee2e6;
+      }
+      .status-badge {
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 0.8rem;
+        font-weight: 500;
+      }
+      .status-badge.unread { background: #e3f2fd; color: #1976d2; }
+      .status-badge.read { background: #f5f5f5; color: #616161; }
+      .status-badge.action_required { background: #fff3e0; color: #f57c00; }
+      .status-badge.completed { background: #e8f5e8; color: #388e3c; }
+
+  body
+    .layout
+      // Sidebar
+      aside.sidebar
+        .sidebar-toggle
+          i.fas.fa-bars
+        .logo-container
+          img.logo-img(src="/images/logo 2.png", alt="MWF Logo")
+          .logo-text Mayondo Wood & Furniture
+        nav
+          ul
+            li
+              a(href="/manager-dashboard")
+                i.fas.fa-home
+                span Dashboard
+            li
+              a(href="/reports")
+                i.fas.fa-chart-bar
+                span Reports
+            li
+              a(href="/approve-stock")
+                i.fas.fa-check-circle
+                span Approve Stock
+            li
+              a(href="/stock")
+                i.fas.fa-boxes
+                span Add Stock
+            li
+              a(href="/sales-report")
+                i.fas.fa-chart-line
+                span Sales Reports
+            li
+              a(href="/attendants")
+                i.fas.fa-users
+                span Attendants
+            li
+              a(href="/loading/pending")
+                i.fas.fa-clock
+                span Pending Sales
+            li
+              a(href="/assign-tasks")
+                i.fas.fa-tasks
+                span Assign Tasks
+            li
+              a.active(href="/notifications")
+                i.fas.fa-bell
+                span Notifications
+            li
+              a(href="/logout")
+                i.fas.fa-sign-out-alt
+                span Logout
+
+      // Topbar
+      #topbar
+        .header-content
+          .company-info
+            h1 Notifications
+            h3 Manage your notifications
+          .header-actions
+            // User Profile
+            .user-profile
+              img.profile-pic(
+                src=(user && user.profileImage) ? user.profileImage : '/images/default-profile.png',
+                alt="Profile Picture",
+                onclick="window.location.href='/manager/update-profile'"
+              )
+              span#managerName= (user && user.name) ? user.name : 'Manager'
+              a.update-link(href="/manager/update-profile") Update Profile
+
+      // Main Content
+      .notifications-page
+        .page-header
+          .header-text
+            h1
+              i.fas.fa-bell
+              | Notifications
+            p View and manage all your notifications
+          .page-actions
+            if unreadCount > 0
+              button.btn.btn-primary#markAllReadBtn
+                i.fas.fa-check-double
+                | Mark All as Read
+            a.btn.btn-outline-secondary(href="/manager-dashboard")
+              i.fas.fa-arrow-left
+              | Back to Dashboard
+
+        .notifications-container
+          if notifications && notifications.length > 0
+            each notification in notifications
+              .notification-card(class=notification.status === 'unread' ? 'unread' : 'read', data-id=notification._id)
+                .notification-header
+                  .notification-content
+                    .notification-meta
+                      span.notification-type(class=notification.type)= notification.type.replace('_', ' ').toUpperCase()
+                      span.notification-priority(class=notification.priority)= notification.priority.toUpperCase()
+                      span.status-badge(class=notification.status)= notification.status.replace('_', ' ').toUpperCase()
+                    h3.notification-title= notification.title
+                    p.notification-message= notification.message
+                    .notification-time
+                      i.fas.fa-clock
+                      | #{new Date(notification.createdAt).toLocaleString()}
+                  .notification-actions
+                    if notification.status === 'unread'
+                      button.btn.btn-sm.btn-success.mark-read-btn(data-id=notification._id, title="Mark as read")
+                        i.fas.fa-check
+                    if notification.actionUrl
+                      a.btn.btn-sm.btn-primary(href=notification.actionUrl, title="Take action")
+                        i.fas.fa-external-link-alt
+          else
+            .empty-state
+              i.fas.fa-bell-slash
+              h3 No Notifications
+              p You're all caught up! There are no notifications to display.
+
+    footer
+      .container
+        p © 2025 Mayondo Wood & Furniture Ltd
+
+    // Bootstrap JS
+    script(src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js")
+
+    script.
+      document.addEventListener('DOMContentLoaded', function() {
+        const sidebarToggle = document.querySelector('.sidebar-toggle');
+        const sidebar = document.querySelector('.sidebar');
+
+        // Sidebar toggle functionality
+        if (sidebarToggle && sidebar) {
+          sidebarToggle.addEventListener('click', function() {
+            sidebar.classList.toggle('collapsed');
+          });
+        }
+
+        // Mark single notification as read
+        document.querySelectorAll('.mark-read-btn').forEach(button => {
+          button.addEventListener('click', function() {
+            const notificationId = this.getAttribute('data-id');
+            markAsRead(notificationId, this);
+          });
+        });
+
+        // Mark all as read
+        const markAllBtn = document.getElementById('markAllReadBtn');
+        if (markAllBtn) {
+          markAllBtn.addEventListener('click', function() {
+            markAllAsRead();
+          });
+        }
+
+        function markAsRead(notificationId, button) {
+          fetch(`/notifications/${notificationId}/read`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            }
+          })
+          .then(response => response.json())
+          .then(data => {
+            if (data.success) {
+              // Update UI
+              const notificationCard = button.closest('.notification-card');
+              notificationCard.classList.remove('unread');
+              notificationCard.classList.add('read');
+              
+              // Update status badge
+              const statusBadge = notificationCard.querySelector('.status-badge');
+              statusBadge.textContent = 'READ';
+              statusBadge.className = 'status-badge read';
+              
+              // Remove the mark as read button
+              button.remove();
+              
+              // Update unread count in the header if needed
+              updateUnreadCount(-1);
+              
+              console.log('Notification marked as read:', notificationId);
+            }
+          })
+          .catch(error => console.error('Error:', error));
+        }
+
+        function markAllAsRead() {
+          fetch('/notifications/mark-all-read', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            }
+          })
+          .then(response => response.json())
+          .then(data => {
+            if (data.success) {
+              // Update all notifications to read
+              document.querySelectorAll('.notification-card.unread').forEach(card => {
+                card.classList.remove('unread');
+                card.classList.add('read');
+                
+                // Update status badge
+                const statusBadge = card.querySelector('.status-badge');
+                statusBadge.textContent = 'READ';
+                statusBadge.className = 'status-badge read';
+                
+                // Remove mark as read buttons
+                const markReadBtn = card.querySelector('.mark-read-btn');
+                if (markReadBtn) markReadBtn.remove();
+              });
+              
+              // Hide the mark all button
+              if (markAllBtn) markAllBtn.remove();
+              
+              console.log('All notifications marked as read');
+            }
+          })
+          .catch(error => console.error('Error:', error));
+        }
+
+        function updateUnreadCount(change) {
+          // This function would update any unread count display
+          // You might want to update the page title or header
+          const unreadCards = document.querySelectorAll('.notification-card.unread').length;
+          if (unreadCards === 0) {
+            const markAllBtn = document.getElementById('markAllReadBtn');
+            if (markAllBtn) markAllBtn.remove();
+          }
+        }
+
+        // Auto-refresh notifications every 30 seconds
+        setInterval(() => {
+          fetch('/notifications')
+            .then(response => response.json())
+            .then(data => {
+              if (data.success) {
+                // You could implement live updates here
+                console.log('Notifications refreshed:', data.notifications.length);
+              }
+            })
+            .catch(error => console.error('Error refreshing notifications:', error));
+        }, 30000);
+      });

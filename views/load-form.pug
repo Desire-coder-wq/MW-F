@@ -9,7 +9,6 @@ html(lang="en")
 
   body
     .layout
-      //- Sidebar
       aside.sidebar
         .logo-container
           img.logo-img(src="/images/logo 2.png", alt="MWF Logo")
@@ -41,15 +40,10 @@ html(lang="en")
                 i.fas.fa-hourglass-half
                 span Load Stock
             li
-              a(href="#", id="editProfileBtn")
-                i.fas.fa-user-cog
-                span Profile
-            li
               a(href="/logout")
                 i.fas.fa-sign-out-alt
                 span Logout
 
-      //- Topbar
       #topbar
         .header-content
           .company-info
@@ -63,7 +57,6 @@ html(lang="en")
               i.fas.fa-user-circle
               span #{user ? user.name : 'User'}
 
-      //- Main Content
       .container
         .form-section
           .form-container
@@ -71,40 +64,34 @@ html(lang="en")
               h3
                 i.fas.fa-truck-loading
                 | Loading Confirmation
-              p Confirm stock loading for customer order
+              p Confirm stock loading for the selected customer order
 
             .order-details
               .detail-card
                 .detail-item
                   i.fas.fa-user
-                  strong Customer: 
-                  span #{sale.customerName}
+                  strong Customer:
+                  span #{sale.customer ? sale.customer.name : 'N/A'}
                 .detail-item
                   i.fas.fa-cube
-                  strong Product: 
+                  strong Product:
                   span #{sale.productName}
                 .detail-item
                   i.fas.fa-tag
-                  strong Type: 
+                  strong Type:
                   span #{sale.productType}
                 .detail-item
                   i.fas.fa-box
-                  strong Quantity: 
+                  strong Quantity:
                   span #{sale.quantity}
 
             form(action=`/loading/load/${sale._id}`, method="POST")
-              .form-group
-                label(for="attendantName")
-                  i.fas.fa-user-check
-                  | Attendant Name
-                input(type="text", name="attendantName", required, placeholder="Enter attendant name")
-              
+              input(type="hidden", name="attendantName", value=user ? user.name : 'Unknown')
               .form-actions
                 button.submit-btn(type="submit")
                   i.fas.fa-check-circle
                   | Confirm Loading
 
-    //- Footer
     footer
       .container
         p &copy; 2025 Mayondo Wood & Furniture Ltd

@@ -81,17 +81,39 @@ html(lang="en")
         color: #28a745;
         font-weight: bold;
       }
-      .btn-update {
+      .btn-action {
         background: #2c5aa0;
         color: white;
         border: none;
-        padding: 6px 12px;
-        border-radius: 4px;
+        padding: 8px 16px;
+        border-radius: 6px;
         cursor: pointer;
-        font-size: 12px;
+        font-size: 14px;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
       }
-      .btn-update:hover {
+      .btn-action:hover {
         background: #1e3d6f;
+        transform: translateY(-2px);
+      }
+      .btn-action:disabled {
+        background: #6c757d;
+        cursor: not-allowed;
+        transform: none;
+      }
+      .btn-action.start {
+        background: #28a745;
+      }
+      .btn-action.start:hover {
+        background: #218838;
+      }
+      .btn-action.complete {
+        background: #17a2b8;
+      }
+      .btn-action.complete:hover {
+        background: #138496;
       }
       .no-data {
         text-align: center;
@@ -102,6 +124,28 @@ html(lang="en")
         font-size: 48px;
         margin-bottom: 15px;
         color: #ddd;
+      }
+      .loading {
+        opacity: 0.6;
+        pointer-events: none;
+      }
+      .success-message {
+        background: #d4edda;
+        color: #155724;
+        padding: 12px;
+        border-radius: 6px;
+        margin-bottom: 20px;
+        border: 1px solid #c3e6cb;
+        display: none;
+      }
+      .error-message {
+        background: #f8d7da;
+        color: #721c24;
+        padding: 12px;
+        border-radius: 6px;
+        margin-bottom: 20px;
+        border: 1px solid #f5c6cb;
+        display: none;
       }
 
   body
@@ -166,6 +210,14 @@ html(lang="en")
 
       //- Main Content
       .container
+        //- Success and Error Messages
+        .success-message#successMessage
+          i.fas.fa-check-circle
+          span#successText Task updated successfully!
+        .error-message#errorMessage
+          i.fas.fa-exclamation-circle
+          span#errorText Error updating task. Please try again.
+
         .table-section
           .table-header
             h3
@@ -196,28 +248,32 @@ html(lang="en")
                       | Actions
                 tbody
                   each task in tasks
-                    tr
+                    tr(id=`task-${task._id}`)
                       td= task.taskType
                       td= task.taskDescription
                       td(class=`priority-${task.priority}`)= task.priority
                       td= new Date(task.dueDate).toLocaleDateString()
                       td
-                        span(class=`status-${task.status}`)= task.status
+                        span(id=`status-${task._id}`, class=`status-${task.status.toLowerCase().replace(' ', '-')}`)= task.status
                       td
-                        if task.status === 'pending'
-                          form(action=`/tasks/${task._id}/update-status`, method="POST", style="display: inline;")
-                            input(type="hidden", name="status", value="in progress")
-                            button.btn-update(type="submit")
-                              i.fas.fa-play
-                              | Start
-                        else if task.status === 'in progress'
-                          form(action=`/tasks/${task._id}/update-status`, method="POST", style="display: inline;")
-                            input(type="hidden", name="status", value="completed")
-                            button.btn-update(type="submit")
-                              i.fas.fa-check
-                              | Complete
+                        if task.status === 'Pending'
+                          button.btn-action.start(
+                            onclick=`startTask('${task._id}')`
+                            id=`btn-${task._id}`
+                          )
+                            i.fas.fa-play
+                            | Start Task
+                        else if task.status === 'In Progress'
+                          button.btn-action.complete(
+                            onclick=`completeTask('${task._id}')`
+                            id=`btn-${task._id}`
+                          )
+                            i.fas.fa-check
+                            | Complete Task
                         else
-                          span.status-completed Completed
+                          span.status-completed
+                            i.fas.fa-check-circle
+                            | Completed
             else
               .no-data
                 i.fas.fa-clipboard-list
@@ -233,4 +289,132 @@ html(lang="en")
     document.addEventListener('DOMContentLoaded', function() {
       const attendantName = '#{user ? user.name : "Attendant"}';
       document.getElementById('attendantName').textContent = attendantName;
+    });
+
+    // Function to show message
+    function showMessage(type, text) {
+      const messageEl = type === 'success' ? document.getElementById('successMessage') : document.getElementById('errorMessage');
+      const textEl = type === 'success' ? document.getElementById('successText') : document.getElementById('errorText');
+      
+      textEl.textContent = text;
+      messageEl.style.display = 'block';
+      
+      // Auto hide after 5 seconds
+      setTimeout(() => {
+        messageEl.style.display = 'none';
+      }, 5000);
+    }
+
+    // Function to start task (set to In Progress)
+    async function startTask(taskId) {
+      const button = document.getElementById(`btn-${taskId}`);
+      const taskRow = document.getElementById(`task-${taskId}`);
+      
+      // Disable button and show loading state
+      button.disabled = true;
+      button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Starting...';
+      taskRow.classList.add('loading');
+
+      try {
+        const response = await fetch(`/attendant/tasks/${taskId}/start`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+
+        const result = await response.json();
+
+        if (response.ok && result.success) {
+          // Update the UI
+          const statusElement = document.getElementById(`status-${taskId}`);
+          statusElement.textContent = 'In Progress';
+          statusElement.className = 'status-in-progress';
+          
+          // Update the button to Complete
+          button.className = 'btn-action complete';
+          button.innerHTML = '<i class="fas fa-check"></i> Complete Task';
+          button.onclick = () => completeTask(taskId);
+          
+          // Show success message
+          showMessage('success', 'Task started successfully!');
+        } else {
+          throw new Error(result.error || 'Failed to start task');
+        }
+        
+      } catch (error) {
+        console.error('Error starting task:', error);
+        
+        // Re-enable button
+        button.disabled = false;
+        button.innerHTML = '<i class="fas fa-play"></i> Start Task';
+        
+        // Show error message
+        showMessage('error', error.message || 'Error starting task. Please try again.');
+      } finally {
+        taskRow.classList.remove('loading');
+      }
+    }
+
+    // Function to complete task
+    async function completeTask(taskId) {
+      const button = document.getElementById(`btn-${taskId}`);
+      const taskRow = document.getElementById(`task-${taskId}`);
+      
+      // Disable button and show loading state
+      button.disabled = true;
+      button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Completing...';
+      taskRow.classList.add('loading');
+
+      try {
+        const response = await fetch(`/attendant/tasks/${taskId}/complete`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+
+        const result = await response.json();
+
+        if (response.ok && result.success) {
+          // Update the UI - replace button with completed status
+          button.outerHTML = '<span class="status-completed"><i class="fas fa-check-circle"></i> Completed</span>';
+          
+          // Update status text
+          const statusElement = document.getElementById(`status-${taskId}`);
+          statusElement.textContent = 'Completed';
+          statusElement.className = 'status-completed';
+          
+          // Show success message
+          showMessage('success', 'Task completed successfully! Manager has been notified.');
+        } else {
+          throw new Error(result.error || 'Failed to complete task');
+        }
+        
+      } catch (error) {
+        console.error('Error completing task:', error);
+        
+        // Re-enable button
+        button.disabled = false;
+        button.innerHTML = '<i class="fas fa-check"></i> Complete Task';
+        
+        // Show error message
+        showMessage('error', error.message || 'Error completing task. Please try again.');
+      } finally {
+        taskRow.classList.remove('loading');
+      }
+    }
+
+    // Add event listener for Escape key to close messages
+    document.addEventListener('keydown', function(event) {
+      if (event.key === 'Escape') {
+        document.getElementById('successMessage').style.display = 'none';
+        document.getElementById('errorMessage').style.display = 'none';
+      }
+    });
+
+    // Allow clicking anywhere to close messages
+    document.addEventListener('click', function() {
+      document.getElementById('successMessage').style.display = 'none';
+      document.getElementById('errorMessage').style.display = 'none';
     });

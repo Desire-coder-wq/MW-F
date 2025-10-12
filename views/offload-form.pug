@@ -9,7 +9,6 @@ html(lang="en")
 
   body
     .layout
-      //- Sidebar
       aside.sidebar
         .logo-container
           img.logo-img(src="/images/logo 2.png", alt="MWF Logo")
@@ -37,7 +36,6 @@ html(lang="en")
                 i.fas.fa-sign-out-alt
                 span Logout
 
-      //- Topbar
       #topbar
         .header-content
           .company-info
@@ -51,7 +49,6 @@ html(lang="en")
               i.fas.fa-user-circle
               span #{user ? user.name : 'User'}
 
-      //- Main Content
       .container
         .form-section
           .form-container
@@ -67,7 +64,7 @@ html(lang="en")
                     i.fas.fa-cube
                     | Product Name
                   input(type="text", name="productName", required, placeholder="Enter product name")
-                
+
                 .form-group
                   label(for="productType")
                     i.fas.fa-tag
@@ -76,31 +73,30 @@ html(lang="en")
                     option(value="") Select Product Type
                     option(value="wood") Wood
                     option(value="furniture") Furniture
-                
+
                 .form-group
                   label(for="quantity")
                     i.fas.fa-box
                     | Quantity
                   input(type="number", name="quantity", required, placeholder="Enter quantity")
-                
+
                 .form-group
                   label(for="attendantName")
                     i.fas.fa-user
                     | Attendant Name
-                  input(type="text", name="attendantName", required, placeholder="Enter attendant name")
-                
+                  input(type="text", name="attendantName", readonly, value=user ? user.name : 'Unknown')
+
                 .form-group
                   label(for="relatedStock")
                     i.fas.fa-barcode
                     | Stock ID
                   input(type="text", name="relatedStock", required, placeholder="Enter stock ID")
-              
+
               .form-actions
                 button.submit-btn(type="submit")
                   i.fas.fa-save
                   | Save Offload
 
-    //- Footer
     footer
       .container
         p &copy; 2025 Mayondo Wood & Furniture Ltd

@@ -6,188 +6,354 @@ html(lang="en")
     title MWF — Stock Report
     link(rel="stylesheet", href="/css/stock-report.css")
     link(rel="stylesheet", href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css")
-    script(src="https://cdn.jsdelivr.net/npm/chart.js") 
+    script(src="https://cdn.jsdelivr.net/npm/chart.js")
     script(src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js")
+    script(src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js")
     script(src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js")
+    
+    style.
+      /* Additional styles for stock report page */
+      .layout {
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+      }
+
+      .main-content-wrapper {
+        flex: 1;
+        display: flex;
+        margin-left: 240px;
+        margin-top: 80px;
+        width: calc(100% - 240px);
+        transition: all 0.3s ease;
+      }
+
+      .container {
+        padding: 40px;
+        width: 100%;
+        max-width: 1400px;
+        flex: 1;
+      }
+
+      footer {
+        background: linear-gradient(135deg, rgb(11, 136, 11), rgb(232, 176, 103));
+        color: #fff;
+        text-align: center;
+        padding: 20px;
+        margin-left: 240px;
+        width: calc(100% - 240px);
+        transition: all 0.3s ease;
+        position: relative;
+        bottom: 0;
+      }
+
+      .sidebar.collapsed ~ .main-content-wrapper {
+        margin-left: 70px;
+        width: calc(100% - 70px);
+      }
+
+      .sidebar.collapsed ~ footer {
+        margin-left: 70px;
+        width: calc(100% - 70px);
+      }
+
+      /* Back button */
+      .back-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 12px 20px;
+        background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+        color: white;
+        text-decoration: none;
+        border-radius: 8px;
+        font-weight: 600;
+        margin-bottom: 30px;
+        transition: all 0.3s ease;
+      }
+
+      .back-btn:hover {
+        background: linear-gradient(135deg, #1d4ed8, #1e40af);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+      }
+
+      /* Charts grid - 2x2 layout */
+      .charts-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+        margin-bottom: 40px;
+      }
+
+      .chart-container {
+        background: #fff;
+        border-radius: 16px;
+        padding: 20px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.5);
+        height: 280px; /* Reduced height */
+      }
+
+      .chart-header {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 15px;
+        color: #334155;
+      }
+
+      .chart-header h3 {
+        font-size: 16px;
+        font-weight: 600;
+        margin: 0;
+      }
+
+      .chart-container canvas {
+        max-height: 200px !important;
+        width: 100% !important;
+      }
+
+      /* Responsive design */
+      @media (max-width: 1024px) {
+        .charts-grid {
+          grid-template-columns: 1fr;
+        }
+        
+        .chart-container {
+          height: 250px;
+        }
+      }
+
+      @media (max-width: 768px) {
+        .main-content-wrapper {
+          margin-left: 0;
+          width: 100%;
+        }
+        
+        .container {
+          padding: 100px 15px 30px;
+        }
+        
+        footer {
+          margin-left: 0;
+          width: 100%;
+        }
+        
+        .charts-grid {
+          grid-template-columns: 1fr;
+          gap: 15px;
+        }
+        
+        .chart-container {
+          padding: 15px;
+          height: 220px;
+        }
+      }
 
   body
-    // ---- Sidebar ----
-    aside.sidebar
-      .logo-container
-        img.logo-img(src="/images/logo 2.png", alt="MWF Logo", onerror="this.style.display='none'")
-        h2.logo-text Mayondo Wood & Furniture
-      nav
-        ul
-          li
-            a(href="/reports", class="active")
-              i.fas.fa-chart-bar
-              span Stock Reports
-          li
-            a(href="/approve-stock")
-              i.fas.fa-check-circle
-              span Approve Stock
-          li
-            a(href="/add-stock")
-              i.fas.fa-plus-circle
-              span Add Stock
-          li
-            a(href="/sales-report")
-              i.fas.fa-shopping-cart
-              span Sales Reports
-          li
-            a(href="/attendants")
-              i.fas.fa-users
-              span Attendants
-          li
-            a(href="#", id="editProfileBtn")
-              i.fas.fa-user-cog
-              span Profile
-          li
-            a(href="/logout")
-              i.fas.fa-sign-out-alt
-              span Logout
+    .layout
+      // ---- Sidebar ----
+      aside.sidebar
+        .logo-container
+          img.logo-img(src="/images/logo 2.png", alt="MWF Logo", onerror="this.style.display='none'")
+          h2.logo-text Mayondo Wood & Furniture
+        nav
+          ul
+            li
+              a(href="/reports", class="active")
+                i.fas.fa-chart-bar
+                span Stock Reports
+            li
+              a(href="/approve-stock")
+                i.fas.fa-check-circle
+                span Approve Stock
+            li
+              a(href="/add-stock")
+                i.fas.fa-plus-circle
+                span Add Stock
+            li
+              a(href="/sales-report")
+                i.fas.fa-shopping-cart
+                span Sales Reports
+            li
+              a(href="/attendants")
+                i.fas.fa-users
+                span Attendants
+            li
+              a(href="#", id="editProfileBtn")
+                i.fas.fa-user-cog
+                span Profile
+            li
+              a(href="/logout")
+                i.fas.fa-sign-out-alt
+                span Logout
 
-    // ---- Header ----
-    header#topbar
-      .header-content
-        .company-info
-          h1 Mayondo Wood & Furniture Ltd
-          h3 Stock Report Dashboard
-        .header-actions
-          button.notification-btn
-            i.fas.fa-bell
-            span.notification-count 3
-          .user-profile
-            i.fas.fa-user-circle
-            span Admin
+      // ---- Header ----
+      header#topbar
+        .header-content
+          .company-info
+            h1 Mayondo Wood & Furniture Ltd
+            h3 Stock Report Dashboard
+          .header-actions
+            button.notification-btn
+              i.fas.fa-bell
+              span.notification-count 3
+            .user-profile
+              i.fas.fa-user-circle
+              span Admin
 
-    // ---- Main Content ----
-    main.container
-      // ---- Cards ----
-      .cards
-        .card
-          .card-icon
-            i.fas.fa-money-bill-wave
-          .card-content
-            h4 Total Expenses on Raw Materials
-            p #{totalExpenses} UGX
-        .card
-          .card-icon
-            i.fas.fa-boxes
-          .card-content
-            h4 Total Stock Items
-            p #{totalStock}
-        .card
-          .card-icon
-            i.fas.fa-exclamation-triangle
-          .card-content
-            h4 Low Stock Alerts
-            if lowStock && lowStock.length > 0
-              ul
-                each item in lowStock
-                  li #{item.productName} (#{item.quantity} left)
-            else
-              p No low stock issues detected!
+      // Main content wrapper
+      .main-content-wrapper
+        // ---- Main Content ----
+        main.container
+          // ---- Back Button ----
+          a.back-btn(href="/manager-dashboard")
+            i.fas.fa-arrow-left
+            | Back to Dashboard
 
-      // ---- Filters ----
-      .filters
-        h3 
-          i.fas.fa-filter
-          | Filter Stock Report
-        form(action="/reports", method="GET")
-          .form-group
-            label(for="productType")
-              i.fas.fa-tags
-              | Product Type:
-            select(name="productType" value=productType)
-              option(value="") All
-              option(value="wood" selected=productType==='wood') Wood
-              option(value="furniture" selected=productType==='furniture') Furniture
+          // ---- Cards ----
+          .cards
+            .card
+              .card-icon
+                i.fas.fa-money-bill-wave
+              .card-content
+                h4 Total Expenses
+                p #{totalExpenses ? totalExpenses.toLocaleString() : '0'} UGX
 
-          .form-group
-            label(for="dateFrom")
-              i.fas.fa-calendar-alt
-              | From:
-            input(type="date", name="dateFrom", value=dateFrom)
+            .card
+              .card-icon
+                i.fas.fa-boxes
+              .card-content
+                h4 Total Stock Items
+                p #{totalStockItems ? totalStockItems.toLocaleString() : '0'}
 
-          .form-group
-            label(for="dateTo")
-              i.fas.fa-calendar-check
-              | To:
-            input(type="date", name="dateTo", value=dateTo)
+            .card
+              .card-icon
+                i.fas.fa-exclamation-triangle
+              .card-content
+                h4 Low Stock Alerts
+                if lowStock && lowStock.length > 0
+                  ul
+                    each item in lowStock
+                      li #{item.productName} (#{item.totalQuantity} left)
+                else
+                  p No low stock issues detected!
 
-          button(type="submit")
-            i.fas.fa-search
-            | Apply Filter
+          // ---- Filters ----
+          .filters
+            h3
+              i.fas.fa-filter
+              | Filter Stock Report
+            form(action="/reports", method="GET")
+              .form-group
+                label(for="productType")
+                  i.fas.fa-tags
+                  | Product Type:
+                select(name="productType")
+                  option(value="" selected=productType==='') All
+                  option(value="wood" selected=productType==='wood') Wood
+                  option(value="furniture" selected=productType==='furniture') Furniture
+              .form-group
+                label(for="dateFrom")
+                  i.fas.fa-calendar-alt
+                  | From:
+                input(type="date", name="dateFrom", value=dateFrom)
+              .form-group
+                label(for="dateTo")
+                  i.fas.fa-calendar-check
+                  | To:
+                input(type="date", name="dateTo", value=dateTo)
+              button(type="submit")
+                i.fas.fa-search
+                | Generate
 
-      // ---- Table ----
-      .report-table
-        .table-header
-          h3
-            i.fas.fa-table
-            | Stock Inventory
-        table
-          thead
-            tr
-              th 
-                i.fas.fa-cube
-                | Product
-              th 
-                i.fas.fa-tag
-                | Type
-              th 
-                i.fas.fa-folder
-                | Category
-              th 
-                i.fas.fa-box
-                | Quantity
-              th 
-                i.fas.fa-money-bill
-                | Cost Price
-              th 
-                i.fas.fa-truck
-                | Supplier
-              th 
-                i.fas.fa-calendar
-                | Date
-          tbody
-            if stocks && stocks.length > 0
-              each stock in stocks
+          // ---- Table ----
+          .report-table
+            .table-header
+              h3
+                i.fas.fa-table
+                | Stock Inventory
+            table
+              thead
                 tr
-                  td #{stock.productName}
-                  td #{stock.productType}
-                  td #{stock.category}
-                  td #{stock.quantity}
-                  td #{stock.costPrice}
-                  td #{stock.supplier}
-                  td #{stock.date.toDateString()}
-            else
-              tr
-                td(colspan="7") No stock records found.
+                  th
+                    i.fas.fa-cube
+                    | Product
+                  th
+                    i.fas.fa-tag
+                    | Type
+                  th
+                    i.fas.fa-folder
+                    | Category
+                  th
+                    i.fas.fa-box
+                    | Quantity
+                  th
+                    i.fas.fa-money-bill
+                    | Cost Price
+                  th
+                    i.fas.fa-truck
+                    | Supplier
+                  th
+                    i.fas.fa-calendar
+                    | Date
+              tbody
+                if stocks && stocks.length > 0
+                  each stock in stocks
+                    tr
+                      td #{stock.productName}
+                      td #{stock.productType}
+                      td #{stock.category}
+                      td #{stock.totalQuantity || stock.quantity}
+                      td #{stock.costPrice ? stock.costPrice.toLocaleString() : '0'} UGX
+                      td #{stock.supplier || 'N/A'}
+                      td #{new Date(stock.date).toLocaleDateString()}
+                else
+                  tr
+                    td(colspan="7") No stock records found.
 
-      // ---- Export ----
-      .export-buttons
-        button.export-btn(onclick="exportPDF()")
-          i.fas.fa-file-pdf
-          | Export to PDF
-        button.export-btn(onclick="exportExcel()")
-          i.fas.fa-file-excel
-          | Export to Excel
+          // ---- Export ----
+          .export-buttons
+            button.export-btn(onclick="exportPDF()")
+              i.fas.fa-file-pdf
+              | Export to PDF
+            button.export-btn(onclick="exportExcel()")
+              i.fas.fa-file-excel
+              | Export to Excel
 
-      // ---- Charts ----
-      .section
-        .charts-grid
-          .chart-container
-            .chart-header
-              i.fas.fa-chart-line
-              h3 Stock Insights
-            canvas#stockLevelsChart(width="400" height="200")
-          .chart-container
-            .chart-header
-              i.fas.fa-exclamation-circle
-              h3 Alerts
-            canvas#lowStockChart(width="400" height="200")
+          // ---- Charts ----
+          .section
+            .charts-grid
+              .chart-container
+                .chart-header
+                  i.fas.fa-chart-line
+                  h3 Stock Levels
+                canvas#stockLevelsChart(width="400" height="200")
 
-    // ---- Hidden Chart Data ----
-    script#chart-data(type="application/json") !{chartData}
-    script(src="/js/stock-report.js")
+              .chart-container
+                .chart-header
+                  i.fas.fa-exclamation-circle
+                  h3 Low Stock Alerts
+                canvas#lowStockChart(width="400" height="200")
+
+              .chart-container
+                .chart-header
+                  i.fas.fa-pie-chart
+                  h3 Expenses by Raw Materials
+                canvas#stockExpensesChart(width="400" height="200")
+
+              .chart-container
+                .chart-header
+                  i.fas.fa-chart-pie
+                  h3 Stock by Type
+                canvas#stockTypeChart(width="400" height="200")
+
+        // ---- Hidden Chart Data ----
+        script#chart-data(type="application/json") !{chartData}
+        script(src="/js/stock-report.js")
+
+      // ---- Footer ----
+      footer
+        .container
+          p © #{new Date().getFullYear()} Mayondo Wood & Furniture Ltd. All Rights Reserved.

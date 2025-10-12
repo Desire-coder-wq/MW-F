@@ -22,6 +22,12 @@ const stockSchema = new mongoose.Schema({
     type: Number,
     required: true
   },
+  sellingPrice: {
+    type: Number,
+    required: true
+  },
+  
+  
 
   // Extended Supplier Information
   supplier: { type: String, required: true },

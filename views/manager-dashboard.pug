@@ -5,106 +5,84 @@ html(lang="en")
     meta(name="viewport", content="width=device-width, initial-scale=1")
     title Manager Dashboard - MWF
     link(rel="stylesheet", href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css")
+    link(href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css", rel="stylesheet")
     link(rel="stylesheet", href="/css/attendant-manage.css")
+    script(src="/socket.io/socket.io.js")
     style.
-      /* ===== Cards Styling ===== */
-      .cards {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-        gap: 25px;
-        padding: 25px;
+      .notification-container {
+        position: relative;
+        margin-right: 15px;
       }
-      .card {
-        background: white;
-        border-radius: 12px;
-        padding: 25px;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        cursor: pointer;
-        transition: all 0.3s ease;
-        border: 1px solid #e0e0e0;
-        height: 160px;
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-      }
-      .card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 8px 15px rgba(0,0,0,0.15);
-      }
-      .card-icon {
-        font-size: 26px;
-        color: #2c5aa0;
-        margin-bottom: 12px;
-      }
-      .card-content h4 {
-        margin: 0 0 10px 0;
-        font-size: 18px;
-        color: #333;
-      }
-      .card-content p {
-        margin: 0;
-        font-size: 14px;
-        color: #666;
-        line-height: 1.4;
-      }
-      .card-action {
-        text-align: right;
-        margin-top: 12px;
-      }
-      .go-btn {
-        background: #2c5aa0;
-        color: white;
+      .notification-bell {
+        color: #6c757d;
+        text-decoration: none;
         border: none;
-        padding: 10px 18px;
-        border-radius: 6px;
-        cursor: pointer;
-        font-size: 13px;
-        transition: background 0.3s ease;
-      }
-      .go-btn:hover {
-        background: #1e3d6f;
-      }
-
-      /* ===== Profile Styling ===== */
-      .user-profile {
-        display: flex;
-        align-items: center;
-        gap: 10px;
+        background: none;
+        padding: 0.5rem;
         position: relative;
       }
+      .notification-bell:hover {
+        color: #495057;
+      }
+      .notification-dropdown {
+        width: 400px;
+        max-height: 500px;
+        overflow-y: auto;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        border: 1px solid #e1e5e9;
+      }
+      .notification-item {
+        padding: 12px 15px;
+        border-bottom: 1px solid #f1f3f4;
+        transition: background-color 0.2s ease;
+      }
+      .notification-item.unread {
+        background-color: #f0f7ff;
+        border-left: 3px solid #3498db;
+      }
+      .notification-item.read {
+        opacity: 0.7;
+      }
+      .notification-item:hover {
+        background-color: #f8f9fa;
+      }
+      .notification-content p {
+        margin: 0;
+        font-size: 0.9rem;
+      }
+      .mark-read-btn {
+        padding: 2px 6px;
+        font-size: 0.7rem;
+      }
       .profile-pic {
-        width: 46px;
-        height: 46px;
+        width: 40px;
+        height: 40px;
         border-radius: 50%;
         object-fit: cover;
-        border: 2px solid #2c5aa0;
+        border: 2px solid #ddd;
         cursor: pointer;
       }
-      #managerName {
-        font-weight: 600;
-        color: #333;
+      .notification-icon {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        margin-right: 10px;
       }
-      .update-link {
-        display: none;
-        position: absolute;
-        top: 55px;
-        right: 0;
-        background: white;
-        border: 1px solid #ccc;
-        border-radius: 6px;
-        padding: 6px 12px;
-        font-size: 13px;
-        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-        z-index: 10;
-      }
-      .user-profile:hover .update-link {
-        display: block;
-      }
+      .notification-icon.priority-urgent { background: #fee2e2; color: #dc2626; }
+      .notification-icon.priority-high { background: #fef3c7; color: #d97706; }
+      .notification-icon.priority-medium { background: #dbeafe; color: #2563eb; }
+      .notification-icon.priority-low { background: #f3f4f6; color: #6b7280; }
 
   body
     .layout
-      //- Sidebar
+      // Sidebar
       aside.sidebar
+        .sidebar-toggle
+          i.fas.fa-bars
         .logo-container
           img.logo-img(src="/images/logo 2.png", alt="MWF Logo")
           .logo-text Mayondo Wood & Furniture
@@ -143,28 +121,30 @@ html(lang="en")
                 i.fas.fa-sign-out-alt
                 span Logout
 
-      //- Topbar
+      // Topbar
       #topbar
         .header-content
           .company-info
             h1 Manager Dashboard
             h3 Manage your team and operations
           .header-actions
-            .notification-btn
-              i.fas.fa-bell
-              .notification-count 0
+            // Include Notification Dropdown
+            include notification-dropdown
+
+            // User Profile
             .user-profile
-              if user && user.profilePic
-                img.profile-pic(src=user.profilePic alt="Profile Picture" onclick="window.location='/manager/update-profile'")
-              else
-                img.profile-pic(src="/images/default-profile.png" alt="Default Profile" onclick="window.location='/update-profile'")
-              span#managerName #{user ? user.name : "Manager"}
+              img.profile-pic(
+                src=(user && user.profileImage) ? user.profileImage : '/images/default-profile.png',
+                alt="Profile Picture",
+                onclick="window.location.href='/manager/update-profile'"
+              )
+              span#managerName= (user && user.name) ? user.name : 'Manager'
               a.update-link(href="/manager/update-profile") Update Profile
 
-      //- Main Content
+      // Main Content - NO DEBUG INFO
       .container
         .cards
-          .card(onclick="location.href='/userList'")
+          .card(onclick="window.location.href='/userList'")
             .card-icon
               i.fas.fa-user-friends
             .card-content
@@ -172,8 +152,7 @@ html(lang="en")
               p View registered users
             .card-action
               button.go-btn Go
-
-          .card(onclick="location.href='/sales-list'")
+          .card(onclick="window.location.href='/sales-list'")
             .card-icon
               i.fas.fa-shopping-cart
             .card-content
@@ -181,8 +160,7 @@ html(lang="en")
               p View sales made
             .card-action
               button.go-btn Go
-
-          .card(onclick="location.href='/reports'")
+          .card(onclick="window.location.href='/reports'")
             .card-icon
               i.fas.fa-chart-pie
             .card-content
@@ -190,8 +168,7 @@ html(lang="en")
               p View stock
             .card-action
               button.go-btn Go
-
-          .card(onclick="location.href='/approve-stock'")
+          .card(onclick="window.location.href='/approve-stock'")
             .card-icon
               i.fas.fa-thumbs-up
             .card-content
@@ -199,8 +176,7 @@ html(lang="en")
               p Approve stock submitted by attendants
             .card-action
               button.go-btn Go
-
-          .card(onclick="location.href='/stock'")
+          .card(onclick="window.location.href='/stock'")
             .card-icon
               i.fas.fa-plus-square
             .card-content
@@ -208,8 +184,7 @@ html(lang="en")
               p Record new stock items for sale
             .card-action
               button.go-btn Go
-
-          .card(onclick="location.href='/sales-report'")
+          .card(onclick="window.location.href='/sales-report'")
             .card-icon
               i.fas.fa-file-invoice-dollar
             .card-content
@@ -217,8 +192,7 @@ html(lang="en")
               p View periodical sales reports
             .card-action
               button.go-btn Go
-
-          .card(onclick="location.href='/products'")
+          .card(onclick="window.location.href='/products'")
             .card-icon
               i.fas.fa-couch
             .card-content
@@ -226,8 +200,7 @@ html(lang="en")
               p View finished products available for sale
             .card-action
               button.go-btn Go
-
-          .card(onclick="location.href='/attendants'")
+          .card(onclick="window.location.href='/attendants'")
             .card-icon
               i.fas.fa-user-tie
             .card-content
@@ -235,8 +208,7 @@ html(lang="en")
               p View attendants and monitor tasks
             .card-action
               button.go-btn Go
-
-          .card(onclick="location.href='/loading/pending'")
+          .card(onclick="window.location.href='/loading/pending'")
             .card-icon
               i.fas.fa-hourglass-half
             .card-content
@@ -244,8 +216,7 @@ html(lang="en")
               p Load pending sales
             .card-action
               button.go-btn Go
-
-          .card(onclick="location.href='/loading/offload'")
+          .card(onclick="window.location.href='/loading/offload'")
             .card-icon
               i.fas.fa-truck-loading
             .card-content
@@ -253,17 +224,7 @@ html(lang="en")
               p Offload history
             .card-action
               button.go-btn Go
-
-          .card(onclick="location.href='/loading/reports'")
-            .card-icon
-              i.fas.fa-clipboard-list
-            .card-content
-              h4 Loading Reports
-              p View loading activities and reports
-            .card-action
-              button.go-btn Go
-
-          .card(onclick="location.href='/loading/report'")
+          .card(onclick="window.location.href='/loading/report'")
             .card-icon
               i.fas.fa-clipboard-check
             .card-content
@@ -271,8 +232,7 @@ html(lang="en")
               p View offloading activities and reports
             .card-action
               button.go-btn Go
-
-          .card(onclick="location.href='/register'")
+          .card(onclick="window.location.href='/register'")
             .card-icon
               i.fas.fa-user-plus
             .card-content
@@ -280,8 +240,7 @@ html(lang="en")
               p Register users here
             .card-action
               button.go-btn Go
-
-          .card(onclick="location.href='/invoices'")
+          .card(onclick="window.location.href='/invoices'")
             .card-icon
               i.fas.fa-file-invoice
             .card-content
@@ -289,17 +248,7 @@ html(lang="en")
               p Track sold products and invoices
             .card-action
               button.go-btn Go
-
-          .card(onclick="location.href='/assign-tasks'")
-            .card-icon
-              i.fas.fa-tasks
-            .card-content
-              h4 Assign Tasks
-              p Assign tasks to attendants
-            .card-action
-              button.go-btn Go
-
-          .card(onclick="location.href='/task-reports'")
+          .card(onclick="window.location.href='/task-reports'")
             .card-icon
               i.fas.fa-clipboard-user
             .card-content
@@ -307,8 +256,31 @@ html(lang="en")
               p Monitor task completion
             .card-action
               button.go-btn Go
-
-          .card(onclick="location.href='/settings'")
+          .card(onclick="window.location.href='/stockList'")
+            .card-icon
+              i.fas.fa-clipboard-list
+            .card-content
+              h4 Stock Inventory
+              p Check available stock
+            .card-action
+              button.go-btn Go
+          .card(onclick="window.location.href='/customers'")
+            .card-icon
+              i.fas.fa-users
+            .card-content
+              h4 View Customers
+              p View customer information and history
+            .card-action
+              button.go-btn Go
+          .card(onclick="window.location.href='/suppliers'")
+            .card-icon
+              i.fas.fa-truck
+            .card-content
+              h4 View Suppliers
+              p View supplier information and orders
+            .card-action
+              button.go-btn Go
+          .card(onclick="window.location.href='/settings'")
             .card-icon
               i.fas.fa-cogs
             .card-content
@@ -317,13 +289,38 @@ html(lang="en")
             .card-action
               button.go-btn Go
 
-    //- Footer
     footer
       .container
-        p &copy; 2025 Mayondo Wood & Furniture Ltd
+        p © 2025 Mayondo Wood & Furniture Ltd
 
-  script.
-    document.addEventListener('DOMContentLoaded', function() {
-      const managerName = '#{user ? user.name : "Manager"}';
-      document.getElementById('managerName').textContent = managerName;
-    });
+    // Bootstrap JS
+    script(src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js")
+
+    // Include Notification Script
+    include notification-script
+
+    script.
+      // Sidebar toggle functionality
+      document.addEventListener('DOMContentLoaded', function() {
+        const sidebarToggle = document.querySelector('.sidebar-toggle');
+        const sidebar = document.querySelector('.sidebar');
+
+        if (sidebarToggle && sidebar) {
+          sidebarToggle.addEventListener('click', function() {
+            sidebar.classList.toggle('collapsed');
+          });
+        }
+
+        // Card click handlers
+        document.querySelectorAll('.card').forEach(card => {
+          card.addEventListener('click', function(e) {
+            if (e.target.tagName === 'BUTTON' || e.target.closest('button')) {
+              return;
+            }
+            const onclick = this.getAttribute('onclick');
+            if (onclick) {
+              window.location.href = this.getAttribute('onclick').replace("window.location.href='", "").replace("'", "");
+            }
+          });
+        });
+      });

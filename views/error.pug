@@ -1,0 +1,17 @@
+doctype html
+html(lang="en")
+  head
+    meta(charset="UTF-8")
+    meta(name="viewport" content="width=device-width, initial-scale=1")
+    title Error
+    style.
+      body { font-family: Arial, sans-serif; text-align: center; padding: 50px; }
+      h1 { color: #e74c3c; }
+  body
+    h1 Something went wrong
+    if error
+      h2= error.message
+      pre= error.stack
+    else
+      p An unexpected error occurred
+    a(href="/") Go back to dashboard

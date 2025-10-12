@@ -3,12 +3,82 @@ html(lang="en")
   head
     meta(charset="UTF-8")
     meta(name="viewport", content="width=device-width, initial-scale=1")
-    title Sales List — MWF
-    link(rel="stylesheet", href="/css/attendant-manage.css")
+    title Sales List - MWF
     link(rel="stylesheet", href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css")
+    link(href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css", rel="stylesheet")
+    link(rel="stylesheet", href="/css/sales-list.css")
+    style.
+      .notification-container {
+        position: relative;
+        margin-right: 15px;
+      }
+      .notification-bell {
+        color: #6c757d;
+        text-decoration: none;
+        border: none;
+        background: none;
+        padding: 0.5rem;
+        position: relative;
+      }
+      .notification-bell:hover {
+        color: #495057;
+      }
+      .notification-dropdown {
+        width: 400px;
+        max-height: 500px;
+        overflow-y: auto;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        border: 1px solid #e1e5e9;
+      }
+      .notification-item {
+        padding: 12px 15px;
+        border-bottom: 1px solid #f1f3f4;
+        transition: background-color 0.2s ease;
+      }
+      .notification-item.unread {
+        background-color: #f0f7ff;
+        border-left: 3px solid #3498db;
+      }
+      .notification-item.read {
+        opacity: 0.7;
+      }
+      .notification-item:hover {
+        background-color: #f8f9fa;
+      }
+      .notification-content p {
+        margin: 0;
+        font-size: 0.9rem;
+      }
+      .mark-read-btn {
+        padding: 2px 6px;
+        font-size: 0.7rem;
+      }
+      .profile-pic {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 2px solid #ddd;
+        cursor: pointer;
+      }
+      .notification-icon {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        margin-right: 10px;
+      }
+      .notification-icon.priority-urgent { background: #fee2e2; color: #dc2626; }
+      .notification-icon.priority-high { background: #fef3c7; color: #d97706; }
+      .notification-icon.priority-medium { background: #dbeafe; color: #2563eb; }
+      .notification-icon.priority-low { background: #f3f4f6; color: #6b7280; }
 
   body
     .layout
+      // Sidebar
       aside.sidebar
         .logo-container
           img.logo-img(src="/images/logo 2.png", alt="MWF Logo")
@@ -16,118 +86,430 @@ html(lang="en")
         nav
           ul
             li
-              a(href="/dashboard")
-                i.fas.fa-tachometer-alt
-                span Dashboard
+              a(href="/reports")
+                i.fas.fa-chart-bar
+                span Reports
             li
-              a(href="/sales")
-                i.fas.fa-cash-register
-                span Sales Entry
+              a(href="/approve-stock")
+                i.fas.fa-check-circle
+                span Approve Stock
             li
-              a(href="/sales-list", class="active")
-                i.fas.fa-list
-                span Sales List
+              a(href="/stock")
+                i.fas.fa-boxes
+                span Add Stock
             li
               a(href="/sales-report")
-                i.fas.fa-chart-bar
-                span Sales Report
+                i.fas.fa-chart-line
+                span Sales Reports
             li
-              a(href="/reports")
-                i.fas.fa-boxes
-                span Stock Report
+              a(href="/attendants")
+                i.fas.fa-users
+                span Attendants
             li
-              a(href="/stock-list")
-                i.fas.fa-clipboard-list
-                span Stock List
+              a(href="/loading/pending")
+                i.fas.fa-clock
+                span Pending Sales
+            li
+              a(href="/assign-tasks")
+                i.fas.fa-tasks
+                span Assign Tasks
+            li
+              a.active(href="/sales-list")
+                i.fas.fa-list
+                span Sales List
             li
               a(href="/logout")
                 i.fas.fa-sign-out-alt
                 span Logout
 
-      #topbar
+      // Header
+      header#topbar
         .header-content
           .company-info
             h1 Sales List
-            h3 View all sales records
+            h3 View all sales transactions
           .header-actions
-            .notification-btn
-              i.fas.fa-bell
-              .notification-count 3
-            .user-profile
-              i.fas.fa-user-circle
-              span #{user ? user.name : 'User'}
+            // Notification Bell
+            .notification-container
+              .dropdown
+                button.notification-bell.btn.btn-link.position-relative(
+                  type="button", 
+                  id="notificationDropdown", 
+                  data-bs-toggle="dropdown", 
+                  aria-expanded="false"
+                )
+                  i.fas.fa-bell.fa-lg
+                  if unreadCount > 0
+                    span.position-absolute.top-0.start-100.translate-middle.badge.rounded-pill.bg-danger
+                      | #{unreadCount}
+                      span.visually-hidden unread notifications
+                
+                ul.dropdown-menu.dropdown-menu-end.notification-dropdown(aria-labelledby="notificationDropdown")
+                  li.dropdown-header
+                    .d-flex.justify-content-between.align-items-center
+                      span Notifications
+                      if unreadCount > 0
+                        button.btn.btn-sm.btn-outline-primary#markAllRead Mark all read
+                  
+                  if notifications && notifications.length > 0
+                    each notification in notifications
+                      li
+                        .notification-item(
+                          class=notification.status === 'unread' ? 'unread' : 'read',
+                          data-id=notification._id,
+                          onclick=notification.actionUrl ? `window.location.href='${notification.actionUrl}'` : ''
+                          style=notification.actionUrl ? 'cursor: pointer;' : ''
+                        )
+                          .d-flex.align-items-start
+                            .notification-icon(class=`priority-${notification.priority || 'medium'}`)
+                              if notification.type === 'stock_approval'
+                                i.fas.fa-boxes
+                              else if notification.type === 'pending_sales'
+                                i.fas.fa-truck-loading
+                              else if notification.type === 'offload_request'
+                                i.fas.fa-truck-moving
+                              else if notification.type === 'low_stock'
+                                i.fas.fa-exclamation-triangle
+                              else if notification.type === 'new_sale'
+                                i.fas.fa-shopping-cart
+                              else if notification.type === 'task_completed'
+                                i.fas.fa-tasks
+                              else if notification.type === 'stock_approved'
+                                i.fas.fa-check-circle
+                              else if notification.type === 'stock_rejected'
+                                i.fas.fa-times-circle
+                              else
+                                i.fas.fa-bell
+                            .notification-content.flex-grow-1
+                              .d-flex.justify-content-between.align-items-start
+                                div
+                                  p.mb-1.fw-bold= notification.title
+                                  p.mb-1.text-muted= notification.message
+                                  small.text-muted= new Date(notification.createdAt).toLocaleString()
+                                if notification.status === 'unread'
+                                  button.btn.btn-sm.btn-outline-success.mark-read-btn(
+                                    data-id=notification._id, 
+                                    onclick="event.stopPropagation()"
+                                  )
+                                    i.fas.fa-check
+                  else
+                    li
+                      .text-center.py-3.text-muted
+                        | No notifications
+                  
+                  li
+                    .dropdown-footer.text-center.py-2.border-top
+                      a.text-decoration-none(href="/notifications") View all notifications
 
-      .container
-        .table-section
-          .table-header
-            h3
-              i.fas.fa-receipt
-              | Sales Records
-          .table-container
-            table.sales-table
-              thead
-                tr
-                  th 
-                    i.fas.fa-hashtag
-                    | #
-                  th 
-                    i.fas.fa-cube
-                    | Product
-                  th 
-                    i.fas.fa-box
-                    | Qty
-                  th 
-                    i.fas.fa-tag
-                    | Price
-                  th 
-                    i.fas.fa-truck
-                    | Transport
-                  th 
-                    i.fas.fa-calculator
-                    | Total
-                  th 
-                    i.fas.fa-credit-card
-                    | Payment
-                  th 
-                    i.fas.fa-calendar
-                    | Date
-                  th 
-                    i.fas.fa-user-tie
-                    | Agent
-                  th 
-                    i.fas.fa-cog
-                    | Actions
-              tbody
-                if sales.length
-                  each sale, i in sales
+            // User Profile
+            .user-profile
+              img.profile-pic(
+                src=user.profileImage || "/images/default-profile.png", 
+                alt="Profile Picture",
+                onclick="window.location.href='/manager/update-profile'"
+              )
+              span#managerName= user.name || "Manager"
+              a.update-link(href="/manager/update-profile") Update Profile
+
+      // Main Content
+      .main-content-wrapper
+        .main-content
+          .sales-header
+            .header-text
+              h1 Sales List
+              p View all sales transactions
+            .sales-actions
+              if user.role === 'manager'
+                a.btn-info(href="/manager-dashboard")
+                  i.fas.fa-arrow-left
+                  | Back
+                a.btn-primary(href="/sales-report")
+                  i.fas.fa-chart-bar
+                  | Sales Report
+              else if user.role === 'attendant'
+                a.btn-secondary(href="/attendant-dashboard")
+                  i.fas.fa-arrow-left
+                  | Back
+                a.btn-primary(href="/sales")
+                  i.fas.fa-plus
+                  | Add Sale
+
+          .table-section
+            .table-header
+              h3
+                i.fas.fa-list
+                | Sales Records
+              if user.role === 'manager'
+                span.total-sales Total Sales: #{sales ? sales.length : 0}
+            .table-container
+              if sales && sales.length
+                table.sales-table
+                  thead
                     tr
-                      td #{i + 1}
-                      td #{sale.productName}
-                      td #{sale.quantity}
-                      td #{sale.price.toLocaleString()}
-                      td #{sale.transport ? "Yes (5%)" : "No"}
-                      td #{sale.total.toLocaleString()}
-                      td #{sale.paymentType}
-                      td #{new Date(sale.date).toLocaleDateString()}
-                      td #{sale.salesAgent ? sale.salesAgent.name : "Unknown"}
-                      td.actions-cell
-                        a.btn-view(href=`/receipt/${sale._id}`)
-                          i.fas.fa-eye
-                          | View
-                        if user && user.role === 'manager'
-                          a.btn-edit(href=`/sales/edit/${sale._id}`)
-                            i.fas.fa-edit
-                            | Edit
-                          form.delete-form(method="POST", action=`/sales/delete/${sale._id}`)
-                            button.btn-delete(type="submit")
-                              i.fas.fa-trash
-                              | Delete
-                else
-                  tr
-                    td(colspan="11", style="text-align:center;") 
-                      i.fas.fa-inbox
-                      | No sales recorded yet.
+                      th
+                        i.fas.fa-user
+                        | Customer
+                      th
+                        i.fas.fa-cube
+                        | Product
+                      th
+                        i.fas.fa-hashtag
+                        | Quantity
+                      th
+                        i.fas.fa-tag
+                        | Price (UGX)
+                      th
+                        i.fas.fa-calculator
+                        | Total (UGX)
+                      th
+                        i.fas.fa-calendar
+                        | Date
+                      th
+                        i.fas.fa-truck
+                        | Transport
+                      th
+                        i.fas.fa-credit-card
+                        | Payment
+                      if user.role === 'manager'
+                        th
+                          i.fas.fa-user-tie
+                          | Sales Agent
+                      th
+                        i.fas.fa-cog
+                        | Actions
+                  tbody
+                    each sale in sales
+                      tr
+                        td= sale.customer.name
+                        td= sale.productName
+                        td= sale.quantity
+                        td= sale.price.toLocaleString()
+                        td= sale.total.toLocaleString()
+                        td= new Date(sale.date).toLocaleDateString()
+                        td= sale.transport ? 'Yes' : 'No'
+                        td= sale.paymentType
+                        if user.role === 'manager'
+                          td= sale.salesAgent ? sale.salesAgent.name : 'N/A'
+                        td.actions-cell
+                          a.btn-view(href=`/receipt/${sale._id}`)
+                            i.fas.fa-eye
+                            | View
+                          if user.role === 'manager'
+                            a.btn-edit(href=`/sales/edit/${sale._id}`)
+                              i.fas.fa-edit
+                              | Edit
+                            form.delete-form(action=`/sales/delete/${sale._id}`, method="POST")
+                              button.btn-delete(type="submit")
+                                i.fas.fa-trash
+                                | Delete
+              else
+                p.no-data
+                  i.fas.fa-info-circle
+                  | No sales records found.
 
     footer
       .container
         p &copy; 2025 Mayondo Wood & Furniture Ltd
+
+    // Bootstrap JS
+    script(src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js")
+    // Socket.io
+    script(src="/socket.io/socket.io.js")
+
+    script.
+      document.addEventListener('DOMContentLoaded', function() {
+        // Initialize Socket.io connection
+        const socket = io();
+
+        // Notification functionality
+        document.querySelectorAll('.mark-read-btn').forEach(button => {
+          button.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const notificationId = this.getAttribute('data-id');
+            markAsRead(notificationId, this);
+          });
+        });
+
+        // Mark all as read
+        const markAllBtn = document.getElementById('markAllRead');
+        if (markAllBtn) {
+          markAllBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            markAllAsRead();
+          });
+        }
+
+        function markAsRead(notificationId, button) {
+          fetch(`/notifications/${notificationId}/read`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            }
+          })
+          .then(response => response.json())
+          .then(data => {
+            if (data.success) {
+              // Update UI
+              const notificationItem = button.closest('.notification-item');
+              notificationItem.classList.remove('unread');
+              notificationItem.classList.add('read');
+              button.remove();
+              
+              // Update badge count
+              updateBadgeCount(-1);
+            }
+          })
+          .catch(error => console.error('Error:', error));
+        }
+
+        function markAllAsRead() {
+          fetch('/notifications/mark-all-read', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            }
+          })
+          .then(response => response.json())
+          .then(data => {
+            if (data.success) {
+              // Update all notifications to read
+              document.querySelectorAll('.notification-item.unread').forEach(item => {
+                item.classList.remove('unread');
+                item.classList.add('read');
+              });
+              
+              // Remove all mark-as-read buttons
+              document.querySelectorAll('.mark-read-btn').forEach(btn => btn.remove());
+              
+              // Update badge count to zero
+              updateBadgeCount(-999);
+              
+              // Hide the mark all button
+              const markAllBtn = document.getElementById('markAllRead');
+              if (markAllBtn) markAllBtn.remove();
+            }
+          })
+          .catch(error => console.error('Error:', error));
+        }
+
+        function updateBadgeCount(change) {
+          const badge = document.querySelector('.notification-bell .badge');
+          if (badge) {
+            let currentCount = parseInt(badge.textContent) || 0;
+            currentCount += change;
+            
+            if (currentCount <= 0) {
+              badge.remove();
+            } else {
+              badge.textContent = currentCount;
+            }
+          }
+        }
+
+        // Real-time notifications
+        socket.on('connect', function() {
+          console.log('Connected to server');
+        });
+
+        socket.on('new_notification', function(notification) {
+          // Update notification count
+          updateBadgeCount(1);
+          
+          // Add new notification to dropdown
+          addNotificationToDropdown(notification);
+        });
+
+        function addNotificationToDropdown(notification) {
+          const notificationList = document.querySelector('.notification-dropdown');
+          if (!notificationList) return;
+
+          const newNotificationItem = createNotificationElement(notification);
+          
+          const header = notificationList.querySelector('.dropdown-header');
+          const noNotifications = notificationList.querySelector('.text-center.py-3');
+          
+          let insertAfter = header;
+          
+          if (noNotifications) {
+            noNotifications.remove();
+          }
+          
+          if (insertAfter) {
+            insertAfter.parentNode.insertBefore(newNotificationItem, insertAfter.nextSibling);
+          }
+          
+          // Show mark all read button if it doesn't exist
+          if (!document.getElementById('markAllRead') && document.querySelector('.notification-bell .badge')) {
+            const dropdownHeader = document.querySelector('.dropdown-header .d-flex');
+            if (dropdownHeader && !dropdownHeader.querySelector('#markAllRead')) {
+              const markAllBtn = document.createElement('button');
+              markAllBtn.className = 'btn btn-sm btn-outline-primary';
+              markAllBtn.id = 'markAllRead';
+              markAllBtn.textContent = 'Mark all read';
+              markAllBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                markAllAsRead();
+              });
+              dropdownHeader.appendChild(markAllBtn);
+            }
+          }
+        }
+
+        function createNotificationElement(notification) {
+          const li = document.createElement('li');
+          const isUnread = notification.status === 'unread';
+          const priority = notification.priority || 'medium';
+          const iconClass = getNotificationIcon(notification.type);
+          
+          li.innerHTML = `
+            <div class="notification-item ${isUnread ? 'unread' : 'read'}" 
+                 data-id="${notification._id}"
+                 ${notification.actionUrl ? `onclick="window.location.href='${notification.actionUrl}'" style="cursor: pointer;"` : ''}>
+              <div class="d-flex align-items-start">
+                <div class="notification-icon priority-${priority}">
+                  <i class="fas ${iconClass}"></i>
+                </div>
+                <div class="notification-content flex-grow-1">
+                  <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                      <p class="mb-1 fw-bold">${notification.title}</p>
+                      <p class="mb-1 text-muted">${notification.message}</p>
+                      <small class="text-muted">${new Date(notification.createdAt).toLocaleString()}</small>
+                    </div>
+                    ${isUnread ? `
+                      <button class="btn btn-sm btn-outline-success mark-read-btn" data-id="${notification._id}" onclick="event.stopPropagation()">
+                        <i class="fas fa-check"></i>
+                      </button>
+                    ` : ''}
+                  </div>
+                </div>
+              </div>
+            </div>
+          `;
+          
+          // Add click event for mark as read button
+          if (isUnread) {
+            const markReadBtn = li.querySelector('.mark-read-btn');
+            markReadBtn.addEventListener('click', function(e) {
+              e.stopPropagation();
+              markAsRead(notification._id, this);
+            });
+          }
+          
+          return li;
+        }
+
+        function getNotificationIcon(type) {
+          const icons = {
+            'stock_approval': 'fa-boxes',
+            'pending_sales': 'fa-truck-loading',
+            'offload_request': 'fa-truck-moving',
+            'low_stock': 'fa-exclamation-triangle',
+            'new_sale': 'fa-shopping-cart',
+            'task_completed': 'fa-tasks',
+            'stock_approved': 'fa-check-circle',
+            'stock_rejected': 'fa-times-circle'
+          };
+          return icons[type] || 'fa-bell';
+        }
+      });

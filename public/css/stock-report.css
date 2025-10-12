@@ -91,7 +91,7 @@ body {
   top: 0;
   right: 0;
   height: 80px;
-  background: rgba(60, 226, 45, 0.85);
+  background: linear-gradient(135deg, rgb(11, 136, 11), rgb(232, 176, 103));
   backdrop-filter: blur(10px);
   border-bottom: 1px solid #e5e7eb;
   display: flex;
@@ -578,4 +578,30 @@ body {
 
 .sidebar::-webkit-scrollbar-thumb:hover {
   background: rgba(255, 255, 255, 0.5);
+}
+
+.back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 15px;
+  background: #2c5aa0;
+  color: white;
+  text-decoration: none;
+  border-radius: 6px;
+  font-weight: 600;
+  margin-bottom: 20px;
+  transition: background 0.3s;
+}
+.back-btn:hover {
+  background: #1e3d6f;
+}
+
+footer.footer {
+  text-align: center;
+  margin-top: 40px;
+  padding: 15px 0;
+  color: #777;
+  font-size: 14px;
+  border-top: 1px solid #e0e0e0;
 }

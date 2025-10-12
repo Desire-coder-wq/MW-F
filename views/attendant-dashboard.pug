@@ -6,105 +6,9 @@ html(lang="en")
     title Attendant Dashboard - MWF
     link(rel="stylesheet", href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css")
     link(rel="stylesheet", href="/css/attendant-manage.css")
-    style.
-      .cards {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-        gap: 20px;
-        padding: 20px;
-      }
-      .card {
-        background: white;
-        border-radius: 12px;
-        padding: 20px;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        cursor: pointer;
-        transition: all 0.3s ease;
-        border: 1px solid #e0e0e0;
-        height: 140px;
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-      }
-      .card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 8px 15px rgba(0,0,0,0.15);
-      }
-      .card-icon {
-        font-size: 24px;
-        color: #2c5aa0;
-        margin-bottom: 10px;
-      }
-      .card-content h4 {
-        margin: 0 0 8px 0;
-        font-size: 16px;
-        color: #333;
-      }
-      .card-content p {
-        margin: 0;
-        font-size: 13px;
-        color: #666;
-        line-height: 1.4;
-      }
-      .card-action {
-        text-align: right;
-        margin-top: 10px;
-      }
-      .go-btn {
-        background: #2c5aa0;
-        color: white;
-        border: none;
-        padding: 8px 16px;
-        border-radius: 6px;
-        cursor: pointer;
-        font-size: 12px;
-        transition: background 0.3s ease;
-      }
-      .go-btn:hover {
-        background: #1e3d6f;
-      }
-      .notification-dropdown {
-        display: none;
-        position: absolute;
-        top: 60px;
-        right: 20px;
-        background: white;
-        border-radius: 8px;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-        width: 300px;
-        max-height: 400px;
-        overflow-y: auto;
-        z-index: 1000;
-      }
-      .notification-item {
-        padding: 15px;
-        border-bottom: 1px solid #f0f0f0;
-        cursor: pointer;
-      }
-      .notification-item:hover {
-        background: #f8f9fa;
-      }
-      .notification-item.unread {
-        background: #f0f7ff;
-      }
-      .notification-title {
-        font-weight: bold;
-        color: #333;
-        margin-bottom: 5px;
-      }
-      .notification-message {
-        color: #666;
-        font-size: 14px;
-      }
-      .notification-time {
-        color: #999;
-        font-size: 12px;
-        margin-top: 5px;
-      }
-
   body
     .layout
-      //- Sidebar
+      // Sidebar
       aside.sidebar
         .logo-container
           img.logo-img(src="/images/logo 2.png", alt="MWF Logo")
@@ -128,19 +32,31 @@ html(lang="en")
                 i.fas.fa-clipboard-list
                 span Stock Inventory
             li
-              a(href="/sales-summary")
-                i.fas.fa-chart-bar
-                span Sales Summary
+              a(href="/loading/offload")
+                i.fas.fa-truck-loading
+                span Offload Materials
+            li
+              a(href="/loading/pending")
+                i.fas.fa-hourglass-half
+                span Pending Sales
             li
               a(href="/attendant/tasks")
                 i.fas.fa-tasks
                 span My Tasks
             li
+              a(href="/profile")
+                i.fas.fa-user-circle
+                span Profile
+            li
+              a(href="/settings")
+                i.fas.fa-cogs
+                span Settings
+            li
               a(href="/logout")
                 i.fas.fa-sign-out-alt
                 span Logout
 
-      //- Topbar
+      // Topbar
       #topbar
         .header-content
           .company-info
@@ -151,8 +67,8 @@ html(lang="en")
               i.fas.fa-bell
               .notification-count#notificationCount 0
               #notificationDropdown.notification-dropdown
-                .notification-header(style="padding: 15px; border-bottom: 1px solid #f0f0f0;")
-                  h4(style="margin: 0;") Notifications
+                .notification-header
+                  h4 Notifications
                 #notificationList
                   .notification-item
                     .notification-title No new notifications
@@ -160,11 +76,9 @@ html(lang="en")
               i.fas.fa-user-circle
               span#attendantName Attendant
 
-      //- Main Content
+      // Main Content
       .container
-        //- Cards Section
         .cards
-          //- Card: Record Sale
           .card(onclick="location.href='/sales'")
             .card-icon
               i.fas.fa-cash-register
@@ -174,7 +88,6 @@ html(lang="en")
             .card-action
               button.go-btn Go
 
-          //- Card: Sales List
           .card(onclick="location.href='/sales-list'")
             .card-icon
               i.fas.fa-list-alt
@@ -184,7 +97,6 @@ html(lang="en")
             .card-action
               button.go-btn Go
 
-          //- Card: Add / Update Stock
           .card(onclick="location.href='/attendant/add-stock'")
             .card-icon
               i.fas.fa-boxes
@@ -194,7 +106,6 @@ html(lang="en")
             .card-action
               button.go-btn Go
 
-          //- Card: Stock List
           .card(onclick="location.href='/stockList'")
             .card-icon
               i.fas.fa-clipboard-list
@@ -204,17 +115,6 @@ html(lang="en")
             .card-action
               button.go-btn Go
 
-          //- Card: Sales Summary
-          .card(onclick="location.href='/sales-summary'")
-            .card-icon
-              i.fas.fa-chart-bar
-            .card-content
-              h4 Sales Summary
-              p View sales reports
-            .card-action
-              button.go-btn Go
-
-          //- Card: My Tasks
           .card(onclick="location.href='/attendant/tasks'")
             .card-icon
               i.fas.fa-tasks
@@ -224,17 +124,15 @@ html(lang="en")
             .card-action
               button.go-btn Go
 
-          //- Card: Offload Raw Materials
           .card(onclick="location.href='/loading/offload'")
             .card-icon
               i.fas.fa-truck-loading
             .card-content
               h4 Offload Materials
-              p Offloading stock operations
+              p Offload incoming stock
             .card-action
               button.go-btn Go
 
-          //- Card: Pending Sales
           .card(onclick="location.href='/loading/pending'")
             .card-icon
               i.fas.fa-hourglass-half
@@ -244,28 +142,24 @@ html(lang="en")
             .card-action
               button.go-btn Go
 
-          //- Card: Profile
           .card(onclick="location.href='/profile'")
             .card-icon
               i.fas.fa-user-circle
             .card-content
               h4 Profile
-              p Manage account settings
+              p Manage your account settings
             .card-action
               button.go-btn Go
 
-    //- Footer
+    // Footer
     footer
       .container
-        p &copy; 2025 Mayondo Wood & Furniture Ltd
+        p © 2025 Mayondo Wood & Furniture Ltd
 
   script.
-    // Set attendant name if available
     document.addEventListener('DOMContentLoaded', function() {
       const attendantName = '#{user ? user.name : "Attendant"}';
       document.getElementById('attendantName').textContent = attendantName;
-      
-      // Load notifications
       loadNotifications();
     });
 
@@ -278,48 +172,37 @@ html(lang="en")
       try {
         const response = await fetch('/attendant/tasks');
         const tasks = await response.json();
-        
-        const notificationList = document.getElementById('notificationList');
-        const notificationCount = document.getElementById('notificationCount');
-        
+        const list = document.getElementById('notificationList');
+        const count = document.getElementById('notificationCount');
+
         if (tasks && tasks.length > 0) {
-          // Filter pending and in-progress tasks
-          const activeTasks = tasks.filter(task => task.status !== 'completed');
-          notificationCount.textContent = activeTasks.length;
-          
-          notificationList.innerHTML = '';
-          activeTasks.forEach(task => {
-            const notificationItem = document.createElement('div');
-            notificationItem.className = 'notification-item unread';
-            notificationItem.innerHTML = `
-              <div class="notification-title">New Task: ${task.taskType}</div>
+          const active = tasks.filter(t => t.status !== 'completed');
+          count.textContent = active.length;
+          list.innerHTML = '';
+          active.forEach(task => {
+            const item = document.createElement('div');
+            item.className = 'notification-item unread';
+            item.innerHTML = `
+              <div class="notification-title">${task.taskType}</div>
               <div class="notification-message">${task.taskDescription}</div>
               <div class="notification-time">Due: ${new Date(task.dueDate).toLocaleDateString()}</div>
             `;
-            notificationItem.onclick = () => {
-              window.location.href = '/attendant/tasks';
-            };
-            notificationList.appendChild(notificationItem);
+            item.onclick = () => (window.location.href = '/attendant/tasks');
+            list.appendChild(item);
           });
         } else {
-          notificationCount.textContent = '0';
-          notificationList.innerHTML = `
-            <div class="notification-item">
-              <div class="notification-title">No new notifications</div>
-            </div>
-          `;
+          count.textContent = '0';
+          list.innerHTML = `<div class="notification-item"><div class="notification-title">No new notifications</div></div>`;
         }
-      } catch (error) {
-        console.error('Error loading notifications:', error);
+      } catch (err) {
+        console.error('Error loading notifications:', err);
       }
     }
 
-    // Close notifications when clicking outside
-    document.addEventListener('click', function(event) {
-      const notificationBtn = document.querySelector('.notification-btn');
+    document.addEventListener('click', e => {
+      const btn = document.querySelector('.notification-btn');
       const dropdown = document.getElementById('notificationDropdown');
-      
-      if (!notificationBtn.contains(event.target) && !dropdown.contains(event.target)) {
+      if (!btn.contains(e.target) && !dropdown.contains(e.target)) {
         dropdown.style.display = 'none';
       }
     });

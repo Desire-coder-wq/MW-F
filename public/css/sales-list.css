@@ -1,0 +1,384 @@
+/* ======================================================
+   ATTENDANT & MANAGER DASHBOARD - GLOBAL STYLES
+   Shared by all dashboard pages
+   ====================================================== */
+
+/* --- Reset & Layout Basics --- */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Poppins", sans-serif;
+}
+
+body {
+  background-color: #f8fafc;
+  color: #1e293b;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* --- Sidebar --- */
+.sidebar {
+  width: 240px;
+  height: 100vh;
+  background: linear-gradient(180deg, #0b880b, #0a6e0a);
+  color: #fff;
+  position: fixed;
+  top: 0;
+  left: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 20px 0;
+  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.15);
+}
+
+.sidebar .logo-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 40px;
+  text-align: center;
+}
+
+.logo-container img.logo-img {
+  width: 60px;
+  height: 60px;
+  object-fit: contain;
+  margin-bottom: 10px;
+}
+
+.logo-container .logo-text {
+  font-size: 16px;
+  font-weight: 600;
+  color: #fff;
+}
+
+.sidebar nav ul {
+  list-style: none;
+  width: 100%;
+}
+
+.sidebar nav ul li {
+  width: 100%;
+}
+
+.sidebar nav ul li a {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 24px;
+  color: #fff;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  font-weight: 500;
+}
+
+.sidebar nav ul li a:hover,
+.sidebar nav ul li a.active {
+  background: rgba(255, 255, 255, 0.15);
+  border-left: 4px solid #fff;
+}
+
+/* --- Header (Topbar) --- */
+#topbar {
+  position: fixed;
+  top: 0;
+  left: 240px;
+  right: 0;
+  height: 90px;
+  background: #fff;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 40px;
+  z-index: 10;
+}
+
+.header-content {
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.company-info h1 {
+  font-size: 22px;
+  color: #0b880b;
+  font-weight: 700;
+}
+
+.company-info h3 {
+  font-size: 14px;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.user-profile {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.user-profile img.profile-pic {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #0b880b;
+}
+
+.user-profile span#managerName {
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.user-profile a.update-link {
+  color: #3b82f6;
+  font-size: 14px;
+  text-decoration: underline;
+}
+
+/* --- Footer --- */
+footer {
+  background: #fff;
+  border-top: 1px solid #e2e8f0;
+  padding: 15px 0;
+  text-align: center;
+  color: #64748b;
+  font-size: 14px;
+  margin-top: auto;
+}
+
+/* --- Main Layout Wrapper --- */
+.main-content-wrapper {
+  flex: 1;
+  margin-left: 240px;
+  margin-top: 90px;
+  padding-bottom: 60px;
+  display: flex;
+  flex-direction: column;
+  min-height: calc(100vh - 90px);
+}
+
+/* ======================================================
+   SALES LIST PAGE STYLING
+   ====================================================== */
+
+.main-content {
+  flex: 1;
+  width: 100%;
+  max-width: 1300px;
+  margin: 0 auto;
+  padding: 40px 30px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* --- Header Section --- */
+.sales-header {
+  width: 100%;
+  max-width: 1200px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 25px;
+  border-bottom: 1px solid #e2e8f0;
+  padding-bottom: 15px;
+}
+
+.sales-header h1 {
+  color: #1e293b;
+  font-size: 1.9rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.sales-header p {
+  color: #64748b;
+  font-size: 1rem;
+  margin-top: 4px;
+}
+
+/* --- Button Styles --- */
+.sales-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.btn-primary,
+.btn-secondary,
+.btn-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: #fff;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #0b880b, #0a6e0a);
+}
+.btn-secondary {
+  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+}
+.btn-info {
+  background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+}
+
+.btn-primary:hover,
+.btn-secondary:hover,
+.btn-info:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}
+
+/* --- Table Section --- */
+.table-section {
+  width: 100%;
+  max-width: 1200px;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  border: 1px solid #f1f5f9;
+  overflow: hidden;
+  margin-bottom: 40px;
+}
+
+.table-header {
+  padding: 18px 24px;
+  background: #f9fafb;
+  border-bottom: 1px solid #e2e8f0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.table-header h3 {
+  font-size: 18px;
+  color: #334155;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.table-container {
+  width: 100%;
+  overflow-x: auto;
+}
+
+table.sales-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 1000px;
+  font-size: 14px;
+}
+
+table.sales-table thead {
+  background: linear-gradient(135deg, #0f951a, #0b880b);
+  color: #fff;
+}
+
+table.sales-table th,
+table.sales-table td {
+  text-align: left;
+  padding: 12px 16px;
+  border-bottom: 1px solid #e2e8f0;
+  white-space: nowrap;
+}
+
+table.sales-table th {
+  font-weight: 600;
+}
+
+table.sales-table tbody tr:hover {
+  background: #f9fafb;
+}
+
+/* --- Action Buttons in Table --- */
+.actions-cell {
+  display: flex;
+  gap: 6px;
+}
+
+.btn-view,
+.btn-edit,
+.btn-delete {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 10px;
+  border: none;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  color: white;
+  text-decoration: none;
+}
+
+.btn-view {
+  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+}
+.btn-edit {
+  background: linear-gradient(135deg, #0b880b, #0a6e0a);
+}
+.btn-delete {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+}
+
+.btn-view:hover,
+.btn-edit:hover,
+.btn-delete:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
+}
+
+.no-data {
+  padding: 40px;
+  text-align: center;
+  color: #64748b;
+  font-style: italic;
+  font-size: 15px;
+}
+
+/* --- Responsive Adjustments --- */
+@media (max-width: 1024px) {
+  .main-content {
+    padding: 30px;
+  }
+  .sales-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+  }
+  table.sales-table {
+    font-size: 13px;
+    min-width: 900px;
+  }
+}
+
+@media (max-width: 768px) {
+  .main-content-wrapper {
+    margin-left: 0;
+    width: 100%;
+  }
+  table.sales-table {
+    min-width: 800px;
+  }
+  #topbar {
+    left: 0;
+  }
+}

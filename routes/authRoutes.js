@@ -5,6 +5,7 @@ const upload = require("../middleware/upload");
 const User = require("../models/userModel");
 const Attendant = require("../models/attendantModel");
 const Manager = require("../models/managerModel");
+const NotificationManager = require('../utils/notifications');
 
 // ---------------------- MIDDLEWARE ----------------------
 
@@ -21,36 +22,25 @@ function ensureManager(req, res, next) {
   if (user && (user.role === "manager" || user.email === process.env.MANAGER_EMAIL)) {
     return next();
   }
-  // Not a manager — send back home
   return res.redirect("/");
 }
 
-// ---------------------- REGISTER ----------------------
-router.get("/register", (req, res) => {
+// ---------------------- REGISTER (MANAGER ONLY) ----------------------
+router.get("/register", ensureAuthenticated, ensureManager, (req, res) => {
   res.render("register", { title: "register page" });
 });
 
-router.post("/register", upload.single("profilePic"), async (req, res) => {
+router.post("/register", ensureAuthenticated, ensureManager, upload.single("profilePic"), async (req, res) => {
   try {
     const {
-      name,
-      email,
-      password,
-      role,
-      gender,
-      phoneNumber,
-      nationalID,
-      nextOfKinName,
-      nextOfKinNumber,
+      name, email, password, role, gender, phoneNumber, nationalID, nextOfKinName, nextOfKinNumber,
     } = req.body;
 
     if (!name || !email || !password || !gender || !phoneNumber || !nationalID) {
       return res.status(400).send("All required fields must be filled.");
     }
 
-    const profilePic = req.file
-      ? `/uploads/${req.file.filename}`
-      : "/images/default-avatar.png";
+    const profilePic = req.file ? `/uploads/${req.file.filename}` : "/images/default-avatar.png";
 
     const newUser = new User({
       name,
@@ -132,6 +122,7 @@ router.post("/login", async (req, res, next) => {
 
         req.logIn(user, (err) => {
           if (err) return next(err);
+
           req.session.user = user;
 
           if (user.role === "attendant") return res.redirect("/attendant-dashboard");
@@ -143,33 +134,104 @@ router.post("/login", async (req, res, next) => {
       return;
     }
 
-    return res.redirect("/login");
+    return res.redirect("/noneUser");
   } catch (err) {
     console.error("Login error:", err);
     return res.status(500).send("Server error");
   }
 });
 
+// ---------------------- NONE USER ----------------------
 router.get("/noneUser", (req, res) => {
-  res.render("noneUser", { title: "login page" });
+  res.status(404).render("noneUser", { title: "No user found" });
 });
 
-// ---------------------- DASHBOARDS ----------------------
-router.get("/manager-dashboard", ensureAuthenticated, ensureManager, (req, res) => {
-  res.render("manager-dashboard", {
-    user: req.session.user || req.user,
-  });
+// ---------------------- MANAGER DASHBOARD ----------------------
+router.get('/manager-dashboard', ensureAuthenticated, ensureManager, async (req, res) => {
+  try {
+    const user = req.session.user;
+    
+    // Debug log to check user data
+    console.log('User session data:', user);
+    
+    if (!user) {
+      return res.redirect('/login');
+    }
+
+    let notifications = [];
+    let unreadCount = 0;
+
+    try {
+      // Fetch notifications for the current manager
+      notifications = await NotificationManager.getManagerNotifications(user._id, 10);
+      
+      // Get unread count for the current manager
+      unreadCount = await NotificationManager.getUnreadCount(user._id);
+      
+      console.log('Notifications fetched:', notifications.length);
+      console.log('Unread count:', unreadCount);
+      
+    } catch (notifErr) {
+      console.error("Error fetching notifications:", notifErr);
+      // Continue rendering even if notifications fail
+    }
+
+    // Ensure user object has required properties
+    const userData = {
+      _id: user._id,
+      name: user.name || 'Manager',
+      email: user.email || '',
+      role: user.role || 'manager',
+      profileImage: user.profileImage || '/images/default-profile.png'
+    };
+
+    res.render('manager-dashboard', {
+      user: userData,
+      title: 'Manager Dashboard',
+      notifications: notifications || [],
+      unreadCount: unreadCount || 0,
+    });
+    
+  } catch (error) {
+    console.error('Error loading manager dashboard:', error);
+    res.status(500).render('error', { 
+      error: 'Failed to load dashboard',
+      message: 'Please try again later.'
+    });
+  }
 });
 
+// ---------------------- NOTIFICATIONS ----------------------
+router.post('/notifications/:id/read', ensureAuthenticated, async (req, res) => {
+  try {
+    const user = req.session.user;
+    await NotificationManager.markAsRead(req.params.id, user._id);
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Error marking notification as read:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+router.post('/notifications/mark-all-read', ensureAuthenticated, async (req, res) => {
+  try {
+    const user = req.session.user;
+    await NotificationManager.markAllAsRead(user._id);
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Error marking all notifications as read:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// ---------------------- ATTENDANT DASHBOARD ----------------------
 router.get("/attendant-dashboard", ensureAuthenticated, (req, res) => {
   res.render("attendant-dashboard", {
     user: req.session.user || req.user,
   });
 });
 
-// ---------------------- MANAGER-ONLY PAGES ----------------------
-// Add these routes for your restricted pages (examples below)
-
+// ---------------------- MANAGER PAGES ----------------------
 router.get("/manager/tasks", ensureAuthenticated, ensureManager, (req, res) => {
   res.render("manager-tasks", { user: req.session.user });
 });
@@ -205,17 +267,7 @@ router.get("/user-edit/:id", ensureAuthenticated, ensureManager, async (req, res
 
 router.post("/users/update/:id", ensureAuthenticated, ensureManager, upload.single("profilePic"), async (req, res) => {
   try {
-    const {
-      name,
-      email,
-      role,
-      gender,
-      phoneNumber,
-      nationalID,
-      nextOfKinName,
-      nextOfKinPhone,
-    } = req.body;
-
+    const { name, email, role, gender, phoneNumber, nationalID, nextOfKinName, nextOfKinPhone } = req.body;
     const updates = {
       name,
       email,
@@ -226,10 +278,8 @@ router.post("/users/update/:id", ensureAuthenticated, ensureManager, upload.sing
       nextOfKinNumber: nextOfKinPhone || "",
       nextOfKinName: nextOfKinName || "",
     };
-
     if (req.file) updates.profilePic = `/uploads/${req.file.filename}`;
     await User.findByIdAndUpdate(req.params.id, updates);
-
     res.redirect("/userlist");
   } catch (err) {
     console.error("Error updating user:", err);
