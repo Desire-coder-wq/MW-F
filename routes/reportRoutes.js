@@ -11,9 +11,6 @@ const ExcelJS = require("exceljs");
 // Import your authentication middleware
 const { ensureManager } = require("../middleware/auth");
 
-/* =======================================================
-    HELPER: Date Query Builder
-======================================================= */
 function buildDateQuery(from, to) {
   const query = {};
   if (from && to) {
@@ -31,9 +28,7 @@ function buildDateQuery(from, to) {
   return query;
 }
 
-/* =======================================================
-    STOCK REPORT DASHBOARD
-======================================================= */
+
 router.get("/reports", ensureManager, async (req, res) => {
   try {
     const { productType, dateFrom, dateTo } = req.query;
@@ -104,16 +99,13 @@ router.get("/reports", ensureManager, async (req, res) => {
   }
 });
 
-/* =======================================================
-   STOCK REPORT - PDF EXPORT
-======================================================= */
 router.get("/reports/pdf", ensureManager, async (req, res) => {
   try {
     const { productType, dateFrom, dateTo } = req.query;
     const submissionQuery = {};
     if (productType) submissionQuery.productType = productType;
     if (dateFrom || dateTo)
-      submissionQuery.date = buildDateQuery(dateFrom, dateTo).date;
+      Object.assign(submissionQuery, buildDateQuery(dateFrom, dateTo));
 
     const aggregatedSubmissions = await StockSubmission.aggregate([
       { $match: submissionQuery },
@@ -180,16 +172,14 @@ router.get("/reports/pdf", ensureManager, async (req, res) => {
   }
 });
 
-/* =======================================================
-   STOCK REPORT - EXCEL EXPORT
-======================================================= */
+
 router.get("/reports/excel", ensureManager, async (req, res) => {
   try {
     const { productType, dateFrom, dateTo } = req.query;
     const submissionQuery = {};
     if (productType) submissionQuery.productType = productType;
     if (dateFrom || dateTo)
-      submissionQuery.date = buildDateQuery(dateFrom, dateTo).date;
+      Object.assign(submissionQuery, buildDateQuery(dateFrom, dateTo));
 
     const aggregatedSubmissions = await StockSubmission.aggregate([
       { $match: submissionQuery },
@@ -285,14 +275,12 @@ router.get("/reports/excel", ensureManager, async (req, res) => {
   }
 });
 
-/* =======================================================
-    SALES REPORT DASHBOARD
-======================================================= */
+
 router.get("/sales-report", ensureManager, async (req, res) => {
   try {
     const { from, to } = req.query;
     const filter = {};
-    if (from || to) filter.date = buildDateQuery(from, to).date;
+    if (from || to) Object.assign(filter, buildDateQuery(from, to));
 
     const sales = await SalesModel.find(filter).populate("salesAgent").lean();
 
@@ -336,14 +324,12 @@ router.get("/sales-report", ensureManager, async (req, res) => {
   }
 });
 
-/* =======================================================
-    SALES REPORT - PDF EXPORT
-======================================================= */
+
 router.get("/sales-report/pdf", ensureManager, async (req, res) => {
   try {
     const { from, to } = req.query;
     const filter = {};
-    if (from || to) filter.date = buildDateQuery(from, to).date;
+    if (from || to) Object.assign(filter, buildDateQuery(from, to));
 
     const sales = await SalesModel.find(filter).populate("salesAgent").lean();
     const totalRevenue = sales.reduce((sum, s) => sum + (s.total || 0), 0);
@@ -378,14 +364,11 @@ router.get("/sales-report/pdf", ensureManager, async (req, res) => {
   }
 });
 
-/* =======================================================
-    SALES REPORT - EXCEL EXPORT
-======================================================= */
 router.get("/sales-report/excel", ensureManager, async (req, res) => {
   try {
     const { from, to } = req.query;
     const filter = {};
-    if (from || to) filter.date = buildDateQuery(from, to).date;
+    if (from || to) Object.assign(filter, buildDateQuery(from, to));
 
     const sales = await SalesModel.find(filter).populate("salesAgent").lean();
 

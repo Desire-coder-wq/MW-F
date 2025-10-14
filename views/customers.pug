@@ -119,10 +119,10 @@ html(lang="en")
                   tbody
                     each customer in customers
                       tr
-                        td= customer.name
-                        td= customer.email || '-'
-                        td= customer.contact || '-'
-                        td= customer.address || '-'
+                        td= customer.customerName
+                        td= customer.customerPhone || '-'
+                        td= customer.customerEmail || '-'
+                        td= customer.customerAddress || '-'
                         td= customer.dateAdded ? new Date(customer.dateAdded).toDateString() : '-'
                         td.actions-cell
                           form.delete-form(action=`/customers/${customer._id}/delete`, method="POST")
@@ -134,7 +134,8 @@ html(lang="en")
 
         footer
           .container
-            p &copy; 2025 Mayondo Wood & Furniture Ltd
+            p &copy; 2025 Mayondo Wood & Furniture Ltd 
+            p Designed by A Rose Desire @ Groundbreaker Talents
 
     script.
       const customers = != JSON.stringify(customers || []);

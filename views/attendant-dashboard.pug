@@ -63,15 +63,6 @@ html(lang="en")
             h1 Attendant Dashboard
             h3 Manage your daily tasks and operations
           .header-actions
-            .notification-btn(onclick="toggleNotifications()")
-              i.fas.fa-bell
-              .notification-count#notificationCount 0
-              #notificationDropdown.notification-dropdown
-                .notification-header
-                  h4 Notifications
-                #notificationList
-                  .notification-item
-                    .notification-title No new notifications
             .user-profile
               i.fas.fa-user-circle
               span#attendantName Attendant
@@ -142,19 +133,13 @@ html(lang="en")
             .card-action
               button.go-btn Go
 
-          .card(onclick="location.href='/profile'")
-            .card-icon
-              i.fas.fa-user-circle
-            .card-content
-              h4 Profile
-              p Manage your account settings
-            .card-action
-              button.go-btn Go
+          
 
     // Footer
     footer
       .container
-        p © 2025 Mayondo Wood & Furniture Ltd
+         p &copy; 2025 Mayondo Wood & Furniture Ltd 
+         p Designed by A Rose Desire @ Groundbreaker Talents
 
   script.
     document.addEventListener('DOMContentLoaded', function() {
@@ -163,46 +148,4 @@ html(lang="en")
       loadNotifications();
     });
 
-    function toggleNotifications() {
-      const dropdown = document.getElementById('notificationDropdown');
-      dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
-    }
-
-    async function loadNotifications() {
-      try {
-        const response = await fetch('/attendant/tasks');
-        const tasks = await response.json();
-        const list = document.getElementById('notificationList');
-        const count = document.getElementById('notificationCount');
-
-        if (tasks && tasks.length > 0) {
-          const active = tasks.filter(t => t.status !== 'completed');
-          count.textContent = active.length;
-          list.innerHTML = '';
-          active.forEach(task => {
-            const item = document.createElement('div');
-            item.className = 'notification-item unread';
-            item.innerHTML = `
-              <div class="notification-title">${task.taskType}</div>
-              <div class="notification-message">${task.taskDescription}</div>
-              <div class="notification-time">Due: ${new Date(task.dueDate).toLocaleDateString()}</div>
-            `;
-            item.onclick = () => (window.location.href = '/attendant/tasks');
-            list.appendChild(item);
-          });
-        } else {
-          count.textContent = '0';
-          list.innerHTML = `<div class="notification-item"><div class="notification-title">No new notifications</div></div>`;
-        }
-      } catch (err) {
-        console.error('Error loading notifications:', err);
-      }
-    }
-
-    document.addEventListener('click', e => {
-      const btn = document.querySelector('.notification-btn');
-      const dropdown = document.getElementById('notificationDropdown');
-      if (!btn.contains(e.target) && !dropdown.contains(e.target)) {
-        dropdown.style.display = 'none';
-      }
-    });
+    

@@ -1,4 +1,4 @@
-/* ===== RESET & BASE STYLES ===== */
+
 * {
   margin: 0;
   padding: 0;
@@ -6,97 +6,118 @@
 }
 
 body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background-color: #f8f9fa;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: linear-gradient(135deg,   rgb(237, 180, 105), rgb(238, 212, 179));
   color: #333;
-  line-height: 1.6;
 }
 
-/* ===== LAYOUT ===== */
+
 .layout {
   display: flex;
   min-height: 100vh;
   transition: all 0.3s ease;
 }
 
-/* ===== SIDEBAR ===== */
+
+/* ========== Sidebar ========== */
 .sidebar {
-  width: 260px;
-  background: linear-gradient(135deg, rgb(11, 136, 11), rgb(232, 176, 103));
-  color: white;
-  padding: 0;
+  width: 240px;
+  background: linear-gradient(135deg, rgb(5, 103, 5), rgb(232, 176, 103));
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  box-shadow: 4px 0 15px rgba(0, 0, 0, 0.1);
   position: fixed;
   height: 100vh;
   overflow-y: auto;
-  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
   z-index: 1000;
-  transition: all 0.3s ease;
-  transform: translateX(0);
-}
-
-.sidebar.collapsed {
-  transform: translateX(-100%);
 }
 
 .logo-container {
-  padding: 2rem 1.5rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  text-align: center;
-  background: rgba(0, 0, 0, 0.2);
-  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 40px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .logo-img {
-  width: 80px;
-  height: auto;
-  margin-bottom: 0.75rem;
+  width: 60px;
+  height: 60px;
+  object-fit: contain;
+  margin-bottom: 10px;
   border-radius: 8px;
 }
 
 .logo-text {
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: #ecf0f1;
+  font-size: 16px;
+  font-weight: bold;
+  text-align: center;
+  color: white;
 }
 
 .sidebar nav ul {
   list-style: none;
-  padding: 1.5rem 0;
 }
 
-.sidebar nav li {
-  margin-bottom: 0.5rem;
+.sidebar nav ul li {
+  margin-bottom: 12px;
 }
 
-.sidebar nav a {
+.sidebar nav ul li a {
+  color: #cbd5e1;
+  text-decoration: none;
+  font-size: 15px;
   display: flex;
   align-items: center;
-  padding: 0.875rem 1.5rem;
-  color: #bdc3c7;
-  text-decoration: none;
+  padding: 12px 15px;
+  border-radius: 8px;
   transition: all 0.3s ease;
-  border-left: 4px solid transparent;
+  gap: 12px;
 }
 
-.sidebar nav a:hover {
-  background: rgba(255, 255, 255, 0.1);
-  color: white;
-  border-left-color: #3498db;
+.sidebar nav ul li a:hover,
+.sidebar nav ul li a.active {
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+  transform: translateX(5px);
 }
 
-.sidebar nav a.active {
-  background: rgba(52, 152, 219, 0.2);
-  color: white;
-  border-left-color: #3498db;
+.sidebar nav ul li a i {
+  width: 20px;
+  text-align: center;
 }
 
-.sidebar nav i {
-  width: 24px;
-  margin-right: 0.75rem;
-  font-size: 1.1rem;
+/* ========== Header ========== */
+#topbar {
+  position: fixed;
+  left: 240px;
+  top: 0;
+  right: 0;
+  height: 80px;
+   background: linear-gradient(135deg, rgb(5, 103, 5), rgb(232, 176, 103));
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid #e5e7eb;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 40px;
+  z-index: 100;
+  box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
 }
 
-/* ===== HAMBURGER MENU ===== */
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+
 .hamburger-menu {
   position: absolute;
   top: 1rem;
@@ -127,7 +148,7 @@ body {
   transition: all 0.3s ease;
 }
 
-/* ===== MAIN CONTENT ===== */
+
 .main-content {
   flex: 1;
   margin-left: 260px;
@@ -141,13 +162,23 @@ body {
   margin-left: 0;
 }
 
-/* ===== TOPBAR ===== */
 #topbar {
-  background: linear-gradient(135deg, rgb(11, 136, 11), rgb(232, 176, 103));
-  padding: 1rem 2rem;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
-  border-bottom: 1px solid #e9ecef;
+  position: fixed;
+  left: 240px;
+  top: 0;
+  right: 0;
+  height: 80px;
+   background: linear-gradient(135deg, rgb(5, 103, 5), rgb(232, 176, 103));
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid #e5e7eb;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 40px;
+  z-index: 100;
+  box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
 }
+
 
 .header-content {
   display: flex;
@@ -158,14 +189,14 @@ body {
 .company-info h1 {
   font-size: 1.75rem;
   font-weight: 700;
-  color: white;
+  color: #1e293b;
   margin-bottom: 0.25rem;
 }
 
 .company-info h3 {
   font-size: 1rem;
   font-weight: 400;
-  color: rgba(255, 255, 255, 0.9);
+  color: #2d4a2d;
 }
 
 .header-actions {
@@ -229,7 +260,7 @@ body {
   font-weight: 600;
 }
 
-/* ===== CONTAINER ===== */
+
 .container {
   flex: 1;
   padding: 2rem;
@@ -238,7 +269,7 @@ body {
   width: 100%;
 }
 
-/* ===== CUSTOMERS/SUPPLIERS HEADER ===== */
+
 .customers-header,
 .suppliers-header {
   display: flex;
@@ -439,7 +470,7 @@ footer {
   background: linear-gradient(135deg, rgb(11, 136, 11), rgb(232, 176, 103));
   color: white;
   padding: 2rem 0;
-  margin-top: auto;
+  margin-top: 40px;
   border-top: 4px solid rgba(255, 255, 255, 0.3);
 }
 

@@ -107,6 +107,21 @@ html(lang="en")
         font-style: italic;
       }
 
+      .btn-back {
+        display: inline-block;
+        background-color: #28a745; /* green */
+        color: white;
+        padding: 8px 16px;
+        border-radius: 6px;
+        text-decoration: none;
+        font-weight: 600;
+        margin-bottom: 15px;
+        transition: background 0.3s;
+      }
+      .btn-back:hover {
+        background-color: #218838;
+      }
+
   body
     .layout
       // Sidebar
@@ -154,6 +169,7 @@ html(lang="en")
       // Main Content
       .container
         .table-section
+          a.btn-back(href="/manager-dashboard") ← Back to Dashboard
           .table-header
             h3
               i.fas.fa-clipboard-check
@@ -169,6 +185,7 @@ html(lang="en")
                   th Quantity
                   th Supplier
                   th Cost (UGX)
+                  th Selling Price (UGX)
                   th Image
                   th Quality
                   th Color
@@ -215,12 +232,13 @@ html(lang="en")
                           button.disabled(disabled)= req.status
                 else
                   tr
-                    td(colspan="15") No stock submissions found.
+                    td(colspan="16") No stock submissions found.
 
     // Footer
     footer
       .container
-        p &copy; 2025 Mayondo Wood & Furniture Ltd
+         p &copy; 2025 Mayondo Wood & Furniture Ltd 
+         p Designed by A Rose Desire @ Groundbreaker Talents
 
     // Scripts
     script(src="/js/approve-stock.js")

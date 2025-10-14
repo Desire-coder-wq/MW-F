@@ -71,7 +71,7 @@ html(lang="en")
                     | Product Type
                   select(name="productType", required)
                     option(value="") Select Product Type
-                    option(value="wood") Wood
+                    option(value="Wood") Wood
                     option(value="furniture") Furniture
 
                 .form-group
@@ -80,18 +80,6 @@ html(lang="en")
                     | Quantity
                   input(type="number", name="quantity", required, placeholder="Enter quantity")
 
-                .form-group
-                  label(for="attendantName")
-                    i.fas.fa-user
-                    | Attendant Name
-                  input(type="text", name="attendantName", readonly, value=user ? user.name : 'Unknown')
-
-                .form-group
-                  label(for="relatedStock")
-                    i.fas.fa-barcode
-                    | Stock ID
-                  input(type="text", name="relatedStock", required, placeholder="Enter stock ID")
-
               .form-actions
                 button.submit-btn(type="submit")
                   i.fas.fa-save
@@ -99,4 +87,5 @@ html(lang="en")
 
     footer
       .container
-        p &copy; 2025 Mayondo Wood & Furniture Ltd
+         p &copy; 2025 Mayondo Wood & Furniture Ltd 
+         p Designed by A Rose Desire @ Groundbreaker Talents

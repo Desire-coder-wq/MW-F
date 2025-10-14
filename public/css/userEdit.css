@@ -16,9 +16,7 @@ body {
   flex-direction: column;
 }
 
-/* ========================
-   Sidebar
-   ======================== */
+
 .sidebar {
   position: fixed;
   top: 0;
@@ -57,9 +55,7 @@ body {
   background-color: #053216;
 }
 
-/* ========================
-   Topbar
-   ======================== */
+
 #topbar {
   margin-left: 200px;
    background: linear-gradient(135deg, rgb(11, 136, 11), rgb(232, 176, 103));
@@ -78,10 +74,7 @@ body {
   text-align: center;
 }
 
-/* ========================
-   Main Container (Card)
-   ======================== */
-/* Center the main container */
+
 main.container {
   display: flex;
   justify-content: center; /* Center horizontally */

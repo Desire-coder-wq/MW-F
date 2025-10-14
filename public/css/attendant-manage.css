@@ -135,77 +135,6 @@ body {
   gap: 20px;
 }
 
-/* Notification Styles */
-.notification-btn {
-  position: relative;
-  cursor: pointer;
-  font-size: 20px;
-  color: #666;
-  padding: 8px;
-  border-radius: 50%;
-  transition: all 0.3s ease;
-}
-
-.notification-btn:hover {
-  background: #f0f0f0;
-  color: #2c5aa0;
-}
-
-.notification-count {
-  position: absolute;
-  top: -5px;
-  right: -5px;
-  background: #e74c3c;
-  color: white;
-  border-radius: 50%;
-  width: 18px;
-  height: 18px;
-  font-size: 11px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: bold;
-  border: 2px solid white;
-}
-
-.notification-dropdown {
-  position: absolute;
-  top: 100%;
-  right: 0;
-  width: 350px;
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
-  border: 1px solid #e0e0e0;
-  opacity: 0;
-  visibility: hidden;
-  transform: translateY(-10px);
-  transition: all 0.3s ease;
-  z-index: 1000;
-}
-
-.notification-dropdown.active {
-  opacity: 1;
-  visibility: visible;
-  transform: translateY(0);
-}
-
-.notification-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 15px 20px;
-  border-bottom: 1px solid #e0e0e0;
-  background: #f8f9fa;
-  border-radius: 8px 8px 0 0;
-}
-
-.notification-header h4 {
-  margin: 0;
-  color: #2c5aa0;
-  font-size: 16px;
-  font-weight: 600;
-}
 
 .mark-read {
   color: #2c5aa0;
@@ -369,7 +298,7 @@ body {
   font-size: 24px;
 }
 
-/* ========== Main Content ========== */
+
 .container {
   margin-left: 240px;
   margin-top: 80px;
@@ -379,7 +308,7 @@ body {
   flex: 1;
 }
 
-/* ========== Page Header ========== */
+
 .page-header {
   display: flex;
   justify-content: space-between;
@@ -428,7 +357,7 @@ body {
   box-shadow: 0 4px 12px rgba(11, 136, 11, 0.3);
 }
 
-/* ========== Cards Section Styles ========== */
+
 .cards {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -533,7 +462,6 @@ body {
   transform: translateX(3px);
 }
 
-/* ========== Action Buttons ========== */
 .action-btn {
   display: flex;
   align-items: center;

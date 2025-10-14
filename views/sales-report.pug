@@ -20,7 +20,7 @@ html(lang="en")
         box-shadow: 0 2px 4px rgba(0,0,0,0.1);
       }
       .filters h3 {
-        color: #2c5aa0;
+        color: #119718ff;
         margin-bottom: 15px;
         display: flex;
         align-items: center;
@@ -52,7 +52,7 @@ html(lang="en")
         font-size: 14px;
       }
       .filters button {
-        background: #2c5aa0;
+        color: #119718ff;
         color: white;
         border: none;
         padding: 10px 15px;
@@ -65,7 +65,7 @@ html(lang="en")
         transition: background 0.3s;
       }
       .filters button:hover {
-        background: #1e3d6f;
+        color: #49b14fff;
       }
 
       /* ===== TABLE ===== */
@@ -78,7 +78,7 @@ html(lang="en")
         overflow-x: auto;
       }
       .table-header h3 {
-        color: #2c5aa0;
+        color: #119718ff;
         margin-bottom: 15px;
         display: flex;
         align-items: center;
@@ -90,7 +90,7 @@ html(lang="en")
         margin-top: 10px;
       }
       .report-table th {
-        background: #2c5aa0;
+        background: #119718ff;
         color: white;
         padding: 12px 15px;
         text-align: left;
@@ -116,7 +116,7 @@ html(lang="en")
         align-items: center;
         gap: 8px;
         padding: 10px 20px;
-        background: #2c5aa0;
+        background: #119718ff;
         color: white;
         text-decoration: none;
         border-radius: 6px;
@@ -124,7 +124,7 @@ html(lang="en")
         transition: background 0.3s;
       }
       .export-btn:hover {
-        background: #1e3d6f;
+        background: #52ab56ff;
         color: white;
       }
 
@@ -147,7 +147,7 @@ html(lang="en")
         align-items: center;
         gap: 10px;
         margin-bottom: 15px;
-        color: #2c5aa0;
+        color: #119718ff;
       }
       .chart-header h3 {
         margin: 0;
@@ -215,12 +215,10 @@ html(lang="en")
           h1 Mayondo Wood & Furniture Ltd
           h3 Sales Report Dashboard
         .header-actions
-          button.notification-btn
-            i.fas.fa-bell
-            span.notification-count 3
-          .user-profile
-            i.fas.fa-user-circle
-            span Admin
+     
+            .user-profile
+              i.fas.fa-user-circle
+              span#userName(data-user-name=user ? user.name : 'User')= user ? user.name : 'User'
 
     // ---- Main Content ----
     main.container
@@ -261,7 +259,7 @@ html(lang="en")
       .filters
         h3
           i.fas.fa-filter
-          | Filter Sales Report
+          | Generate Sales Report
         form(action="/sales-report", method="GET")
           .form-group
             label(for="fromDate")
@@ -275,7 +273,7 @@ html(lang="en")
             input(type="date", name="to", value=to, id="toDate")
           button(type="submit")
             i.fas.fa-search
-            | Apply Filters
+            | Generate
 
       // ---- Product Summary Table ----
       .report-table

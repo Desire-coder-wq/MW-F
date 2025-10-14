@@ -4,17 +4,14 @@ const stockModel = require('../models/stockModel');
 const supplierModel = require('../models/supplierModel');
 const StockSubmission = require('../models/stockSubmission');
 const upload = require('../middleware/upload');
+const NotificationManager = require('../utils/notifications'); // Added for notifications
 
-// =====================================
-// GET: Render stock entry form
-// =====================================
+
 router.get('/stock', (req, res) => {
   res.render("stock", { title: "Stock Page" });
 });
 
-// =====================================
-// POST: Manager adds stock → StockSubmission → Stock Collection (with increment)
-// =====================================
+
 router.post('/stock', upload.single('image'), async (req, res) => {
   try {
     if (!req.session.user) {
@@ -40,8 +37,6 @@ router.post('/stock', upload.single('image'), async (req, res) => {
     } = req.body;
 
     const imagePath = req.file ? `/uploads/${req.file.filename}` : '';
-
-    // Calculate sellingPrice if not provided (20% markup)
     const calculatedSellingPrice = sellingPrice
       ? parseFloat(sellingPrice)
       : parseFloat(costPrice) * 1.2;
@@ -70,9 +65,9 @@ router.post('/stock', upload.single('image'), async (req, res) => {
     });
 
     await submission.save();
-    console.log(" StockSubmission saved:", submission._id);
+    console.log("StockSubmission saved:", submission._id);
 
-    // --- Check if product already exists in main stock collection ---
+    // --- Update Stock Collection ---
     const existingStock = await stockModel.findOne({
       productName: productName.trim(),
       productType: productType.trim(),
@@ -80,7 +75,6 @@ router.post('/stock', upload.single('image'), async (req, res) => {
     });
 
     if (existingStock) {
-      // Increment quantity if product exists
       existingStock.quantity += parseInt(quantity);
       existingStock.costPrice = parseFloat(costPrice);
       existingStock.sellingPrice = calculatedSellingPrice;
@@ -96,9 +90,8 @@ router.post('/stock', upload.single('image'), async (req, res) => {
       existingStock.submissionReference = submission._id;
 
       await existingStock.save();
-      console.log(` Stock quantity incremented for ${productName}`);
+      console.log(`Stock quantity incremented for ${productName}`);
     } else {
-      // If not found, create a new record
       const stockItem = new stockModel({
         productName,
         productType,
@@ -120,7 +113,7 @@ router.post('/stock', upload.single('image'), async (req, res) => {
       });
 
       await stockItem.save();
-      console.log(" New stock item saved:", stockItem._id);
+      console.log("New stock item saved:", stockItem._id);
     }
 
     // --- Optional: auto-save supplier ---
@@ -138,20 +131,34 @@ router.post('/stock', upload.single('image'), async (req, res) => {
       }
     }
 
+    // ===== Notify Managers =====
+    try {
+      const managers = await require('../models/managerModel').find().lean();
+      for (const manager of managers) {
+        await NotificationManager.notifyStockAddition(
+          submission._id, // related stock submission
+          req.session.user._id, // who added it
+          req.session.user.name,
+          productName,
+          quantity
+        );
+      }
+      console.log("Stock notifications sent to manager(s)");
+    } catch (notifyError) {
+      console.error("Error sending stock notifications:", notifyError);
+    }
+
     res.redirect("/stockList");
   } catch (error) {
-    console.error(" Error saving stock submission:", error);
+    console.error("Error saving stock submission:", error);
     res.redirect("/stock");
   }
 });
 
-// =====================================
-// GET: List all stock items (Manager view)
-// =====================================
+
 router.get("/stockList", async (req, res) => {
   try {
     const stocks = await stockModel.find().sort({ createdAt: -1 }).lean();
-
     const totalStockItems = stocks.reduce((sum, s) => sum + (s.quantity || 0), 0);
     const totalExpenses = stocks.reduce((sum, s) => sum + ((s.quantity || 0) * (s.costPrice || 0)), 0);
     const lowStock = stocks.filter(s => s.quantity < 10);
@@ -163,14 +170,12 @@ router.get("/stockList", async (req, res) => {
       lowStock
     });
   } catch (err) {
-    console.error(" Error fetching stock items:", err);
+    console.error("Error fetching stock items:", err);
     res.status(500).send("Server error");
   }
 });
 
-// =====================================
-// DELETE: Remove a stock submission AND corresponding stock item
-// =====================================
+
 router.post("/stock/:id", async (req, res) => {
   try {
     const submissionId = req.params.id;
@@ -178,27 +183,23 @@ router.post("/stock/:id", async (req, res) => {
     await StockSubmission.findByIdAndDelete(submissionId);
     res.redirect("/stockList");
   } catch (err) {
-    console.error(" Error deleting stock submission:", err);
+    console.error("Error deleting stock submission:", err);
     res.status(500).send("Server error");
   }
 });
 
-// =====================================
-// EDIT: Render edit form for stock submission
-// =====================================
+
 router.get("/stock-edit/:id", async (req, res) => {
   try {
     const submission = await StockSubmission.findById(req.params.id).lean();
     res.render("stockEdit", { stock: submission });
   } catch (err) {
-    console.error(" Error fetching stock submission for edit:", err);
+    console.error("Error fetching stock submission for edit:", err);
     res.status(500).send("Server error");
   }
 });
 
-// =====================================
-// UPDATE STOCK SUBMISSION AND STOCK ITEM
-// =====================================
+
 router.post("/stock/update/:id", upload.single('image'), async (req, res) => {
   try {
     const {
@@ -238,10 +239,7 @@ router.post("/stock/update/:id", upload.single('image'), async (req, res) => {
     if (req.file) updateData.image = `/uploads/${req.file.filename}`;
 
     await StockSubmission.findByIdAndUpdate(req.params.id, updateData);
-    await stockModel.findOneAndUpdate(
-      { submissionReference: req.params.id },
-      updateData
-    );
+    await stockModel.findOneAndUpdate({ submissionReference: req.params.id }, updateData);
 
     if (supplier && supplier.trim() !== "") {
       const existingSupplier = await supplierModel.findOne({ name: supplier.trim() });
@@ -258,14 +256,12 @@ router.post("/stock/update/:id", upload.single('image'), async (req, res) => {
 
     res.redirect("/stockList");
   } catch (err) {
-    console.error(" Error updating stock submission:", err);
+    console.error("Error updating stock submission:", err);
     res.status(500).send("Server error");
   }
 });
 
-// =====================================
-// PRODUCTS GALLERY (Render Page)
-// =====================================
+
 router.get("/products", async (req, res) => {
   try {
     const products = await stockModel.find().sort({ createdAt: -1 }).lean();
@@ -280,36 +276,30 @@ router.get("/products", async (req, res) => {
   }
 });
 
-// =====================================
-// PRODUCTS API (JSON Data)
-// =====================================
+
 router.get("/products/api", async (req, res) => {
   try {
     const products = await stockModel.find().sort({ createdAt: -1 }).lean();
     res.json({ success: true, data: products });
   } catch (err) {
-    console.error(" Error fetching products API:", err);
+    console.error("Error fetching products API:", err);
     res.status(500).json({ success: false, message: err.message });
   }
 });
 
-// =====================================
-// GET: Single Product (API)
-// =====================================
+
 router.get("/products/:id", async (req, res) => {
   try {
     const product = await stockModel.findById(req.params.id).lean();
     if (!product) return res.status(404).json({ success: false, message: 'Product not found' });
     res.json({ success: true, data: product });
   } catch (err) {
-    console.error(" Error fetching product:", err);
+    console.error("Error fetching product:", err);
     res.status(500).json({ success: false, message: err.message });
   }
 });
 
-// =====================================
-// DELETE: Product via API
-// =====================================
+
 router.delete("/products/:id", async (req, res) => {
   try {
     const product = await stockModel.findByIdAndDelete(req.params.id);

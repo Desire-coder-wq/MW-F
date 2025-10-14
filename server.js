@@ -1,10 +1,9 @@
-require("dotenv").config(); // 1. Load env variables
+require("dotenv").config();
 
-// 2. Import dependencies
+// Core dependencies
 const express = require("express");
 const morgan = require("morgan");
 const passport = require("passport");
-const LocalStrategy = require("passport-local").Strategy;
 const session = require("express-session");
 const cookieParser = require("cookie-parser");
 const methodOverride = require("method-override");
@@ -13,15 +12,45 @@ const mongoose = require("mongoose");
 const MongoStore = require("connect-mongo");
 const moment = require("moment");
 const http = require("http");
-const socketIo = require('socket.io');
+const socketIo = require("socket.io");
 
-
-// Import model
+// Models
 const UserModel = require("./models/userModel");
 
-// Import routes
-const supplierRoutes = require('./routes/supplierRoutes');
-const customerRoutes = require('./routes/customerRoutes');
+const NotificationManager = require("./utils/notifications");
+const Stock = require('./models/stockModel');
+
+
+
+// Function to check low stock and notify
+async function checkLowStockAndNotify() {
+  try {
+    const lowStockItems = await Stock.find({ 
+      quantity: { $lt: 10 } // Threshold for low stock
+    });
+
+    for (const item of lowStockItems) {
+      await NotificationManager.notifyLowStock({
+        materialName: item.name,
+        currentQuantity: item.quantity,
+        materialId: item._id
+      });
+    }
+  } catch (error) {
+    console.error("Error checking low stock:", error);
+  }
+}
+
+// Check low stock every hour
+setInterval(checkLowStockAndNotify, 60 * 60 * 1000);
+
+// Also check on server start
+checkLowStockAndNotify();
+
+
+// Routes
+const supplierRoutes = require("./routes/supplierRoutes");
+const customerRoutes = require("./routes/customerRoutes");
 const authRoutes = require("./routes/authRoutes");
 const stockRoutes = require("./routes/stockRoutes");
 const indexRoutes = require("./routes/indexRoutes");
@@ -31,65 +60,63 @@ const manageRoutes = require("./routes/manageRoutes");
 const loadingRoutes = require("./routes/loadingRoutes");
 const reportRoutes = require("./routes/reportRoutes");
 const managerRoutes = require("./routes/managerRoutes");
-const notificationRoutes = require('./routes/notifications');
+const notificationRoutes = require("./routes/notifications");
 
-
-
-// 2. Instantiations
 const app = express();
 const port = process.env.PORT || 3000;
 
-
-// create the actual server first
+// Create HTTP server and attach Socket.io
 const server = http.createServer(app);
-//  now attach socket.io to that server
+const io = socketIo(server, {
+  cors: {
+    origin: "*",
+    methods: ["GET", "POST"]
+  }
+});
 
-const io = socketIo(server);
+// Make socket globally accessible
+global.io = io;
 
 io.on("connection", (socket) => {
-  console.log("A user connected");
+  console.log(" A user connected");
   socket.on("disconnect", () => {
-    console.log("User disconnected");
+    console.log(" User disconnected");
   });
 });
 
-// 3. Configurations
-// Verify MONGODB_URL exists
+// Connect MongoDB
 if (!process.env.MONGODB_URL) {
-  console.error(" MONGODB_URL not found in .env");
+  console.error("Missing MONGODB_URL in .env");
   process.exit(1);
 }
 
-// Connect to MongoDB
 mongoose.connect(process.env.MONGODB_URL, {
-  // useNewUrlParser: true,
-  // useUnifiedTopology: true,
   dbName: "mayondo_wood_and_furniture"
 })
 .then(() => {
-    console.log(" Successfully connected to MongoDB");
-
-    // 6. Bootstrapping Server - only after DB connection
-    app.listen(port, () => {
-        console.log(`Server running on port ${port}`);
-    });
+  console.log(" Successfully connected to MongoDB");
+  server.listen(port, () => {
+    console.log(` Server running on port ${port}`);
+  });
 })
 .catch((err) => {
-    console.error(" MongoDB connection error:", err);
+  console.error(" MongoDB connection error:", err);
 });
 
-// Set view engine to Pug
-app.set('view engine','pug');
-app.set('views', path.join(__dirname, 'views'));
+// View engine setup
+app.set("view engine", "pug");
+app.set("views", path.join(__dirname, "views"));
 
 // Middleware
-app.use(morgan("dev")); // optional logging
-app.use(express.static(path.join(__dirname,'public')));
-app.use(express.urlencoded({ extended:true }));
+app.use(morgan("dev"));
+app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-app.use("/uploads", express.static(path.join(__dirname, "/uploads")));
+app.use(cookieParser());
+app.use(methodOverride("_method"));
+app.use(express.static(path.join(__dirname, "public")));
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
-// Express session configs
+// Sessions
 app.use(session({
   secret: process.env.SESSION_SECRET || "defaultsecret",
   resave: false,
@@ -98,27 +125,28 @@ app.use(session({
   cookie: { maxAge: 24 * 60 * 60 * 1000 } // 1 day
 }));
 
-// Passport configs
+// Passport config
 app.use(passport.initialize());
 app.use(passport.session());
 passport.use(UserModel.createStrategy());
 passport.serializeUser(UserModel.serializeUser());
 passport.deserializeUser(UserModel.deserializeUser());
 
-// Using imported routes
-app.use('/', authRoutes);
-app.use('/', stockRoutes);
-app.use('/', indexRoutes);
-app.use('/', salesRoutes);
-app.use('/', userRoutes);
-app.use('/', manageRoutes);
+// Routes
+app.use("/", authRoutes);
+app.use("/", stockRoutes);
+app.use("/", indexRoutes);
+app.use("/", salesRoutes);
+app.use("/", userRoutes);
+app.use("/", manageRoutes);
 app.use("/loading", loadingRoutes);
 app.use("/", reportRoutes);
-app.use('/', supplierRoutes);
-app.use('/', customerRoutes);
+app.use("/", supplierRoutes);
+app.use("/", customerRoutes);
 app.use("/manager", managerRoutes);
-app.use('/', notificationRoutes);
-// 404 handler
+app.use("/", notificationRoutes);
+
+// 404
 app.use((req, res) => {
-  res.status(404).send('Oops! Route not found');
+  res.status(404).send("Oops! Route not found");
 });

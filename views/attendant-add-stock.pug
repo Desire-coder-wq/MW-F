@@ -101,10 +101,7 @@ html(lang="en")
                 | Stock Submission Form
               p Fill in the details below to submit a new stock request
 
-            //- Debug info - remove after fixing
-            .debug-info
-              strong Debug Info: 
-              | Make sure your app has: app.use(express.static('public'))
+    
 
             form.stock-form(action="/attendant/add-stock", method="POST", enctype="multipart/form-data")
               //- Product Details
@@ -247,7 +244,8 @@ html(lang="en")
     //- Footer
     footer
       .container
-        p &copy; 2025 Mayondo Wood & Furniture Ltd
+         p &copy; 2025 Mayondo Wood & Furniture Ltd 
+         p Designed by A Rose Desire @ Groundbreaker Talents
 
   script.
     document.addEventListener('DOMContentLoaded', function() {

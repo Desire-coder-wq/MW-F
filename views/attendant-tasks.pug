@@ -147,6 +147,27 @@ html(lang="en")
         border: 1px solid #f5c6cb;
         display: none;
       }
+      .get-all-btn {
+        background: linear-gradient(135deg, #0b880b, #0a6e0a);
+        color: white;
+        border: none;
+        border-radius: 12px;
+        padding: 14px 22px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        text-decoration: none;
+        box-shadow: 0 4px 15px rgba(11, 136, 11, 0.3);
+      }
+      .get-all-btn:hover {
+        background: linear-gradient(135deg, #0a6e0a, #095909);
+        transform: translateY(-3px);
+        box-shadow: 0 6px 20px rgba(11, 136, 11, 0.4);
+      }
 
   body
     .layout
@@ -201,6 +222,9 @@ html(lang="en")
             h1 My Tasks
             h3 View and manage your assigned tasks
           .header-actions
+            button.get-all-btn(onclick="goToAttendantDashboard()")
+              i.fas.fa-arrow-left
+              | Back to Dashboard
             .notification-btn
               i.fas.fa-bell
               .notification-count 0
@@ -282,7 +306,8 @@ html(lang="en")
     //- Footer
     footer
       .container
-        p &copy; 2025 Mayondo Wood & Furniture Ltd
+         p &copy; 2025 Mayondo Wood & Furniture Ltd 
+         p Designed by A Rose Desire @ Groundbreaker Talents
 
   script.
     // Set attendant name if available
@@ -403,6 +428,11 @@ html(lang="en")
       } finally {
         taskRow.classList.remove('loading');
       }
+    }
+
+    // Function to go back to attendant dashboard
+    function goToAttendantDashboard() {
+      window.location.href = '/attendant-dashboard';
     }
 
     // Add event listener for Escape key to close messages

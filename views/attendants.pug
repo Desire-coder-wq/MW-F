@@ -37,12 +37,8 @@ html(lang="en")
         font-weight: bold;
         cursor: pointer;
       }
-      .close:hover {
-        color: black;
-      }
-      .form-group {
-        margin-bottom: 15px;
-      }
+      .close:hover { color: black; }
+      .form-group { margin-bottom: 15px; }
       .form-group label {
         display: block;
         margin-bottom: 5px;
@@ -76,7 +72,7 @@ html(lang="en")
         font-weight: normal;
       }
       .btn-assign {
-        background: #2c5aa0;
+        background: #28a745;
         color: white;
         border: none;
         padding: 12px 25px;
@@ -86,9 +82,7 @@ html(lang="en")
         width: 100%;
         margin-top: 10px;
       }
-      .btn-assign:hover {
-        background: #1e3d6f;
-      }
+      .btn-assign:hover { background: #81b53eff; }
       .btn-task {
         background: #28a745;
         color: white;
@@ -99,9 +93,7 @@ html(lang="en")
         font-size: 12px;
         margin-left: 5px;
       }
-      .btn-task:hover {
-        background: #218838;
-      }
+      .btn-task:hover { background: #218838; }
       .alert-message {
         padding: 10px 15px;
         margin: 10px 0;
@@ -123,6 +115,19 @@ html(lang="en")
         color: #2c5aa0;
         font-size: 20px;
       }
+      .back-btn {
+        background: #1e293b;
+        color: white;
+        border: none;
+        padding: 10px 18px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .back-btn:hover { background: #334155; }
 
   body
     .layout
@@ -169,6 +174,9 @@ html(lang="en")
             h1 Attendants Monitoring
             h3 View and manage attendant activities
           .header-actions
+            button.back-btn(onclick="goToManagerDashboard()")
+              i.fas.fa-arrow-left
+              | Back to Manager Dashboard
             .notification-btn
               i.fas.fa-bell
               .notification-count 0
@@ -178,7 +186,6 @@ html(lang="en")
 
       //- Main Content
       .container
-        //- Display messages
         if message
           .alert-message.alert-success= message
         if error
@@ -238,7 +245,7 @@ html(lang="en")
                       i.fas.fa-users
                       | No attendants found.
 
-    //- Task Assignment Modal - SIMPLIFIED VERSION
+    //- Task Assignment Modal
     #taskModal.modal
       .modal-content
         span.close(onclick="closeAssignTaskModal()") &times;
@@ -289,10 +296,10 @@ html(lang="en")
             i.fas.fa-paper-plane
             | Assign Task
 
-    //- Footer
     footer
       .container
-        p &copy; 2025 Mayondo Wood & Furniture Ltd
+         p &copy; 2025 Mayondo Wood & Furniture Ltd 
+         p Designed by A Rose Desire @ Groundbreaker Talents
 
   script.
     function openAssignTaskModal(attendantId = '', attendantName = '') {
@@ -304,8 +311,6 @@ html(lang="en")
       }
       
       modal.style.display = 'block';
-      
-      // Set minimum date to today
       const today = new Date().toISOString().slice(0, 16);
       document.getElementById('dueDate').min = today;
     }
@@ -313,19 +318,18 @@ html(lang="en")
     function closeAssignTaskModal() {
       const modal = document.getElementById('taskModal');
       modal.style.display = 'none';
-      // Reset form when closing
       document.getElementById('taskForm').reset();
     }
 
-    // Close modal when clicking outside
-    window.onclick = function(event) {
-      const modal = document.getElementById('taskModal');
-      if (event.target === modal) {
-        closeAssignTaskModal();
-      }
+    function goToManagerDashboard() {
+      window.location.href = "/manager-dashboard"; // update route if different
     }
 
-    // Set manager name if available
+    window.onclick = function(event) {
+      const modal = document.getElementById('taskModal');
+      if (event.target === modal) closeAssignTaskModal();
+    }
+
     document.addEventListener('DOMContentLoaded', function() {
       const managerName = '#{user ? user.name : "Manager"}';
       document.querySelector('.user-profile span').textContent = managerName;

@@ -12,12 +12,9 @@ const Stock = require("../models/stockModel");
 const Task = require("../models/taskModel");
 const { ensureauthenticated, ensureManager, ensureAgent } = require("../middleware/auth");
 
-// ==================== NOTIFICATION MANAGER ====================
 const NotificationManager = require("../utils/notifications");
 
-// ==================== MULTER CONFIG ====================
 
-// Ensure uploads directory exists
 const uploadDir = path.join(__dirname, "../uploads");
 if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
 
@@ -38,7 +35,7 @@ const upload = multer({
   limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
 });
 
-// ==================== ATTENDANTS ====================
+
 
 // GET: All attendants (Manager)
 router.get("/attendants", ensureauthenticated, ensureManager, async (req, res) => {
@@ -77,7 +74,7 @@ router.post("/attendants/:id/toggle", ensureauthenticated, ensureManager, async 
   }
 });
 
-// ==================== TASK ASSIGNMENT ====================
+
 
 // POST: Assign new task to an attendant
 router.post("/attendants/assign-task", ensureauthenticated, ensureManager, async (req, res) => {
@@ -111,7 +108,6 @@ router.post("/attendants/assign-task", ensureauthenticated, ensureManager, async
   }
 });
 
-// ==================== ATTENDANT TASKS ====================
 
 // GET: Attendant's own tasks
 router.get("/attendant/tasks", ensureauthenticated, ensureAgent, async (req, res) => {
@@ -167,7 +163,7 @@ router.post("/attendant/tasks/:id/complete", ensureauthenticated, ensureAgent, a
       console.log(" Task completion notification sent to manager");
     } catch (notifyError) {
       console.error("Error sending task completion notification:", notifyError);
-      // Don't fail the request if notification fails
+
     }
 
     res.json({ 
@@ -220,7 +216,6 @@ router.post("/attendant/tasks/:id/start", ensureauthenticated, ensureAgent, asyn
     });
   }
 });
-// ==================== STOCK SUBMISSION ====================
 
 // GET: Render stock submission form
 router.get("/attendant/add-stock", ensureauthenticated, ensureAgent, async (req, res) => {
@@ -281,7 +276,7 @@ router.post(
       await submission.save();
       console.log(" Stock submission saved:", submission._id);
 
-      // ==================== NOTIFICATION: Stock requires approval ====================
+
       try {
         await NotificationManager.notifyStockAddition(
           submission._id,

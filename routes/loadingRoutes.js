@@ -1,10 +1,10 @@
 const express = require("express");
 const router = express.Router();
-const NotificationManager = require('../utils/notifications'); // ADD THIS LINE
+const NotificationManager = require("../utils/notifications");
 
 const Loading = require("../models/loadingModel");
 const Stock = require("../models/stockModel");
-const Sale = require("../models/salesModel"); // your actual SalesModel
+const Sale = require("../models/salesModel");
 const Customer = require("../models/customerModel");
 
 const { ensureAgent, ensureauthenticated } = require("../middleware/auth");
@@ -23,33 +23,48 @@ router.get("/offload", ensureAgent, async (req, res) => {
 router.post("/offload", ensureAgent, async (req, res) => {
   try {
     const user = req.user;
-    const { productName, productType, quantity, relatedStock } = req.body;
+    const { productName, productType, quantity } = req.body;
 
+    // Find related stock automatically by product name
+    const relatedStock = await Stock.findOne({ productName });
+    if (!relatedStock) {
+      return res.status(404).send("Stock not found for the given product name");
+    }
+
+    // Create offloading record
     const record = new Loading({
       productName,
       productType,
       quantity,
       operationType: "offloading",
       attendantName: user.name,
-      relatedStock,
+      relatedStock: relatedStock._id,
     });
+
     await record.save();
 
-    await Stock.findByIdAndUpdate(relatedStock, { $inc: { quantity } });
+    // Update stock quantity
+    await Stock.findByIdAndUpdate(relatedStock._id, { $inc: { quantity } });
 
-    // ======= NOTIFICATION: Notify manager about offloading =======
+    // ===== Notify Managers =====
     try {
-      await NotificationManager.notifyOffloadRequest(
-        relatedStock,
-        req.user._id,
-        req.user.name,
-        productName,
-        quantity
-      );
-      console.log(" Offloading notification sent to manager");
+      // Fetch all managers
+      const managers = await require("../models/managerModel").find().lean();
+
+      for (const manager of managers) {
+        await NotificationManager.notifyOffloadRequest(
+          relatedStock._id,
+          req.user._id,
+          req.user.name,
+          productName,
+          quantity,
+          manager._id // recipient
+        );
+      }
+
+      console.log("Offloading notifications sent to manager(s)");
     } catch (notifyError) {
       console.error("Error sending offloading notification:", notifyError);
-      // Don't fail the request if notification fails
     }
 
     res.redirect("/loading/report");
@@ -87,6 +102,7 @@ router.post("/load/:saleId", ensureAgent, async (req, res) => {
     const sale = await Sale.findById(req.params.saleId).populate("customer");
     if (!sale) return res.status(404).send("Sale not found");
 
+    // Create loading record
     const record = new Loading({
       productName: sale.productName,
       productType: sale.productType,
@@ -98,6 +114,7 @@ router.post("/load/:saleId", ensureAgent, async (req, res) => {
     });
     await record.save();
 
+    // Decrease stock
     await Stock.findOneAndUpdate(
       { productName: sale.productName },
       { $inc: { quantity: -sale.quantity } }
@@ -109,13 +126,21 @@ router.post("/load/:saleId", ensureAgent, async (req, res) => {
   }
 });
 
-// ------------------- REPORT -------------------
+// ------------------- Loading Report -------------------
 router.get("/report", ensureauthenticated, async (req, res) => {
   try {
     const user = req.user;
+
     const report = await Loading.find()
-      .populate({ path: "relatedSale", select: "productName customer" }) // populate correctly
-      .populate({ path: "relatedStock", select: "productName quantity" })
+      .populate({
+        path: "relatedSale",
+        select: "productName productType quantity customer",
+        populate: { path: "customer", select: "name contact" }, // nested populate for customer
+      })
+      .populate({
+        path: "relatedStock",
+        select: "productName quantity dateAdded",
+      })
       .sort({ dateTime: -1 });
 
     res.render("loading-report", { report, user });

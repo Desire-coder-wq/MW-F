@@ -6,6 +6,56 @@ html(lang="en")
     title MWF - Sales Entry
     link(rel="stylesheet", href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css")
     link(rel="stylesheet", href="/css/attendant-manage.css")
+    style.
+      .product-option {
+        display: flex;
+        justify-content: space-between;
+        padding: 8px 12px;
+      }
+      .product-name {
+        font-weight: bold;
+      }
+      .product-stock {
+        color: #666;
+        font-size: 0.9em;
+      }
+      .stock-available {
+        color: green;
+      }
+      .stock-low {
+        color: orange;
+        font-weight: bold;
+      }
+      .stock-out {
+        color: red;
+        font-weight: bold;
+      }
+      .stock-info {
+        margin-top: 5px;
+        font-size: 0.85em;
+        padding: 5px;
+        border-radius: 3px;
+        background: #f8f9fa;
+      }
+      .quantity-error {
+        color: red;
+        font-size: 0.8em;
+        display: none;
+      }
+      .btn-back {
+        display: inline-block;
+        background-color: #28a745; /* green */
+        color: white;
+        padding: 8px 16px;
+        border-radius: 6px;
+        text-decoration: none;
+        font-weight: 600;
+        margin-top: 10px;
+        transition: background 0.3s;
+      }
+      .btn-back:hover {
+        background-color: #218838;
+      }
 
   body
     .layout
@@ -62,7 +112,7 @@ html(lang="en")
                 | Sales Entry Form
               p Fill in the details below to record a new sale
 
-            form(action="/sales", method="POST")
+            form(action="/sales", method="POST", id="salesForm")
               fieldset.form-fieldset
                 legend.fieldset-legend(style="color:green")
                   i.fas.fa-user
@@ -89,24 +139,15 @@ html(lang="en")
                   .form-group
                     label(for="productName") Product Name:
                     select#productName(name="productName", required)
-                      option(value="", disabled selected) -- Select Product --
-                      option(value="timber") Timber
-                      option(value="poles") Poles
-                      option(value="hardwood") Hardwood
-                      option(value="softwood") Softwood
-                      option(value="sofa") Sofa
-                      option(value="bed") Bed
-                      option(value="dinningTable") Dinning Table
-                      option(value="Tv-stand") Tv-stand
-                      option(value="Office-chair") Office-chair
+                      option(value="", disabled selected) -- Loading Products --
+                    .stock-info(id="stockInfo")
                   .form-group
                     label(for="productType") Product Type:
-                    select#productType(name="productType", required)
-                      option(value="Wood") Wood
-                      option(value="Furniture") Furniture
+                    input#productType(type="text", name="productType", readonly, style="background-color: #f8f9fa;")
                   .form-group
                     label(for="quantity") Quantity:
                     input#quantity(type="number", name="quantity", min="1", required)
+                    .quantity-error(id="quantityError")
                   .form-group
                     label(for="price") Price per Unit (UGX):
                     input#price(type="number", name="price", min="0", required)
@@ -139,10 +180,138 @@ html(lang="en")
                   textarea#notes(name="notes", rows="3", placeholder="Any remarks...")
 
               .form-actions
-                button.submit-btn(type="submit")
+                button.submit-btn(type="submit", id="submitBtn")
                   i.fas.fa-save
                   | Record Sale
+                a.btn-back(href="/attendant-dashboard")
+                  | ← Back to Dashboard
+
+    script.
+      document.addEventListener('DOMContentLoaded', function() {
+        const productSelect = document.getElementById('productName');
+        const productTypeInput = document.getElementById('productType');
+        const priceInput = document.getElementById('price');
+        const quantityInput = document.getElementById('quantity');
+        const stockInfoDiv = document.getElementById('stockInfo');
+        const quantityErrorDiv = document.getElementById('quantityError');
+        const submitBtn = document.getElementById('submitBtn');
+        const salesForm = document.getElementById('salesForm');
+
+        let products = [];
+
+        async function loadProducts() {
+          try {
+            productSelect.innerHTML = '<option value="" disabled selected>Loading products...</option>';
+            const response = await fetch('/api/products-with-stock');
+            products = await response.json();
+
+            if (products.length === 0) {
+              productSelect.innerHTML = '<option value="" disabled selected>No products available</option>';
+              return;
+            }
+
+            productSelect.innerHTML = '<option value="" disabled selected>-- Select Product --</option>';
+
+            products.forEach(product => {
+              const option = document.createElement('option');
+              option.value = product.productName;
+              option.setAttribute('data-product-type', product.productType);
+              option.setAttribute('data-selling-price', product.sellingPrice);
+              option.setAttribute('data-stock-quantity', product.quantity);
+
+              let stockClass = 'stock-available';
+              if (product.quantity === 0) {
+                stockClass = 'stock-out';
+              } else if (product.quantity < 10) {
+                stockClass = 'stock-low';
+              }
+
+              option.innerHTML = `
+                <div class="product-option">
+                  <span class="product-name">${product.productName}</span>
+                  <span class="product-stock ${stockClass}">Stock: ${product.quantity}</span>
+                </div>
+              `;
+              
+              productSelect.appendChild(option);
+            });
+
+          } catch (error) {
+            console.error('Error loading products:', error);
+            productSelect.innerHTML = '<option value="" disabled selected>Error loading products</option>';
+          }
+        }
+
+        productSelect.addEventListener('change', function() {
+          const selectedOption = this.options[this.selectedIndex];
+          const productType = selectedOption.getAttribute('data-product-type');
+          const sellingPrice = selectedOption.getAttribute('data-selling-price');
+          const stockQuantity = parseInt(selectedOption.getAttribute('data-stock-quantity'));
+
+          productTypeInput.value = productType || '';
+          priceInput.value = sellingPrice || '';
+
+          updateStockInfo(stockQuantity);
+          quantityInput.value = '';
+          quantityErrorDiv.style.display = 'none';
+          quantityErrorDiv.textContent = '';
+        });
+
+        quantityInput.addEventListener('input', function() {
+          const selectedOption = productSelect.options[productSelect.selectedIndex];
+          const stockQuantity = parseInt(selectedOption.getAttribute('data-stock-quantity'));
+          const enteredQuantity = parseInt(this.value) || 0;
+
+          if (enteredQuantity > stockQuantity) {
+            quantityErrorDiv.style.display = 'block';
+            quantityErrorDiv.textContent = `Only ${stockQuantity} units available in stock!`;
+            submitBtn.disabled = true;
+          } else if (enteredQuantity <= 0) {
+            quantityErrorDiv.style.display = 'block';
+            quantityErrorDiv.textContent = 'Quantity must be at least 1';
+            submitBtn.disabled = true;
+          } else {
+            quantityErrorDiv.style.display = 'none';
+            quantityErrorDiv.textContent = '';
+            submitBtn.disabled = false;
+          }
+        });
+
+        function updateStockInfo(stockQuantity) {
+          if (stockQuantity === 0) {
+            stockInfoDiv.innerHTML = '<span style="color: red;">❌ Out of Stock</span>';
+            quantityInput.disabled = true;
+            submitBtn.disabled = true;
+          } else if (stockQuantity < 10) {
+            stockInfoDiv.innerHTML = `<span style="color: orange;">⚠️ Low Stock: ${stockQuantity} units available</span>`;
+            quantityInput.disabled = false;
+            submitBtn.disabled = false;
+          } else {
+            stockInfoDiv.innerHTML = `<span style="color: green;">✅ In Stock: ${stockQuantity} units available</span>`;
+            quantityInput.disabled = false;
+            submitBtn.disabled = false;
+          }
+        }
+
+        salesForm.addEventListener('submit', function(e) {
+          const selectedOption = productSelect.options[productSelect.selectedIndex];
+          const stockQuantity = parseInt(selectedOption.getAttribute('data-stock-quantity'));
+          const enteredQuantity = parseInt(quantityInput.value) || 0;
+
+          if (enteredQuantity > stockQuantity) {
+            e.preventDefault();
+            alert(`Cannot proceed! You are trying to sell ${enteredQuantity} units but only ${stockQuantity} are available in stock.`);
+            return false;
+          }
+        });
+
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('date').value = today;
+
+        loadProducts();
+      });
 
     footer
       .container
-        p &copy; 2025 Mayondo Wood & Furniture Ltd
+        p &copy; 2025 Mayondo Wood & Furniture Ltd 
+        p Designed by A Rose Desire @ Groundbreaker Talents

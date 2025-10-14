@@ -112,10 +112,7 @@ html(lang="en")
               a(href="/loading/pending")
                 i.fas.fa-clock
                 span Pending Sales
-            li
-              a(href="/assign-tasks")
-                i.fas.fa-tasks
-                span Assign Tasks
+
             li
               a(href="/logout")
                 i.fas.fa-sign-out-alt
@@ -128,20 +125,54 @@ html(lang="en")
             h1 Manager Dashboard
             h3 Manage your team and operations
           .header-actions
-            // Include Notification Dropdown
-            include notification-dropdown
+            // Notification Dropdown
+            .notification-container
+              button.notification-bell#notificationBell
+                i.fas.fa-bell
+                if unreadCount > 0
+                  span.notification-badge(style="position: absolute; top: 0; right: 0; background: red; color: white; border-radius: 50%; width: 18px; height: 18px; font-size: 0.7rem; display: flex; align-items: center; justify-content: center;")= unreadCount
+              .dropdown-menu.notification-dropdown#notificationDropdown
+                .notification-header(style="padding: 15px; border-bottom: 1px solid #e1e5e9; display: flex; justify-content: space-between; align-items: center;")
+                  h5.mb-0 Notifications
+                  button.btn.btn-sm.btn-outline-secondary#markAllReadBtn Mark all as read
+                .notification-list
+                  if notifications && notifications.length > 0
+                    each notification in notifications.slice(0, 5)
+                      .notification-item(class=notification.status === 'unread' ? 'unread' : 'read')
+                        .notification-icon(class=`priority-${notification.priority}`)
+                          if notification.type === 'stock_approval'
+                            i.fas.fa-boxes
+                          else if notification.type === 'pending_sales'
+                            i.fas.fa-clock
+                          else if notification.type === 'low_stock'
+                            i.fas.fa-exclamation-triangle
+                          else if notification.type === 'new_sale'
+                            i.fas.fa-shopping-cart
+                          else
+                            i.fas.fa-info-circle
+                        .notification-content
+                          p
+                            strong= notification.title
+                          p(style="margin: 5px 0; font-size: 0.8rem;")= notification.message
+                          small.text-muted= new Date(notification.createdAt).toLocaleString()
+                        if notification.status === 'unread'
+                          button.mark-read-btn.btn.btn-sm.btn-outline-success(data-id=notification._id, style="border: none; background: none; color: #28a745;")
+                            i.fas.fa-check
+                  else
+                    .notification-item(style="text-align: center; padding: 20px;")
+                      p No notifications
 
             // User Profile
             .user-profile
               img.profile-pic(
-                src=(user && user.profileImage) ? user.profileImage : '/images/default-profile.png',
+                src=(user && user.profilePic) ? user.profilePic: '/images/default-profile.png',
                 alt="Profile Picture",
                 onclick="window.location.href='/manager/update-profile'"
               )
               span#managerName= (user && user.name) ? user.name : 'Manager'
               a.update-link(href="/manager/update-profile") Update Profile
 
-      // Main Content - NO DEBUG INFO
+      // Main Content
       .container
         .cards
           .card(onclick="window.location.href='/userList'")
@@ -208,22 +239,7 @@ html(lang="en")
               p View attendants and monitor tasks
             .card-action
               button.go-btn Go
-          .card(onclick="window.location.href='/loading/pending'")
-            .card-icon
-              i.fas.fa-hourglass-half
-            .card-content
-              h4 Pending Sales
-              p Load pending sales
-            .card-action
-              button.go-btn Go
-          .card(onclick="window.location.href='/loading/offload'")
-            .card-icon
-              i.fas.fa-truck-loading
-            .card-content
-              h4 Offload Stock
-              p Offload history
-            .card-action
-              button.go-btn Go
+          
           .card(onclick="window.location.href='/loading/report'")
             .card-icon
               i.fas.fa-clipboard-check
@@ -288,16 +304,23 @@ html(lang="en")
               p Manage system configuration
             .card-action
               button.go-btn Go
+          // New Notification Card
+          .card(onclick="window.location.href='/notifications-page'")
+            .card-icon
+              i.fas.fa-bell
+            .card-content
+              h4 Notifications
+              p View and manage all notifications
+            .card-action
+              button.go-btn Go
 
     footer
       .container
-        p © 2025 Mayondo Wood & Furniture Ltd
+         p &copy; 2025 Mayondo Wood & Furniture Ltd 
+         p Designed by A Rose Desire @ Groundbreaker Talents
 
     // Bootstrap JS
     script(src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js")
-
-    // Include Notification Script
-    include notification-script
 
     script.
       // Sidebar toggle functionality
@@ -319,8 +342,162 @@ html(lang="en")
             }
             const onclick = this.getAttribute('onclick');
             if (onclick) {
-              window.location.href = this.getAttribute('onclick').replace("window.location.href='", "").replace("'", "");
+              window.location.href = onclick.replace("window.location.href='", "").replace("'", "");
             }
           });
         });
+
+        // Notification Bell Functionality
+        const notificationBell = document.getElementById('notificationBell');
+        const notificationDropdown = document.getElementById('notificationDropdown');
+        
+        if (notificationBell && notificationDropdown) {
+          // Toggle dropdown on bell click
+          notificationBell.addEventListener('click', function(e) {
+            e.stopPropagation();
+            notificationDropdown.classList.toggle('show');
+          });
+
+          // Close dropdown when clicking outside
+          document.addEventListener('click', function() {
+            notificationDropdown.classList.remove('show');
+          });
+
+          // Mark as read functionality
+          document.querySelectorAll('.mark-read-btn').forEach(button => {
+            button.addEventListener('click', function(e) {
+              e.stopPropagation();
+              const notificationId = this.getAttribute('data-id');
+              markAsRead(notificationId, this);
+            });
+          });
+
+          // Mark all as read
+          const markAllBtn = document.getElementById('markAllReadBtn');
+          if (markAllBtn) {
+            markAllBtn.addEventListener('click', function(e) {
+              e.stopPropagation();
+              markAllAsRead();
+            });
+          }
+        }
+
+        function markAsRead(notificationId, button) {
+          fetch(`/notifications/${notificationId}/read`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            }
+          })
+          .then(response => response.json())
+          .then(data => {
+            if (data.success) {
+              // Update UI
+              const notificationItem = button.closest('.notification-item');
+              notificationItem.classList.remove('unread');
+              notificationItem.classList.add('read');
+              button.remove();
+              
+              // Update badge count
+              updateNotificationBadge();
+            }
+          })
+          .catch(error => console.error('Error:', error));
+        }
+
+        function markAllAsRead() {
+          fetch('/notifications/mark-all-read', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            }
+          })
+          .then(response => response.json())
+          .then(data => {
+            if (data.success) {
+              // Update all notifications to read
+              document.querySelectorAll('.notification-item.unread').forEach(item => {
+                item.classList.remove('unread');
+                item.classList.add('read');
+                
+                // Remove mark as read buttons
+                const markReadBtn = item.querySelector('.mark-read-btn');
+                if (markReadBtn) markReadBtn.remove();
+              });
+              
+              // Update badge count
+              updateNotificationBadge();
+            }
+          })
+          .catch(error => console.error('Error:', error));
+        }
+
+        function updateNotificationBadge() {
+          const unreadCount = document.querySelectorAll('.notification-item.unread').length;
+          const badge = document.querySelector('.notification-badge');
+          
+          if (badge) {
+            if (unreadCount === 0) {
+              badge.remove();
+            } else {
+              badge.textContent = unreadCount;
+            }
+          }
+        }
+
+        // Real-time notifications with Socket.io
+        const socket = io();
+        
+        socket.on('new-notification', function(notification) {
+          // Add new notification to the dropdown
+          const notificationList = document.querySelector('.notification-list');
+          const newNotification = createNotificationElement(notification);
+          
+          if (notificationList.children.length >= 5) {
+            notificationList.removeChild(notificationList.lastChild);
+          }
+          
+          notificationList.insertBefore(newNotification, notificationList.firstChild);
+          
+          // Update badge
+          updateNotificationBadge();
+        });
+
+        function createNotificationElement(notification) {
+          const div = document.createElement('div');
+          div.className = `notification-item ${notification.status === 'unread' ? 'unread' : 'read'}`;
+          
+          const iconClass = getNotificationIcon(notification.type);
+          const priorityClass = `priority-${notification.priority}`;
+          
+          div.innerHTML = `
+            <div class="notification-icon ${priorityClass}">
+              <i class="fas ${iconClass}"></i>
+            </div>
+            <div class="notification-content">
+              <p><strong>${notification.title}</strong></p>
+              <p style="margin: 5px 0; font-size: 0.8rem;">${notification.message}</p>
+              <small class="text-muted">${new Date(notification.createdAt).toLocaleString()}</small>
+            </div>
+            ${notification.status === 'unread' ? 
+              `<button class="mark-read-btn btn btn-sm btn-outline-success" data-id="${notification._id}" style="border: none; background: none; color: #28a745;">
+                <i class="fas fa-check"></i>
+              </button>` : ''
+            }
+          `;
+          
+          return div;
+        }
+
+        function getNotificationIcon(type) {
+          const icons = {
+            'stock_approval': 'fa-boxes',
+            'pending_sales': 'fa-clock',
+            'low_stock': 'fa-exclamation-triangle',
+            'new_sale': 'fa-shopping-cart',
+            'task_completed': 'fa-check-circle',
+            'offload_request': 'fa-truck-loading'
+          };
+          return icons[type] || 'fa-info-circle';
+        }
       });

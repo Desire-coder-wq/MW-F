@@ -1,26 +1,23 @@
 const mongoose = require("mongoose");
 
 const customerSchema = new mongoose.Schema({
-  name: { 
+ customerName: { 
     type: String, 
     required: true, 
     trim: true 
   },
-  phone: { 
+ customerPhone: { 
     type: String, 
     required: true, 
     trim: true 
   },
-  email: { 
+  customerEmail: { 
     type: String, 
     trim: true,
     lowercase: true
   },
-  contact: {
-    type: String,
-    default: "",
-  },
-  address: { 
+
+  customerAddress: { 
     type: String, 
     trim: true 
   },

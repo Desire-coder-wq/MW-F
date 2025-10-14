@@ -18,7 +18,7 @@ html(lang="en")
         nav
           ul
             li
-              a(href="/dashboard")
+              a(href="/manager-dashboard")
                 i.fas.fa-home
                 span Dashboard
             li
@@ -59,6 +59,10 @@ html(lang="en")
             .user-profile
               i.fas.fa-user-circle
               span#userName(data-user-name=user ? user.name : 'User')= user ? user.name : 'User'
+            //- Back Button to Manager Dashboard
+            button.get-all-btn(onclick="goToManagerDashboard()", style="background:#1e293b; color:white; margin-left:15px;")
+              i.fas.fa-arrow-left
+              | Back to Manager Dashboard
 
       //- Main Content
       .container
@@ -223,4 +227,9 @@ html(lang="en")
         .invoice-preview#invoicePreview
           //- Invoice content will be generated here by JavaScript
 
+    //- Scripts
+    script.
+      function goToManagerDashboard() {
+        window.location.href = "/manager-dashboard";
+      }
     script(src="/js/settings.js")

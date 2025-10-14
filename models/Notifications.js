@@ -1,11 +1,9 @@
-// models/Notification.js
 const mongoose = require('mongoose');
 
 const notificationSchema = new mongoose.Schema({
   type: {
     type: String,
-    required: true,
-    enum: ['stock_approval', 'pending_sales', 'offload_request', 'low_stock', 'new_sale', 'task_completed', 'stock_approved', 'stock_rejected']
+    required: true
   },
   title: {
     type: String,
@@ -17,7 +15,7 @@ const notificationSchema = new mongoose.Schema({
   },
   priority: {
     type: String,
-    enum: ['low', 'medium', 'high', 'urgent'],
+    enum: ['low', 'medium', 'high'],
     default: 'medium'
   },
   relatedId: {
@@ -26,31 +24,36 @@ const notificationSchema = new mongoose.Schema({
   },
   onModel: {
     type: String,
-    enum: ['Stock', 'Sale', 'Task', 'User', 'StockSubmission']
+    enum: ['StockSubmission', 'User', 'OtherModel']
   },
   initiatedBy: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
     required: true
   },
+  userModel: {
+    type: String,
+    default: 'User'
+  },
+  recipients: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User'
+  }],
   status: {
     type: String,
-    enum: ['unread', 'read', 'action_required', 'completed'],
+    enum: ['unread', 'read', 'dismissed'],
     default: 'unread'
   },
+  actionUrl: String,
   actionRequired: {
     type: Boolean,
     default: false
-  },
-  actionUrl: {
-    type: String
   }
 }, {
   timestamps: true
 });
 
-// Index for efficient queries
-notificationSchema.index({ status: 1, createdAt: -1 });
-notificationSchema.index({ type: 1, status: 1 });
+// Index for better performance
+notificationSchema.index({ recipients: 1, status: 1, createdAt: -1 });
 
 module.exports = mongoose.model('Notification', notificationSchema);

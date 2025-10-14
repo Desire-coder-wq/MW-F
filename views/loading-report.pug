@@ -6,10 +6,52 @@ html(lang="en")
     title MWF — Loading/Offloading Report
     link(rel="stylesheet", href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css")
     link(rel="stylesheet", href="/css/attendant-manage.css")
+    style.
+      .pending-badge {
+        background-color: #077215ff;
+        color: white;
+        padding: 4px 10px;
+        border-radius: 12px;
+        font-size: 0.85rem;
+      }
+      .completed-badge {
+        background-color: #28a745;
+        color: white;
+        padding: 4px 10px;
+        border-radius: 12px;
+        font-size: 0.85rem;
+      }
+      .table-container {
+        overflow-x: auto;
+      }
+      td, th {
+        text-align: center;
+        padding: 8px;
+      }
+      .back-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background-color: #077215ff;
+        color: #fff;
+        padding: 8px 14px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-size: 0.9rem;
+        transition: background 0.2s;
+      }
+      .back-btn:hover {
+        background-color: #3d9f4aff;
+      }
+      .header-actions {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+      }
 
   body
     .layout
-      //- Sidebar
+      // Sidebar
       aside.sidebar
         .logo-container
           img.logo-img(src="/images/logo 2.png", alt="MWF Logo")
@@ -37,68 +79,89 @@ html(lang="en")
                 i.fas.fa-sign-out-alt
                 span Logout
 
-      //- Topbar
+      // Topbar
       #topbar
         .header-content
           .company-info
             h1 Loading & Offloading Report
-            h3 View loading and offloading operations
+            h3 Combined report for all stock operations
           .header-actions
             .notification-btn
               i.fas.fa-bell
               .notification-count 0
             .user-profile
               i.fas.fa-user-circle
-              span#userName User
+              span#userName #{user ? user.name : 'User'}
 
-      //- Main Content
+      // Main Content
       .container
-        //- Table Section
         .table-section
+          // Back Button
+          a.back-btn(href="/manager-dashboard")
+            i.fas.fa-arrow-left
+            | Back
+
           .table-header
             h3
               i.fas.fa-clipboard-list
-              | Loading/Offloading Operations
-          .table-container
-            table.sales-table
-              thead
-                tr
-                  th 
-                    i.fas.fa-cogs
-                    | Operation
-                  th 
-                    i.fas.fa-cube
-                    | Product
-                  th 
-                    i.fas.fa-boxes
-                    | Quantity
-                  th 
-                    i.fas.fa-user
-                    | Attendant
-                  th 
-                    i.fas.fa-calendar
-                    | Date
-              tbody
-                each r in report
-                  tr
-                    td
-                      if r.operationType === 'loading'
-                        span.pending-badge Loading
-                      else
-                        span.completed-badge Offloading
-                    td= r.productName
-                    td= r.quantity
-                    td= r.attendantName
-                    td= r.dateTime.toLocaleDateString()
+              |  Loading / Offloading Operations
 
-    //- Footer
+          .table-container
+            if report.length
+              table.sales-table
+                thead
+                  tr
+                    th 
+                      i.fas.fa-cogs
+                      |  Operation
+                    th 
+                      i.fas.fa-cube
+                      |  Product
+                    th 
+                      i.fas.fa-boxes
+                      |  Quantity
+                    th 
+                      i.fas.fa-link
+                      |  Reference
+                    th 
+                      i.fas.fa-user
+                      |  Attendant
+                    th 
+                      i.fas.fa-calendar
+                      |  Date
+                tbody
+                  each r in report
+                    tr
+                      // Operation Type
+                      td
+                        if r.operationType === 'loading'
+                          span.pending-badge Loading
+                        else
+                          span.completed-badge Offloading
+
+                      // Product
+                      td= r.productName
+
+                      // Quantity
+                      td= r.quantity
+
+                      // Reference (Customer or Stock)
+                      td
+                        if r.operationType === 'loading'
+                          = r.customerName || (r.relatedSale && r.relatedSale.customer ? r.relatedSale.customer.name : 'N/A')
+                        else
+                          = r.relatedStock ? r.relatedStock.productName : 'N/A'
+
+                      // Attendant
+                      td= r.attendantName
+
+                      // Date
+                      td= new Date(r.dateTime).toLocaleString()
+            else
+              p(style="text-align:center; margin-top:2rem;") No loading or offloading records found.
+
+    // Footer
     footer
       .container
-        p &copy; 2025 Mayondo Wood & Furniture Ltd
-
-  script.
-    // Set user name if available
-    document.addEventListener('DOMContentLoaded', function() {
-      const userName = '#{user ? user.name : "User"}';
-      document.getElementById('userName').textContent = userName;
-    });
+         p &copy; 2025 Mayondo Wood & Furniture Ltd 
+         p Designed by A Rose Desire @ Groundbreaker Talents

@@ -9,6 +9,17 @@ const NotificationManager = require('../utils/notifications'); // ADD THIS LINE
 
 const { ensureauthenticated, ensureAgent, ensureManager } = require('../middleware/auth');
 
+// ------------------- GET Products with Stock API Endpoint -------------------
+router.get('/api/products-with-stock', ensureauthenticated, async (req, res) => {
+  try {
+    const products = await Stock.find({}, 'productName productType quantity sellingPrice').lean();
+    res.json(products);
+  } catch (err) {
+    console.error("Error fetching products with stock:", err.message);
+    res.status(500).json({ error: 'Failed to fetch products' });
+  }
+});
+
 // ------------------- GET Sales Entry Form (Attendant only) -------------------
 router.get('/sales', ensureauthenticated, ensureAgent, async (req, res) => {
   try {
@@ -91,26 +102,33 @@ router.post('/sales', ensureauthenticated, ensureAgent, async (req, res) => {
 
     // ======= NOTIFICATION: Notify manager about sale =======
     try {
-      // Notify about pending sale that needs loading
-      await NotificationManager.notifyPendingSales(
-        sale._id,
-        req.user._id,
-        req.user.name,
-        customerName,
-        total
-      );
+      // Get all managers to notify
+      const managers = await UserModel.find({ role: 'manager' }).lean();
 
-      // Notify about large sales (over $1000)
-      if (total > 1000) {
-        await NotificationManager.notifyLargeSale(
+      for (const manager of managers) {
+        // Pending sale that needs loading
+        await NotificationManager.notifyPendingSales(
           sale._id,
           req.user._id,
           req.user.name,
+          customerName,
           total,
-          customerName
+          manager._id // <- recipient
         );
+
+        // Large sales over $1000
+        if (total > 1000) {
+          await NotificationManager.notifyLargeSale(
+            sale._id,
+            req.user._id,
+            req.user.name,
+            total,
+            customerName,
+            manager._id // <- recipient
+          );
+        }
       }
-      console.log(" Sale notifications sent to manager");
+      console.log("Sale notifications sent to manager(s)");
     } catch (notifyError) {
       console.error("Error sending sale notifications:", notifyError);
       // Don't fail the request if notification fails

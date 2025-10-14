@@ -264,34 +264,7 @@ html(lang="en")
             h1 Stock Entry
             h3 Add new stock to inventory
           .header-actions
-            .notification-btn#notificationBtn
-              i.fas.fa-bell
-              .notification-count 3
-              .notification-dropdown#notificationDropdown
-                .notification-header
-                  h4 Notifications
-                  span.mark-read Mark all as read
-                .notification-list
-                  .notification-item.unread
-                    .notification-icon
-                      i.fas.fa-exclamation-circle
-                    .notification-content
-                      p New stock request requires approval
-                      span.notification-time 2 min ago
-                  .notification-item.unread
-                    .notification-icon
-                      i.fas.fa-shopping-cart
-                    .notification-content
-                      p Large sale completed by attendant John
-                      span.notification-time 15 min ago
-                  .notification-item
-                    .notification-icon
-                      i.fas.fa-tasks
-                    .notification-content
-                      p Task "Inventory Check" is due tomorrow
-                      span.notification-time 1 hour ago
-                .notification-footer
-                  a(href="/notifications") View all notifications
+           
             .user-profile
               i.fas.fa-user-circle
               span #{user ? user.name : 'User'}
@@ -445,27 +418,12 @@ html(lang="en")
                   i.fas.fa-plus-circle
                   | Add Stock
 
-        //- Suppliers and Customers Table Section (placeholder for now)
-        .info-section
-          h3
-            i.fas.fa-table
-            | Suppliers and Customers Information
-          table
-            thead
-              tr
-                th Supplier Name
-                th Email
-                th Contact
-                th Address
-                th Customer Name
-                th Customer Contact
-                th Customer Email
-            tbody
-              //- This will later be dynamically filled from backend
+ 
 
     footer
       .container
-        p &copy; 2025 Mayondo Wood & Furniture Ltd
+         p &copy; 2025 Mayondo Wood & Furniture Ltd 
+         p Designed by A Rose Desire @ Groundbreaker Talents
 
   script.
     document.addEventListener('DOMContentLoaded', function() {

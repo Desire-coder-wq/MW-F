@@ -1,4 +1,4 @@
-/* ========== Invoices Page Specific Styles ========== */
+/* ========== INVOICES PAGE SPECIFIC STYLES ========== */
 
 /* Page Header */
 .page-header {
@@ -110,10 +110,25 @@
   font-size: 0.9rem;
 }
 
-/* Invoice Cards */
+/* Invoice Cards Container */
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 25px;
+  margin-bottom: 40px;
+  width: 100%;
+}
+
+/* Invoice Card Styling */
 .invoice-card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 25px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  text-align: left;
   transition: all 0.3s ease;
-  height: auto;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  width: 100%;
 }
 
 .invoice-card:hover {
@@ -138,9 +153,9 @@
   font-weight: 700;
 }
 
-.invoice-meta .date {
+.invoice-meta p.date {
   color: #64748b;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
 }
 
 .invoice-status {
@@ -178,10 +193,10 @@
 }
 
 .detail-item {
-  margin-bottom: 8px;
-  font-size: 0.9rem;
   display: flex;
   justify-content: space-between;
+  margin-bottom: 8px;
+  font-size: 0.9rem;
 }
 
 .detail-item strong {
@@ -191,23 +206,67 @@
 
 .detail-item span {
   color: #64748b;
-  text-align: right;
 }
 
 .card-actions {
   display: flex;
   gap: 8px;
-  margin-top: auto;
+  margin-top: 20px;
   flex-wrap: wrap;
 }
 
-.print-btn {
-  background: linear-gradient(135deg, #8b5cf6, #7c3aed) !important;
+.action-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  text-decoration: none;
+}
+
+.view-btn {
+  background: #2563eb;
   color: white;
 }
 
+.update-btn {
+  background: #f59e0b;
+  color: white;
+}
+
+.print-btn {
+  background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+  color: white;
+}
+
+.delete-btn {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  color: white;
+}
+
+.view-btn:hover {
+  background: #1d4ed8;
+  transform: translateY(-2px);
+}
+
+.update-btn:hover {
+  background: #d97706;
+  transform: translateY(-2px);
+}
+
 .print-btn:hover {
-  background: linear-gradient(135deg, #7c3aed, #6d28d9) !important;
+  background: linear-gradient(135deg, #7c3aed, #6d28d9);
+  transform: translateY(-2px);
+}
+
+.delete-btn:hover {
+  background: linear-gradient(135deg, #dc2626, #b91c1c);
+  transform: translateY(-2px);
 }
 
 /* Empty State */
@@ -219,6 +278,7 @@
   border-radius: 16px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
   border: 1px solid rgba(255, 255, 255, 0.5);
+  width: 100%;
 }
 
 .empty-state i {
@@ -237,6 +297,7 @@
   margin-bottom: 30px;
   font-size: 1rem;
 }
+
 
 /* Modal Styles */
 .modal {
@@ -258,6 +319,8 @@
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
   position: relative;
   animation: modalAppear 0.3s ease-out;
+  max-width: 600px;
+  width: 90%;
 }
 
 @keyframes modalAppear {
@@ -277,6 +340,9 @@
   font-weight: bold;
   cursor: pointer;
   transition: color 0.3s ease;
+  position: absolute;
+  right: 15px;
+  top: 10px;
 }
 
 .modal .close:hover {
@@ -361,10 +427,32 @@
   margin-top: 20px;
 }
 
+/* Success Modal */
+#successModal .modal-content {
+  max-width: 400px;
+  text-align: center;
+}
+
+.modal-icon {
+  font-size: 48px;
+  color: #0b880b;
+  margin-bottom: 20px;
+}
+
 /* Responsive Design */
 @media (max-width: 1024px) {
   .stats-cards {
     grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .cards {
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .stats-cards {
+    grid-template-columns: 1fr;
   }
   
   .page-header {
@@ -376,12 +464,6 @@
   .header-actions {
     width: 100%;
     justify-content: flex-start;
-  }
-}
-
-@media (max-width: 768px) {
-  .stats-cards {
-    grid-template-columns: 1fr;
   }
   
   .invoice-header {
@@ -411,14 +493,9 @@
     justify-content: center;
   }
   
-  .header-actions {
-    flex-direction: column;
-    width: 100%;
-  }
-  
-  .get-all-btn {
-    width: 100%;
-    justify-content: center;
+  footer {
+    margin-left: 70px;
+    width: calc(100% - 70px);
   }
 }
 
@@ -444,5 +521,17 @@
   
   .detail-item span {
     text-align: left;
+  }
+  
+  .cards {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Mobile sidebar adjustment */
+@media (max-width: 768px) {
+  footer {
+    margin-left: 0;
+    width: 100%;
   }
 }
