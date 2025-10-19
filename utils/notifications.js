@@ -15,7 +15,7 @@ class NotificationManager {
     }
   }
 
-  // Get notifications for manager
+  // Get notifications for manager - FIXED: Removed problematic populate
   static async getManagerNotifications(managerId, limit = 10) {
     try {
       const managerObjectId = this.toObjectId(managerId);
@@ -33,11 +33,9 @@ class NotificationManager {
           { recipients: { $exists: false } }
         ]
       })
-        .populate('initiatedBy', 'name email')
-        .populate('relatedId')
         .sort({ createdAt: -1 })
         .limit(limit)
-        .lean();
+        .lean(); // Use lean() for better performance
 
       console.log('Found notifications:', notifications.length);
       return notifications;
@@ -303,46 +301,46 @@ class NotificationManager {
     }
   }
 
-  //  ADDED: Notify all managers when multiple items are low in stock
-static async notifyLowStock(lowStockItems) {
-  try {
-    if (!Array.isArray(lowStockItems)) {
-      console.warn("⚠️ Expected an array, received:", typeof lowStockItems);
-      return;
+  // FIXED: Notify all managers when multiple items are low in stock
+  // Changed userModel from "System" to null since System model doesn't exist
+  static async notifyLowStock(lowStockItems) {
+    try {
+      if (!Array.isArray(lowStockItems)) {
+        console.warn("⚠️ Expected an array, received:", typeof lowStockItems);
+        return;
+      }
+
+      if (lowStockItems.length === 0) return;
+
+      const managers = await Manager.find({}).select('_id');
+      if (managers.length === 0) {
+        console.warn('No managers found to notify about low stock');
+        return;
+      }
+
+      const recipientIds = managers.map(manager => manager._id);
+
+      const notifications = lowStockItems.map(item => ({
+        type: "low_stock",
+        title: "Low Stock Alert",
+        message: `The product "${item.productName}" is running low on stock (only ${item.quantity} left).`,
+        priority: "high",
+        relatedId: item._id,
+        onModel: "Stock",
+        initiatedBy: null, // System-generated, no specific user
+        userModel: "User", // Changed from "System" to "User"
+        recipients: recipientIds,
+        status: "unread",
+        actionUrl: "/stock",
+        actionRequired: true
+      }));
+
+      await Notification.insertMany(notifications);
+      console.log(` Created ${notifications.length} low stock notifications for managers.`);
+    } catch (error) {
+      console.error('Error creating low stock notifications:', error);
     }
-
-    if (lowStockItems.length === 0) return;
-
-    const managers = await Manager.find({}).select('_id');
-    if (managers.length === 0) {
-      console.warn('No managers found to notify about low stock');
-      return;
-    }
-
-    const recipientIds = managers.map(manager => manager._id);
-
-    const notifications = lowStockItems.map(item => ({
-      type: "low_stock",
-      title: "Low Stock Alert",
-      message: `The product "${item.productName}" is running low on stock (only ${item.quantity} left).`,
-      priority: "high",
-      relatedId: item._id,
-      onModel: "Stock",
-      initiatedBy: null,
-      userModel: "System",
-      recipients: recipientIds,
-      status: "unread",
-      actionUrl: "/stock",
-      actionRequired: true
-    }));
-
-    await Notification.insertMany(notifications);
-    console.log(` Created ${notifications.length} low stock notifications for managers.`);
-  } catch (error) {
-    console.error('Error creating low stock notifications:', error);
   }
-}
-
 
   // Delete a notification
   static async deleteNotification(notificationId) {

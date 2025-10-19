@@ -14,54 +14,55 @@ const notificationSchema = new mongoose.Schema(
         "low_stock"
       ],
     },
-
+    
     title: { type: String, required: true },
     message: { type: String, required: true },
-
+    
     priority: {
       type: String,
       enum: ["low", "medium", "high"],
       default: "medium",
     },
-
+    
     status: {
       type: String,
       enum: ["unread", "read"],
       default: "unread",
       index: true,
     },
-
+    
     recipients: [
       {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "User", // or "Manager" if only managers receive
+        ref: "User",
         index: true,
       },
     ],
-
-    // The user who triggered the notification (manager, attendant, or system)
+    
+    // The user who triggered the notification (manager, attendant, or null for system)
     initiatedBy: {
       type: mongoose.Schema.Types.ObjectId,
       refPath: "userModel",
+      default: null, // Null for system-generated notifications
     },
-
+    
     userModel: {
       type: String,
-      enum: ["User", "Manager", "System"],
+      enum: ["User", "Manager"], // REMOVED "System" - it doesn't exist as a model
       default: "User",
     },
-
+    
     relatedId: {
       type: mongoose.Schema.Types.ObjectId,
       refPath: "onModel",
     },
-
+    
     onModel: {
       type: String,
       enum: ["StockSubmission", "Stock", "Task", "Sale"],
       default: "Stock",
     },
-
+    
     actionUrl: { type: String },
     actionRequired: { type: Boolean, default: false },
   },
