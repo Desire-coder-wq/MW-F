@@ -9,10 +9,10 @@ const salesSchema = new mongoose.Schema({
 
   //  CUSTOMER INFORMATION
   customer: {
-    name: { type: String, required: true, trim: true },
-    phone: { type: String, trim: true },
-    email: { type: String, trim: true },
-    address: { type: String, trim: true },
+  customerName: { type: String, required: true, trim: true },
+  customerPhone: { type: String, trim: true },
+   customerEmail: { type: String, trim: true },
+   customeraddress: { type: String, trim: true },
   },
 
   //  PRODUCT INFORMATION

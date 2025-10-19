@@ -1,7 +1,7 @@
 /* General body styling */
 body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background: linear-gradient(135deg, rgb(228, 216, 199), rgb(232, 176, 103));
+  background-color: #fff;
   margin: 0;
   padding: 0;
   display: flex;
@@ -16,7 +16,7 @@ aside.sidebar {
   top: 0;
   width: 220px;
   height: 100%;
-  background: linear-gradient(135deg, rgb(11, 136, 11), rgb(232, 176, 103));
+  background-color: #065f46;
   color: #fff;
   padding-top: 20px;
 }
@@ -52,7 +52,7 @@ aside.sidebar nav ul li a:hover {
 header#topbar {
   margin-left: 220px; /* match sidebar width */
   padding: 20px;
-  background: linear-gradient(135deg, rgb(11, 136, 11), rgb(232, 176, 103));
+  background-color: #065f46;
   text-align: center;
 }
 
@@ -146,7 +146,6 @@ footer {
   margin-left: 220px; /* match sidebar width */
   padding: 15px;
   text-align: center;
-    background: linear-gradient(135deg, rgb(11, 136, 11), rgb(232, 176, 103));
-  font-size: 0.9rem;
+  background-color: #065f46;
   color: #555;
 }

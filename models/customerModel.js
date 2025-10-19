@@ -3,12 +3,12 @@ const mongoose = require("mongoose");
 const customerSchema = new mongoose.Schema({
  customerName: { 
     type: String, 
-    required: true, 
+    // required: true, 
     trim: true 
   },
  customerPhone: { 
     type: String, 
-    required: true, 
+    // required: true, 
     trim: true 
   },
   customerEmail: { 

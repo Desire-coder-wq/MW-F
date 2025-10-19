@@ -310,5 +310,26 @@ router.delete("/products/:id", async (req, res) => {
     res.status(500).json({ success: false, message: err.message });
   }
 });
+router.get("/stock/get/:id", async (req, res) => {
+  try {
+    const stock = await Stock.findById(req.params.id);
+    if (!stock) return res.status(404).json({ error: "Stock not found" });
+    res.json(stock);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+router.put("/stock/update/:id", async (req, res) => {
+  try {
+    const updated = await Stock.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    res.json({ success: true, product: updated });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Update failed" });
+  }
+});
+
+
 
 module.exports = router;

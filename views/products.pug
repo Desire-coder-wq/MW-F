@@ -49,7 +49,6 @@ html(lang="en")
             h1 Products Gallery
             h3 Explore our premium furniture collection
           .header-actions
-          
             .user-profile
               i.fas.fa-user-circle
               span#userName(data-user-name=user ? user.name : 'User')= user ? user.name : 'User'
@@ -156,6 +155,21 @@ html(lang="en")
                   i.fas.fa-trash
                   | Delete
 
+    //- Edit Stock Modal
+    .modal(style="display: none;" id="editStockModal")
+      .modal-content
+        span.close(style="position: absolute; right: 15px; top: 10px; cursor: pointer;" onclick="closeEditModal()") &times;
+        h3 Edit Product
+        form#editStockForm
+          input(type="hidden" name="_id" id="editStockId")
+          label(for="editProductName") Product Name
+          input#editProductName(type="text" name="productName" required)
+          label(for="editQuantity") Quantity
+          input#editQuantity(type="number" name="quantity" required)
+          label(for="editCostPrice") Cost Price
+          input#editCostPrice(type="number" name="costPrice" required)
+          button(type="submit") Update Product
+
     //- Footer
     footer
       .container
@@ -172,4 +186,53 @@ html(lang="en")
         p#successMessage Operation completed successfully
         button.get-all-btn(style="margin-top: 20px;") OK
 
+    //- Scripts
     script(src="/js/products-gallery.js")
+    script.
+      // Open Edit Modal with product data
+      function updateProduct(id) {
+        fetch(`/stock/get/${id}`)
+          .then(res => res.json())
+          .then(product => {
+            if (!product) return alert('Product not found');
+
+            document.getElementById('editStockId').value = product._id;
+            document.getElementById('editProductName').value = product.productName;
+            document.getElementById('editQuantity').value = product.quantity;
+            document.getElementById('editCostPrice').value = product.costPrice;
+
+            document.getElementById('editStockModal').style.display = 'block';
+          })
+          .catch(err => console.error(err));
+      }
+
+      function closeEditModal() {
+        document.getElementById('editStockModal').style.display = 'none';
+      }
+
+      // Submit edit form
+      document.getElementById('editStockForm').addEventListener('submit', function(e){
+        e.preventDefault();
+        const id = document.getElementById('editStockId').value;
+        const data = {
+          productName: document.getElementById('editProductName').value,
+          quantity: document.getElementById('editQuantity').value,
+          costPrice: document.getElementById('editCostPrice').value
+        };
+
+        fetch(`/stock/update/${id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        })
+        .then(res => res.json())
+        .then(resData => {
+          if (resData.success) {
+            alert('Product updated successfully!');
+            location.reload();
+          } else {
+            alert('Update failed');
+          }
+        })
+        .catch(err => console.error(err));
+      });

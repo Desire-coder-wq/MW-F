@@ -9,8 +9,6 @@ body {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  background: linear-gradient(135deg,   rgb(237, 180, 105), rgb(238, 212, 179));
-  color: #333;
 }
 
 
@@ -24,7 +22,7 @@ body {
 /* ========== Sidebar ========== */
 .sidebar {
   width: 240px;
-  background: linear-gradient(135deg, rgb(5, 103, 5), rgb(232, 176, 103));
+  background-color: #065f46;
   color: #fff;
   display: flex;
   flex-direction: column;
@@ -99,8 +97,7 @@ body {
   top: 0;
   right: 0;
   height: 80px;
-   background: linear-gradient(135deg, rgb(5, 103, 5), rgb(232, 176, 103));
-  backdrop-filter: blur(10px);
+  background-color: #065f46;
   border-bottom: 1px solid #e5e7eb;
   display: flex;
   align-items: center;
@@ -168,8 +165,7 @@ body {
   top: 0;
   right: 0;
   height: 80px;
-   background: linear-gradient(135deg, rgb(5, 103, 5), rgb(232, 176, 103));
-  backdrop-filter: blur(10px);
+   background-color: #065f46;
   border-bottom: 1px solid #e5e7eb;
   display: flex;
   align-items: center;

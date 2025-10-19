@@ -1,21 +1,45 @@
+const mongoose = require('mongoose');
 const Notification = require('../models/Notifications');
-const User = require('../models/userModel');
+const Manager = require('../models/managerModel');
 
 class NotificationManager {
+  // Utility to safely convert IDs
+  static toObjectId(id) {
+    if (!id) return null;
+    if (id instanceof mongoose.Types.ObjectId) return id;
+    try {
+      return new mongoose.Types.ObjectId(id.toString());
+    } catch (err) {
+      console.warn("Invalid ObjectId:", id);
+      return null;
+    }
+  }
+
   // Get notifications for manager
   static async getManagerNotifications(managerId, limit = 10) {
     try {
+      const managerObjectId = this.toObjectId(managerId);
+      if (!managerObjectId) {
+        console.error('Invalid managerId provided to getManagerNotifications');
+        return [];
+      }
+
+      console.log('Querying notifications for manager:', managerObjectId);
+
       const notifications = await Notification.find({
         $or: [
-          { recipients: managerId },
-          { recipients: { $size: 0 } }
+          { recipients: managerObjectId },
+          { recipients: { $exists: true, $size: 0 } },
+          { recipients: { $exists: false } }
         ]
       })
-      .populate('initiatedBy', 'name email')
-      .populate('relatedId')
-      .sort({ createdAt: -1 })
-      .limit(limit);
+        .populate('initiatedBy', 'name email')
+        .populate('relatedId')
+        .sort({ createdAt: -1 })
+        .limit(limit)
+        .lean();
 
+      console.log('Found notifications:', notifications.length);
       return notifications;
     } catch (error) {
       console.error('Error fetching manager notifications:', error);
@@ -26,13 +50,22 @@ class NotificationManager {
   // Get unread count
   static async getUnreadCount(userId) {
     try {
+      const userObjectId = this.toObjectId(userId);
+      if (!userObjectId) {
+        console.error('Invalid userId provided to getUnreadCount');
+        return 0;
+      }
+
       const count = await Notification.countDocuments({
         $or: [
-          { recipients: userId },
-          { recipients: { $size: 0 } }
+          { recipients: userObjectId },
+          { recipients: { $exists: true, $size: 0 } },
+          { recipients: { $exists: false } }
         ],
         status: 'unread'
       });
+
+      console.log('Unread count for user', userObjectId, ':', count);
       return count;
     } catch (error) {
       console.error('Error counting unread notifications:', error);
@@ -40,207 +73,88 @@ class NotificationManager {
     }
   }
 
-  // Mark as read
+  // Mark a notification as read
   static async markAsRead(notificationId, userId) {
     try {
-      await Notification.findOneAndUpdate(
-        { 
-          _id: notificationId,
+      const userObjectId = this.toObjectId(userId);
+      if (!userObjectId) {
+        console.error('Invalid userId provided to markAsRead');
+        return;
+      }
+
+      const result = await Notification.findOneAndUpdate(
+        {
+          _id: this.toObjectId(notificationId),
           $or: [
-            { recipients: userId },
-            { recipients: { $size: 0 } }
+            { recipients: userObjectId },
+            { recipients: { $exists: true, $size: 0 } },
+            { recipients: { $exists: false } }
           ]
         },
-        { $set: { status: 'read' } }
+        { $set: { status: 'read' } },
+        { new: true }
       );
+
+      if (result) {
+        console.log('Notification marked as read:', notificationId);
+      } else {
+        console.warn('Notification not found or already read:', notificationId);
+      }
     } catch (error) {
       console.error('Error marking notification as read:', error);
-      throw error;
     }
   }
 
-  // Mark all as read
+  // Mark all notifications as read
   static async markAllAsRead(userId) {
     try {
-      await Notification.updateMany(
-        { 
+      const userObjectId = this.toObjectId(userId);
+      if (!userObjectId) {
+        console.error('Invalid userId provided to markAllAsRead');
+        return;
+      }
+
+      const result = await Notification.updateMany(
+        {
           $or: [
-            { recipients: userId },
-            { recipients: { $size: 0 } }
+            { recipients: userObjectId },
+            { recipients: { $exists: true, $size: 0 } },
+            { recipients: { $exists: false } }
           ],
           status: 'unread'
         },
         { $set: { status: 'read' } }
       );
+
+      console.log(`Marked ${result.modifiedCount} notifications as read for user:`, userObjectId);
     } catch (error) {
       console.error('Error marking all notifications as read:', error);
-      throw error;
     }
   }
 
-  // NOTIFICATION TRIGGERS 
-
-  // 1. When attendant adds stock - notify manager for approval
-  static async notifyStockAdded(stockData) {
-    try {
-      // Find all managers
-      const managers = await User.find({ 
-        role: 'manager',
-        isActive: true
-      }).select('_id');
-
-      if (managers.length === 0) {
-        console.log('No managers found to notify');
-        return;
-      }
-
-      const recipientIds = managers.map(manager => manager._id);
-
-      const notification = await Notification.create({
-        type: "stock_approval",
-        title: "Stock Requires Approval",
-        message: `${stockData.requesterName} has added ${stockData.quantity} units of ${stockData.materialType} that requires your approval`,
-        priority: "high",
-        relatedId: stockData.submissionId,
-        onModel: "StockSubmission",
-        initiatedBy: stockData.requesterId,
-        userModel: "User",
-        recipients: recipientIds,
-        status: "unread",
-        actionUrl: `/approve-stock/${stockData.submissionId}`,
-        actionRequired: true
-      });
-
-      console.log(`Stock approval notification sent to ${recipientIds.length} managers`);
-      return notification;
-    } catch (error) {
-      console.error('Error creating stock approval notification:', error);
-      throw error;
-    }
-  }
-
-  // 2. When a sale is made - notify manager
-  static async notifySaleMade(saleData) {
-    try {
-      const managers = await User.find({ 
-        role: 'manager',
-        isActive: true
-      }).select('_id');
-
-      if (managers.length === 0) return;
-
-      const recipientIds = managers.map(manager => manager._id);
-
-      const notification = await Notification.create({
-        type: "sale_made",
-        title: "New Sale Completed",
-        message: `${saleData.attendantName} made a sale of ${saleData.amount} for ${saleData.customerName || 'a customer'}`,
-        priority: "medium",
-        relatedId: saleData.saleId,
-        onModel: "Sale",
-        initiatedBy: saleData.attendantId,
-        userModel: "User",
-        recipients: recipientIds,
-        status: "unread",
-        actionUrl: `/sales/${saleData.saleId}`,
-        actionRequired: false
-      });
-
-      console.log(`Sale notification sent to ${recipientIds.length} managers`);
-      return notification;
-    } catch (error) {
-      console.error('Error creating sale notification:', error);
-      throw error;
-    }
-  }
-
-  // 3. When stock is low - notify manager
-  static async notifyLowStock(lowStockData) {
-    try {
-      const managers = await User.find({ 
-        role: 'manager',
-        isActive: true
-      }).select('_id');
-
-      if (managers.length === 0) return;
-
-      const recipientIds = managers.map(manager => manager._id);
-
-      const notification = await Notification.create({
-        type: "low_stock",
-        title: "Low Stock Alert",
-        message: `Stock for ${lowStockData.materialName} is running low. Current quantity: ${lowStockData.currentQuantity}`,
-        priority: "high",
-        relatedId: lowStockData.materialId,
-        onModel: "Stock",
-        initiatedBy: lowStockData.materialId, // or system
-        userModel: "System",
-        recipients: recipientIds,
-        status: "unread",
-        actionUrl: "/stock",
-        actionRequired: true
-      });
-
-      console.log(`Low stock notification sent for ${lowStockData.materialName}`);
-      return notification;
-    } catch (error) {
-      console.error('Error creating low stock notification:', error);
-      throw error;
-    }
-  }
-
-  // 4. When stock is approved/rejected - notify attendant
-  static async notifyStockApproval(approvalData) {
-    try {
-      const notification = await Notification.create({
-        type: "stock_approved",
-        title: `Stock ${approvalData.status}`,
-        message: `Your stock submission of ${approvalData.quantity} units of ${approvalData.materialType} has been ${approvalData.status}`,
-        priority: "medium",
-        relatedId: approvalData.submissionId,
-        onModel: "StockSubmission",
-        initiatedBy: approvalData.approverId,
-        userModel: "User",
-        recipients: [approvalData.requesterId], // Notify the attendant who requested
-        status: "unread",
-        actionUrl: "/attendant-dashboard",
-        actionRequired: false
-      });
-
-      console.log(`Stock ${approvalData.status} notification sent to attendant`);
-      return notification;
-    } catch (error) {
-      console.error('Error creating stock approval status notification:', error);
-      throw error;
-    }
-  }
-
-  
-
-  // For attendant stock addition - notify manager for approval
+  // Notify managers when stock is added
   static async notifyStockAddition(submissionId, attendantId, attendantName, productName, quantity) {
     try {
-      // Find all managers
-      const managers = await User.find({ 
-        role: 'manager',
-        isActive: true
-      }).select('_id');
-
+      const managers = await Manager.find({}).select('_id name email');
+      
+      console.log('Found managers for stock notification:', managers.length);
+      
       if (managers.length === 0) {
-        console.log('No managers found to notify');
+        console.warn('No managers found to notify about stock addition');
         return;
       }
 
       const recipientIds = managers.map(manager => manager._id);
+      console.log('Manager IDs:', recipientIds);
 
       const notification = await Notification.create({
         type: "stock_approval",
         title: "Stock Requires Approval",
-        message: `${attendantName} has added ${quantity} units of ${productName} that requires your approval`,
+        message: `${attendantName} has added ${quantity} units of ${productName} that require your approval.`,
         priority: "high",
         relatedId: submissionId,
         onModel: "StockSubmission",
-        initiatedBy: attendantId,
+        initiatedBy: this.toObjectId(attendantId),
         userModel: "User",
         recipients: recipientIds,
         status: "unread",
@@ -248,104 +162,99 @@ class NotificationManager {
         actionRequired: true
       });
 
-      console.log(`Stock approval notification sent to ${recipientIds.length} managers`);
+      console.log(` Notification created: ${notification._id} for ${recipientIds.length} managers`);
       return notification;
     } catch (error) {
-      console.error('Error creating stock approval notification:', error);
-      throw error;
+      console.error(' Error creating stock approval notification:', error);
     }
   }
 
-  // For stock approval - notify attendant
+  // Notify attendant when stock is approved
   static async notifyStockApproval(submissionId, managerId, managerName, productName, quantity) {
     try {
-      // First get the submission to find who submitted it
       const StockSubmission = require('../models/stockSubmission');
       const submission = await StockSubmission.findById(submissionId).populate('submittedBy');
       
       if (!submission || !submission.submittedBy) {
-        console.log('Submission or submitter not found');
+        console.warn('Stock submission or submittedBy not found:', submissionId);
         return;
       }
 
       const notification = await Notification.create({
         type: "stock_approved",
         title: "Stock Approved",
-        message: `Your stock submission of ${quantity} units of ${productName} has been approved by ${managerName}`,
+        message: `Your stock submission of ${quantity} units of ${productName} has been approved by ${managerName}.`,
         priority: "medium",
         relatedId: submissionId,
         onModel: "StockSubmission",
-        initiatedBy: managerId,
-        userModel: "User",
-        recipients: [submission.submittedBy._id], // Notify the attendant who submitted
+        initiatedBy: this.toObjectId(managerId),
+        userModel: "Manager",
+        recipients: [submission.submittedBy._id],
         status: "unread",
         actionUrl: "/attendant-dashboard",
         actionRequired: false
       });
 
-      console.log(`Stock approval notification sent to attendant`);
+      console.log('Stock approval notification created for attendant:', submission.submittedBy._id);
       return notification;
     } catch (error) {
-      console.error('Error creating stock approved notification:', error);
-      throw error;
+      console.error(' Error creating stock approved notification:', error);
     }
   }
 
-  // For stock rejection - notify attendant
+  // Notify attendant when stock is rejected
   static async notifyStockRejection(submissionId, managerId, managerName, productName, quantity) {
     try {
-      // First get the submission to find who submitted it
       const StockSubmission = require('../models/stockSubmission');
       const submission = await StockSubmission.findById(submissionId).populate('submittedBy');
       
       if (!submission || !submission.submittedBy) {
-        console.log('Submission or submitter not found');
+        console.warn('Stock submission or submittedBy not found:', submissionId);
         return;
       }
 
       const notification = await Notification.create({
         type: "stock_rejected",
         title: "Stock Rejected",
-        message: `Your stock submission of ${quantity} units of ${productName} has been rejected by ${managerName}`,
+        message: `Your stock submission of ${quantity} units of ${productName} has been rejected by ${managerName}.`,
         priority: "medium",
         relatedId: submissionId,
         onModel: "StockSubmission",
-        initiatedBy: managerId,
-        userModel: "User",
-        recipients: [submission.submittedBy._id], // Notify the attendant who submitted
+        initiatedBy: this.toObjectId(managerId),
+        userModel: "Manager",
+        recipients: [submission.submittedBy._id],
         status: "unread",
         actionUrl: "/attendant-dashboard",
         actionRequired: false
       });
 
-      console.log(`Stock rejection notification sent to attendant`);
+      console.log('Stock rejection notification created for attendant:', submission.submittedBy._id);
       return notification;
     } catch (error) {
-      console.error('Error creating stock rejected notification:', error);
-      throw error;
+      console.error(' Error creating stock rejected notification:', error);
     }
   }
 
-  // For task completion - notify manager
+  // Notify managers when a task is completed
   static async notifyTaskCompletion(taskId, attendantId, attendantName, taskType, taskDescription) {
     try {
-      const managers = await User.find({ 
-        role: 'manager',
-        isActive: true
-      }).select('_id');
-
-      if (managers.length === 0) return;
+      const managers = await Manager.find({}).select('_id');
+      
+      if (managers.length === 0) {
+        console.warn('No managers found to notify about task completion');
+        return;
+      }
 
       const recipientIds = managers.map(manager => manager._id);
 
       const notification = await Notification.create({
         type: "task_completed",
         title: "Task Completed",
-        message: `${attendantName} has completed task: ${taskType} - ${taskDescription}`,
+        message: `${attendantName} has completed task: ${taskType} - ${taskDescription}.`,
         priority: "medium",
         relatedId: taskId,
         onModel: "Task",
-        initiatedBy: attendantId,
+        initiatedBy: this.toObjectId(attendantId),
         userModel: "User",
         recipients: recipientIds,
         status: "unread",
@@ -353,46 +262,115 @@ class NotificationManager {
         actionRequired: false
       });
 
-      console.log(`Task completion notification sent to managers`);
+      console.log('Task completion notification created for managers');
       return notification;
     } catch (error) {
       console.error('Error creating task completion notification:', error);
-      throw error;
     }
   }
 
-  // Additional method for low stock (if needed)
-  static async notifyLowStockAlert(materialName, currentQuantity, materialId) {
+  // Notify managers when a sale is made
+  static async notifySaleMade(saleData) {
     try {
-      const managers = await User.find({ 
-        role: 'manager',
-        isActive: true
-      }).select('_id');
-
-      if (managers.length === 0) return;
+      const managers = await Manager.find({}).select('_id');
+      
+      if (managers.length === 0) {
+        console.warn('No managers found to notify about sale');
+        return;
+      }
 
       const recipientIds = managers.map(manager => manager._id);
 
       const notification = await Notification.create({
-        type: "low_stock",
-        title: "Low Stock Alert",
-        message: `Stock for ${materialName} is running low. Current quantity: ${currentQuantity}`,
-        priority: "high",
-        relatedId: materialId,
-        onModel: "Stock",
-        initiatedBy: materialId,
-        userModel: "System",
+        type: "sale_made",
+        title: "New Sale Completed",
+        message: `${saleData.attendantName} made a sale of ${saleData.amount} for ${saleData.customerName || 'a customer'}.`,
+        priority: "medium",
+        relatedId: saleData.saleId,
+        onModel: "Sale",
+        initiatedBy: this.toObjectId(saleData.attendantId),
+        userModel: "User",
         recipients: recipientIds,
         status: "unread",
-        actionUrl: "/stock",
-        actionRequired: true
+        actionUrl: `/sales/${saleData.saleId}`,
+        actionRequired: false
       });
 
-      console.log(`Low stock notification sent for ${materialName}`);
+      console.log(' Sale notification created for managers');
       return notification;
     } catch (error) {
-      console.error('Error creating low stock notification:', error);
-      throw error;
+      console.error(' Error creating sale notification:', error);
+    }
+  }
+
+  //  ADDED: Notify all managers when multiple items are low in stock
+static async notifyLowStock(lowStockItems) {
+  try {
+    if (!Array.isArray(lowStockItems)) {
+      console.warn("⚠️ Expected an array, received:", typeof lowStockItems);
+      return;
+    }
+
+    if (lowStockItems.length === 0) return;
+
+    const managers = await Manager.find({}).select('_id');
+    if (managers.length === 0) {
+      console.warn('No managers found to notify about low stock');
+      return;
+    }
+
+    const recipientIds = managers.map(manager => manager._id);
+
+    const notifications = lowStockItems.map(item => ({
+      type: "low_stock",
+      title: "Low Stock Alert",
+      message: `The product "${item.productName}" is running low on stock (only ${item.quantity} left).`,
+      priority: "high",
+      relatedId: item._id,
+      onModel: "Stock",
+      initiatedBy: null,
+      userModel: "System",
+      recipients: recipientIds,
+      status: "unread",
+      actionUrl: "/stock",
+      actionRequired: true
+    }));
+
+    await Notification.insertMany(notifications);
+    console.log(` Created ${notifications.length} low stock notifications for managers.`);
+  } catch (error) {
+    console.error('Error creating low stock notifications:', error);
+  }
+}
+
+
+  // Delete a notification
+  static async deleteNotification(notificationId) {
+    try {
+      await Notification.findByIdAndDelete(this.toObjectId(notificationId));
+      console.log('Notification deleted:', notificationId);
+    } catch (error) {
+      console.error('Error deleting notification:', error);
+    }
+  }
+
+  // Clear all notifications for a user
+  static async clearAllNotifications(userId) {
+    try {
+      const userObjectId = this.toObjectId(userId);
+      if (!userObjectId) return;
+
+      const result = await Notification.deleteMany({
+        $or: [
+          { recipients: userObjectId },
+          { recipients: { $exists: true, $size: 0 } },
+          { recipients: { $exists: false } }
+        ]
+      });
+
+      console.log(`Cleared ${result.deletedCount} notifications for user:`, userObjectId);
+    } catch (error) {
+      console.error('Error clearing notifications:', error);
     }
   }
 }

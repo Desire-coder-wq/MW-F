@@ -120,10 +120,10 @@ html(lang="en")
                 .form-grid
                   .form-group
                     label(for="customerName") Full Name:
-                    input#customerName(type="text", name="customerName", required)
+                    input#customerName(type="text", name="customerName", )
                   .form-group
                     label(for="customerPhone") Phone Number:
-                    input#customerPhone(type="text", name="customerPhone", placeholder="+2567...", required)
+                    input#customerPhone(type="text", name="customerPhone", placeholder="+2567...", )
                   .form-group
                     label(for="customerEmail") Email Address:
                     input#customerEmail(type="email", name="customerEmail", placeholder="customer@email.com")
@@ -279,15 +279,15 @@ html(lang="en")
 
         function updateStockInfo(stockQuantity) {
           if (stockQuantity === 0) {
-            stockInfoDiv.innerHTML = '<span style="color: red;">❌ Out of Stock</span>';
+            stockInfoDiv.innerHTML = '<span style="color: red;"> Out of Stock</span>';
             quantityInput.disabled = true;
             submitBtn.disabled = true;
           } else if (stockQuantity < 10) {
-            stockInfoDiv.innerHTML = `<span style="color: orange;">⚠️ Low Stock: ${stockQuantity} units available</span>`;
+            stockInfoDiv.innerHTML = `<span style="color: orange;"> Low Stock: ${stockQuantity} units available</span>`;
             quantityInput.disabled = false;
             submitBtn.disabled = false;
           } else {
-            stockInfoDiv.innerHTML = `<span style="color: green;">✅ In Stock: ${stockQuantity} units available</span>`;
+            stockInfoDiv.innerHTML = `<span style="color: green;"> In Stock: ${stockQuantity} units available</span>`;
             quantityInput.disabled = false;
             submitBtn.disabled = false;
           }

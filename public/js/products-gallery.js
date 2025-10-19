@@ -326,3 +326,25 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
 });
+function updateProduct(id) {
+  // Fetch product details from server
+  fetch(`/stock/get/${id}`)
+    .then(res => res.json())
+    .then(product => {
+      if (!product) return alert('Product not found');
+
+      // Fill the form fields
+      document.getElementById('editStockId').value = product._id;
+      document.getElementById('editProductName').value = product.productName;
+      document.getElementById('editQuantity').value = product.quantity;
+      document.getElementById('editCostPrice').value = product.costPrice;
+
+      // Show modal
+      document.getElementById('editStockModal').style.display = 'block';
+    })
+    .catch(err => console.error(err));
+}
+
+function closeEditModal() {
+  document.getElementById('editStockModal').style.display = 'none';
+}

@@ -42,6 +42,43 @@ html(lang="en")
         margin-top: 10px;
       }
 
+      /* Validation Styles */
+      .form-group {
+        position: relative;
+      }
+
+      .error-message {
+        color: #dc2626;
+        font-size: 0.8rem;
+        margin-top: 5px;
+        display: none;
+      }
+
+      .form-control.invalid {
+        border-color: #dc2626 !important;
+        box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+      }
+
+      .form-control.valid {
+        border-color: #16a34a !important;
+      }
+
+      .success-message {
+        background: #dcfce7;
+        color: #166534;
+        padding: 12px 16px;
+        border-radius: 8px;
+        border: 1px solid #bbf7d0;
+        margin-bottom: 20px;
+        display: none;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .success-message i {
+        font-size: 1.2rem;
+      }
+
       /* Notification Styles */
       .notification-btn {
         position: relative;
@@ -264,7 +301,6 @@ html(lang="en")
             h1 Stock Entry
             h3 Add new stock to inventory
           .header-actions
-           
             .user-profile
               i.fas.fa-user-circle
               span #{user ? user.name : 'User'}
@@ -279,7 +315,12 @@ html(lang="en")
                 | Stock Entry Form
               p Fill in the details below to add new stock
 
-            form.stock-form(action="/stock", method="POST", enctype="multipart/form-data")
+            //- Success Message
+            .success-message#successMessage
+              i.fas.fa-check-circle
+              span Product added successfully!
+
+            form.stock-form#stockForm(action="/stock", method="POST", enctype="multipart/form-data", novalidate)
               fieldset.form-fieldset
                 legend.fieldset-legend
                   i.fas.fa-clipboard-list
@@ -290,7 +331,7 @@ html(lang="en")
                     label(for="productName")
                       i.fas.fa-cube
                       | Product Name
-                    select#productName(name="productName", required)
+                    select#productName.form-control(name="productName", required)
                       option(value="", disabled, selected) -- Select Product --
                       option(value="timber") Timber
                       option(value="poles") Poles
@@ -301,42 +342,48 @@ html(lang="en")
                       option(value="dinningTable") Dinning Table
                       option(value="Tv-stand") Tv-stand
                       option(value="Office-chair") Office-chair
+                    .error-message#productNameError Please select a product name
 
                   .form-group
                     label(for="productType")
                       i.fas.fa-tag
                       | Product Type
-                    select#productType(name="productType", required)
+                    select#productType.form-control(name="productType", required)
                       option(value="", disabled, selected) -- Select Type --
                       option(value="wood") Wood
                       option(value="furniture") Furniture
+                    .error-message#productTypeError Please select a product type
 
                   .form-group
                     label(for="category")
                       i.fas.fa-folder
                       | Category
-                    select#category(name="category", required)
+                    select#category.form-control(name="category", required)
                       option(value="", disabled, selected) -- Select Type --
                       option(value="Raw Materials") Raw Materials
                       option(value="Finished Products") Finished Products
+                    .error-message#categoryError Please select a category
 
                   .form-group
                     label(for="costPrice")
                       i.fas.fa-money-bill
                       | Cost Price (UGX)
-                    input#costPrice(type="number", name="costPrice", min="0", step="0.01", required)
+                    input#costPrice.form-control(type="number", name="costPrice", min="0", step="0.01", required)
+                    .error-message#costPriceError Please enter a valid cost price
 
                   .form-group
                     label(for="sellingPrice")
                       i.fas.fa-tag
                       | Selling Price (UGX)
-                    input#sellingPrice(type="number", name="sellingPrice", min="0", step="0.01", required)
+                    input#sellingPrice.form-control(type="number", name="sellingPrice", min="0", step="0.01", required)
+                    .error-message#sellingPriceError Please enter a valid selling price
 
                   .form-group
                     label(for="quantity")
                       i.fas.fa-box
                       | Quantity
-                    input#quantity(type="number", name="quantity", min="1", required)
+                    input#quantity.form-control(type="number", name="quantity", min="1", required)
+                    .error-message#quantityError Please enter a valid quantity
 
               //- Supplier Information Section
               fieldset.form-fieldset
@@ -349,25 +396,29 @@ html(lang="en")
                     label(for="supplier")
                       i.fas.fa-user-tie
                       | Supplier Name
-                    input#supplier(type="text", name="supplier", required)
+                    input#supplier.form-control(type="text", name="supplier", required)
+                    .error-message#supplierError Please enter supplier name
 
                   .form-group
                     label(for="supplierEmail")
                       i.fas.fa-envelope
                       | Supplier Email
-                    input#supplierEmail(type="email", name="supplierEmail", placeholder="example@supplier.com")
+                    input#supplierEmail.form-control(type="email", name="supplierEmail", placeholder="example@supplier.com")
+                    .error-message#supplierEmailError Please enter a valid email address
 
                   .form-group
                     label(for="supplierContact")
                       i.fas.fa-phone
                       | Supplier Contact
-                    input#supplierContact(type="text", name="supplierContact", placeholder="+256...")
+                    input#supplierContact.form-control(type="text", name="supplierContact", placeholder="+256...")
+                    .error-message#supplierContactError Please enter a valid contact number
 
                   .form-group
                     label(for="supplierAddress")
                       i.fas.fa-map-marker-alt
                       | Supplier Address
-                    input#supplierAddress(type="text", name="supplierAddress", placeholder="Enter supplier address")
+                    input#supplierAddress.form-control(type="text", name="supplierAddress", placeholder="Enter supplier address")
+                    .error-message#supplierAddressError Please enter supplier address
 
               fieldset.form-fieldset
                 legend.fieldset-legend
@@ -379,25 +430,29 @@ html(lang="en")
                     label(for="date")
                       i.fas.fa-calendar
                       | Date
-                    input#date(type="date", name="date", required)
+                    input#date.form-control(type="date", name="date", required)
+                    .error-message#dateError Please select a date
 
                   .form-group
                     label(for="quality")
                       i.fas.fa-star
                       | Quality
-                    input#quality(type="text", name="quality")
+                    input#quality.form-control(type="text", name="quality")
+                    .error-message#qualityError Please enter quality information
 
                   .form-group
                     label(for="color")
                       i.fas.fa-palette
                       | Color
-                    input#color(type="text", name="color")
+                    input#color.form-control(type="text", name="color")
+                    .error-message#colorError Please enter color information
 
                   .form-group
                     label(for="measurement")
                       i.fas.fa-ruler
                       | Measurement
-                    input#measurement(type="text", name="measurement")
+                    input#measurement.form-control(type="text", name="measurement")
+                    .error-message#measurementError Please enter measurement information
 
                   //- Image Upload Section
                   .image-upload-section
@@ -409,22 +464,22 @@ html(lang="en")
                         .image-preview-placeholder
                           i.fas.fa-camera
                           p No image selected
-                      input#image(type="file", name="image", accept="image/*", onchange="previewImage(this)")
+                      input#image.form-control(type="file", name="image", accept="image/*", onchange="previewImage(this)")
                       .upload-info
                         | Supported formats: JPG, PNG, GIF, WebP (Max: 5MB)
+                      .error-message#imageError Please select a valid image file
 
               .form-actions
                 button.submit-btn(type="submit")
                   i.fas.fa-plus-circle
                   | Add Stock
 
- 
-
     footer
       .container
          p &copy; 2025 Mayondo Wood & Furniture Ltd 
          p Designed by A Rose Desire @ Groundbreaker Talents
 
+  script(src="/js/add-stock.js")
   script.
     document.addEventListener('DOMContentLoaded', function() {
       const today = new Date().toISOString().split('T')[0];

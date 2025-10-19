@@ -4,7 +4,7 @@ const loadingSchema = new mongoose.Schema({
   productName: { type: String, required: true },
   productType: { 
     type: String, 
-    enum: ["Wood", "Furniture"],  
+    enum: ["wood", "furniture"],  
     required: true 
   },
   quantity: { type: Number, required: true },

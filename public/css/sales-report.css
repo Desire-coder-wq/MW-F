@@ -9,15 +9,14 @@
 body {
   display: flex;
   min-height: 100vh;
-  background: linear-gradient(135deg, rgb(228, 216, 199), rgb(232, 176, 103));
+ background-color: #065f46;
   color: #333;
 }
 
 /* ========== Sidebar ========== */
 .sidebar {
   width: 240px;
-  background: linear-gradient(135deg, rgb(11, 136, 11), rgb(232, 176, 103));
-  color: #fff;
+ background-color: #065f46;
   display: flex;
   flex-direction: column;
   padding: 20px;
@@ -91,7 +90,7 @@ body {
   top: 0;
   right: 0;
   height: 80px;
-  background: rgba(60, 226, 45, 0.85);
+  background-color: #065f46;
   backdrop-filter: blur(10px);
   border-bottom: 1px solid #e5e7eb;
   display: flex;

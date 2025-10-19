@@ -1,59 +1,77 @@
 const mongoose = require('mongoose');
 
-const notificationSchema = new mongoose.Schema({
-  type: {
-    type: String,
-    required: true
+const notificationSchema = new mongoose.Schema(
+  {
+    type: {
+      type: String,
+      required: true,
+      enum: [
+        "stock_approval",
+        "stock_approved",
+        "stock_rejected",
+        "task_completed",
+        "sale_made",
+        "low_stock"
+      ],
+    },
+
+    title: { type: String, required: true },
+    message: { type: String, required: true },
+
+    priority: {
+      type: String,
+      enum: ["low", "medium", "high"],
+      default: "medium",
+    },
+
+    status: {
+      type: String,
+      enum: ["unread", "read"],
+      default: "unread",
+      index: true,
+    },
+
+    recipients: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User", // or "Manager" if only managers receive
+        index: true,
+      },
+    ],
+
+    // The user who triggered the notification (manager, attendant, or system)
+    initiatedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      refPath: "userModel",
+    },
+
+    userModel: {
+      type: String,
+      enum: ["User", "Manager", "System"],
+      default: "User",
+    },
+
+    relatedId: {
+      type: mongoose.Schema.Types.ObjectId,
+      refPath: "onModel",
+    },
+
+    onModel: {
+      type: String,
+      enum: ["StockSubmission", "Stock", "Task", "Sale"],
+      default: "Stock",
+    },
+
+    actionUrl: { type: String },
+    actionRequired: { type: Boolean, default: false },
   },
-  title: {
-    type: String,
-    required: true
-  },
-  message: {
-    type: String,
-    required: true
-  },
-  priority: {
-    type: String,
-    enum: ['low', 'medium', 'high'],
-    default: 'medium'
-  },
-  relatedId: {
-    type: mongoose.Schema.Types.ObjectId,
-    refPath: 'onModel'
-  },
-  onModel: {
-    type: String,
-    enum: ['StockSubmission', 'User', 'OtherModel']
-  },
-  initiatedBy: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    required: true
-  },
-  userModel: {
-    type: String,
-    default: 'User'
-  },
-  recipients: [{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User'
-  }],
-  status: {
-    type: String,
-    enum: ['unread', 'read', 'dismissed'],
-    default: 'unread'
-  },
-  actionUrl: String,
-  actionRequired: {
-    type: Boolean,
-    default: false
+  {
+    timestamps: true, // adds createdAt and updatedAt fields
   }
-}, {
-  timestamps: true
-});
+);
 
-// Index for better performance
-notificationSchema.index({ recipients: 1, status: 1, createdAt: -1 });
+// Optional indexes for performance
+notificationSchema.index({ createdAt: -1 });
+notificationSchema.index({ recipients: 1, status: 1 });
 
-module.exports = mongoose.model('Notification', notificationSchema);
+module.exports = mongoose.model("Notification", notificationSchema);

@@ -5,11 +5,11 @@ const UserModel = require("../models/userModel");
 const Sales = require('../models/salesModel');
 const Stock = require('../models/stockModel');
 const Customer = require('../models/customerModel');
-const NotificationManager = require('../utils/notifications'); // ADD THIS LINE
+const NotificationManager = require('../utils/notifications');
 
 const { ensureauthenticated, ensureAgent, ensureManager } = require('../middleware/auth');
 
-// ------------------- GET Products with Stock API Endpoint -------------------
+// ------------------- GET Products with Stock API -------------------
 router.get('/api/products-with-stock', ensureauthenticated, async (req, res) => {
   try {
     const products = await Stock.find({}, 'productName productType quantity sellingPrice').lean();
@@ -52,6 +52,7 @@ router.post('/sales', ensureauthenticated, ensureAgent, async (req, res) => {
       date,
       notes
     } = req.body;
+
     const userId = req.user._id;
 
     // ======= Atomic stock reduction =======
@@ -65,20 +66,20 @@ router.post('/sales', ensureauthenticated, ensureAgent, async (req, res) => {
     const transportRequired = transport.toLowerCase() === "yes";
     const total = Number(quantity) * Number(price) * (transportRequired ? 1.05 : 1);
 
-    // ======= Save Customer =======
-    let customer = await Customer.findOne({ 
+    // ======= Save or Find Customer =======
+    let customer = await Customer.findOne({
       $or: [
-        { phone: customerPhone },
-        { email: customerEmail }
+        { customerPhone },
+        { customerEmail }
       ]
     });
 
     if (!customer && customerName && customerPhone) {
       customer = new Customer({
-        name: customerName,
-        phone: customerPhone,
-        email: customerEmail || '',
-        address: customerAddress || '',
+        customerName: customerName.trim(),
+        customerPhone: customerPhone.trim(),
+        customerEmail: customerEmail ? customerEmail.trim().toLowerCase() : '',
+        customerAddress: customerAddress ? customerAddress.trim() : '',
         dateAdded: new Date()
       });
       await customer.save();
@@ -87,7 +88,12 @@ router.post('/sales', ensureauthenticated, ensureAgent, async (req, res) => {
     // ======= Save Sale =======
     const sale = new Sales({
       salesAgent: userId,
-      customer: { name: customerName, phone: customerPhone, email: customerEmail, address: customerAddress },
+      customer: {
+        customerName,
+        customerPhone,
+        customerEmail,
+        customerAddress
+      },
       productName,
       productType,
       quantity: Number(quantity),
@@ -100,23 +106,20 @@ router.post('/sales', ensureauthenticated, ensureAgent, async (req, res) => {
     });
     await sale.save();
 
-    // ======= NOTIFICATION: Notify manager about sale =======
+    // ======= Notify Managers =======
     try {
-      // Get all managers to notify
       const managers = await UserModel.find({ role: 'manager' }).lean();
 
       for (const manager of managers) {
-        // Pending sale that needs loading
         await NotificationManager.notifyPendingSales(
           sale._id,
           req.user._id,
           req.user.name,
           customerName,
           total,
-          manager._id // <- recipient
+          manager._id
         );
 
-        // Large sales over $1000
         if (total > 1000) {
           await NotificationManager.notifyLargeSale(
             sale._id,
@@ -124,16 +127,16 @@ router.post('/sales', ensureauthenticated, ensureAgent, async (req, res) => {
             req.user.name,
             total,
             customerName,
-            manager._id // <- recipient
+            manager._id
           );
         }
       }
       console.log("Sale notifications sent to manager(s)");
     } catch (notifyError) {
       console.error("Error sending sale notifications:", notifyError);
-      // Don't fail the request if notification fails
     }
 
+    // Redirect to customer page instead of sales list (optional)
     res.redirect('/sales-list');
   } catch (err) {
     console.error("Error saving sale:", err.message);
@@ -149,13 +152,9 @@ router.get('/sales-list', ensureauthenticated, async (req, res) => {
 
     let sales;
     if (currentUser.role === 'manager') {
-      sales = await Sales.find()
-        .populate('salesAgent', 'name')
-        .lean();
+      sales = await Sales.find().populate('salesAgent', 'name').lean();
     } else {
-      sales = await Sales.find({ salesAgent: currentUser._id })
-        .populate('salesAgent', 'name')
-        .lean();
+      sales = await Sales.find({ salesAgent: currentUser._id }).populate('salesAgent', 'name').lean();
     }
 
     res.render('salesList', { sales, user: currentUser });
@@ -187,31 +186,36 @@ router.post('/sales/edit/:id', ensureauthenticated, ensureManager, async (req, r
 
     const { customerName, customerPhone, customerEmail, customerAddress, productName, quantity, price, transport, paymentType, date, notes } = req.body;
 
-    // ======= Update Customer =======
+    // Update or Create Customer
     if (customerName && customerPhone) {
-      let customer = await Customer.findOne({ 
-        $or: [{ phone: customerPhone }, { email: customerEmail }]
+      let customer = await Customer.findOne({
+        $or: [{ customerPhone }, { customerEmail }]
       });
+
       if (!customer) {
-        customer = new Customer({ name: customerName, phone: customerPhone, email: customerEmail || '', address: customerAddress || '', dateAdded: new Date() });
+        customer = new Customer({
+          customerName,
+          customerPhone,
+          customerEmail: customerEmail || '',
+          customerAddress: customerAddress || '',
+          dateAdded: new Date()
+        });
         await customer.save();
       } else {
-        customer.name = customerName;
-        if (customerEmail) customer.email = customerEmail;
-        if (customerAddress) customer.address = customerAddress;
+        customer.customerName = customerName;
+        if (customerEmail) customer.customerEmail = customerEmail;
+        if (customerAddress) customer.customerAddress = customerAddress;
         await customer.save();
       }
     }
 
-    // ======= Update Stock Atomically if product/quantity changed =======
+    // Update Stock if needed
     if (sale.productName !== productName || sale.quantity != quantity) {
-      // Restore old stock
       await Stock.updateOne(
         { productName: sale.productName },
         { $inc: { quantity: sale.quantity } }
       );
 
-      // Reduce new stock
       const updated = await Stock.findOneAndUpdate(
         { productName, quantity: { $gte: Number(quantity) } },
         { $inc: { quantity: -Number(quantity) } },
@@ -220,9 +224,9 @@ router.post('/sales/edit/:id', ensureauthenticated, ensureManager, async (req, r
       if (!updated) return res.status(400).send(`Insufficient stock for ${productName}`);
     }
 
-    // ======= Update Sale =======
+    // Update Sale
     const transportBool = transport.toLowerCase() === 'yes';
-    sale.customer = { name: customerName, phone: customerPhone, email: customerEmail, address: customerAddress };
+    sale.customer = { customerName, customerPhone, customerEmail, customerAddress };
     sale.productName = productName;
     sale.quantity = Number(quantity);
     sale.price = Number(price);
@@ -260,12 +264,10 @@ router.post('/sales/delete/:id', ensureauthenticated, ensureManager, async (req,
   }
 });
 
-// ------------------- GET Receipt by Sale ID -------------------
+// ------------------- GET Receipt -------------------
 router.get('/receipt/:id', ensureauthenticated, async (req, res) => {
   try {
-    const sale = await Sales.findById(req.params.id)
-      .populate('salesAgent', 'name')
-      .lean();
+    const sale = await Sales.findById(req.params.id).populate('salesAgent', 'name').lean();
     if (!sale) return res.status(404).send("Receipt not found");
 
     const currentUser = req.user;
@@ -280,38 +282,31 @@ router.get('/receipt/:id', ensureauthenticated, async (req, res) => {
   }
 });
 
-// ------------------- Invoices List & Single Invoice Routes (unchanged) -------------------
+// ------------------- Invoices -------------------
 router.get("/invoices", async (req, res) => {
   try {
     const sales = await Sales.find().populate("salesAgent", "name").lean();
-    const invoices = sales.map((sale) => ({
+    const invoices = sales.map(sale => ({
       id: sale._id,
       invoiceNumber: `MWF-${moment(sale.date).format("YYYYMMDD")}-${sale._id.toString().slice(-4)}`,
       date: moment(sale.date).format("MMM DD, YYYY"),
-      customer: sale.customer.name || "Walk-in Customer",
+      customer: sale.customer.customerName || "Walk-in Customer",
       amount: sale.total || 0,
       status: sale.paymentType?.toLowerCase() === "cash" ? "paid" : "pending",
       items: sale.quantity || 1,
-      paymentMethod: sale.paymentType || "Unknown",
+      paymentMethod: sale.paymentType || "Unknown"
     }));
+
     const totalRevenue = invoices.reduce((sum, inv) => sum + inv.amount, 0);
-    const pendingInvoices = invoices.filter((i) => i.status === "pending").length;
-    const paidInvoices = invoices.filter((i) => i.status === "paid").length;
-    const thisMonthInvoices = invoices.filter((i) =>
+    const pendingInvoices = invoices.filter(i => i.status === "pending").length;
+    const paidInvoices = invoices.filter(i => i.status === "paid").length;
+    const thisMonthInvoices = invoices.filter(i =>
       moment(i.date, "MMM DD, YYYY").isSame(moment(), "month")
     ).length;
 
-    res.render("invoices", {
-      title: "MWF — Invoices & Receipts",
-      user: req.user || { name: "Admin" },
-      invoices,
-      totalRevenue,
-      pendingInvoices,
-      paidInvoices,
-      thisMonthInvoices,
-    });
+    res.render("invoices", { title: "MWF — Invoices & Receipts", user: req.user || { name: "Admin" }, invoices, totalRevenue, pendingInvoices, paidInvoices, thisMonthInvoices });
   } catch (err) {
-    console.error(" Error fetching invoices:", err.message);
+    console.error("Error fetching invoices:", err.message);
     res.status(500).send("Error fetching invoices");
   }
 });

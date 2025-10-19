@@ -20,7 +20,7 @@ const stockSchema = new mongoose.Schema({
   },
   costPrice: {
     type: Number,
-    required: true
+    
   },
   sellingPrice: {
     type: Number,

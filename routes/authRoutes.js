@@ -5,6 +5,7 @@ const upload = require("../middleware/upload");
 const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
+const mongoose = require("mongoose");
 
 // Models
 const Notification = require('../models/Notifications');
@@ -31,6 +32,7 @@ function ensureManager(req, res, next) {
 }
 
 // ---------------------- LOGIN ----------------------
+
 router.get("/login", (req, res) => {
   res.render("login", { title: "Login Page" });
 });
@@ -41,7 +43,7 @@ router.post("/login", async (req, res, next) => {
   try {
     const manager = await Manager.findOne({ email });
     if (manager) {
-      Manager.authenticate()(email, password, (err, user, options) => {
+      Manager.authenticate()(email, password, (err, user) => {
         if (err) return next(err);
         if (!user) return res.redirect("/login");
 
@@ -64,7 +66,7 @@ router.post("/login", async (req, res, next) => {
 
     const foundUser = await User.findOne({ email });
     if (foundUser) {
-      passport.authenticate("local", (err, user, info) => {
+      passport.authenticate("local", (err, user) => {
         if (err) return next(err);
         if (!user) return res.redirect("/login");
 
@@ -89,41 +91,72 @@ router.post("/login", async (req, res, next) => {
 });
 
 // ---------------------- MANAGER DASHBOARD ----------------------
+
 router.get("/manager-dashboard", ensureAuthenticated, ensureManager, async (req, res) => {
   try {
-    const user = req.session.user;
-
+    const user = req.session.user || req.user;
     if (!user) return res.redirect("/login");
 
-    // Get notifications using direct query as fallback
+    console.log('Manager Dashboard - User ID:', user._id);
+    console.log('Manager Dashboard - User Role:', user.role);
+
     let notifications = [];
     let unreadCount = 0;
 
     try {
+      // Ensure managerId is properly converted to ObjectId
+      const managerId = mongoose.Types.ObjectId.isValid(user._id) 
+        ? new mongoose.Types.ObjectId(user._id) 
+        : user._id;
+
+      console.log('Fetching notifications for manager:', managerId);
+
       // Try using NotificationManager first
-      notifications = await NotificationManager.getManagerNotifications(user._id, 10);
-      unreadCount = await NotificationManager.getUnreadCount(user._id);
+      notifications = await NotificationManager.getManagerNotifications(managerId, 10);
+      unreadCount = await NotificationManager.getUnreadCount(managerId);
+
+      console.log('Notifications fetched via NotificationManager:', notifications.length);
+      console.log('Unread count:', unreadCount);
+
     } catch (notifErr) {
-      console.error("Notification manager error, using direct query:", notifErr);
-      // Fallback to direct query
+      console.error("NotificationManager error, using fallback query:", notifErr);
+
+      // Fallback: Direct database query
+      const managerId = mongoose.Types.ObjectId.isValid(user._id) 
+        ? new mongoose.Types.ObjectId(user._id) 
+        : user._id;
+
+      console.log('Using fallback query with managerId:', managerId);
+
+      // Query all notifications to debug
+      const allNotifications = await Notification.find({}).limit(5);
+      console.log('Sample notifications in DB:', JSON.stringify(allNotifications, null, 2));
+
       notifications = await Notification.find({
         $or: [
-          { recipients: user._id },
+          { recipients: managerId },
+          { managerId: managerId },
           { recipients: { $size: 0 } }
         ]
       })
-      .populate('initiatedBy', 'name email')
-      .populate('relatedId')
-      .sort({ createdAt: -1 })
-      .limit(10);
+        .populate("initiatedBy", "name email")
+        .populate("relatedId")
+        .sort({ createdAt: -1 })
+        .limit(10)
+        .lean();
+
+      console.log('Fallback notifications found:', notifications.length);
 
       unreadCount = await Notification.countDocuments({
         $or: [
-          { recipients: user._id },
+          { recipients: managerId },
+          { managerId: managerId },
           { recipients: { $size: 0 } }
         ],
-        status: 'unread'
+        status: "unread"
       });
+
+      console.log('Fallback unread count:', unreadCount);
     }
 
     res.render("manager-dashboard", {
@@ -142,52 +175,86 @@ router.get("/manager-dashboard", ensureAuthenticated, ensureManager, async (req,
 });
 
 // ---------------------- NOTIFICATIONS API ----------------------
-router.get("/notifications", ensureAuthenticated, ensureManager, async (req, res) => {
+
+router.get("/notifications/api", ensureAuthenticated, ensureManager, async (req, res) => {
   try {
-    const user = req.session.user;
+    const user = req.session.user || req.user;
+    const managerId = mongoose.Types.ObjectId.isValid(user._id) 
+      ? new mongoose.Types.ObjectId(user._id) 
+      : user._id;
+    
+    console.log('API: Fetching notifications for manager:', managerId);
+    
     let notifications = [];
+    let unreadCount = 0;
 
     try {
-      notifications = await NotificationManager.getManagerNotifications(user._id, 20);
+      notifications = await NotificationManager.getManagerNotifications(managerId, 20);
+      unreadCount = await NotificationManager.getUnreadCount(managerId);
+      console.log('API: Notifications from NotificationManager:', notifications.length);
     } catch (error) {
-      console.error("Error using NotificationManager, falling back:", error);
+      console.error("API: Error using NotificationManager, fallback query:", error);
+      
       notifications = await Notification.find({
         $or: [
-          { recipients: user._id },
+          { recipients: managerId },
+          { managerId: managerId },
           { recipients: { $size: 0 } }
         ]
       })
-      .populate('initiatedBy', 'name email')
-      .populate('relatedId')
-      .sort({ createdAt: -1 })
-      .limit(20);
+        .populate("initiatedBy", "name email")
+        .populate("relatedId")
+        .sort({ createdAt: -1 })
+        .limit(20)
+        .lean();
+
+      unreadCount = await Notification.countDocuments({
+        $or: [
+          { recipients: managerId },
+          { managerId: managerId },
+          { recipients: { $size: 0 } }
+        ],
+        status: "unread"
+      });
+
+      console.log('API: Fallback notifications found:', notifications.length);
     }
 
-    res.json({ success: true, notifications });
+    res.json({ success: true, notifications, unreadCount });
   } catch (error) {
-    console.error("Error fetching notifications:", error);
+    console.error("API: Error fetching notifications:", error);
     res.status(500).json({ success: false, error: error.message });
   }
 });
 
 router.post("/notifications/:id/read", ensureAuthenticated, async (req, res) => {
   try {
-    const user = req.session.user;
-    
+    const user = req.session.user || req.user;
+    const userId = mongoose.Types.ObjectId.isValid(user._id) 
+      ? new mongoose.Types.ObjectId(user._id) 
+      : user._id;
+
+    console.log('Marking notification as read:', req.params.id);
+
     try {
-      await NotificationManager.markAsRead(req.params.id, user._id);
+      await NotificationManager.markAsRead(req.params.id, userId);
+      console.log('Notification marked as read via NotificationManager');
     } catch (error) {
-      console.error("Error with NotificationManager, using direct update:", error);
+      console.error("NotificationManager markAsRead error, fallback:", error);
+      
       await Notification.findOneAndUpdate(
-        { 
+        {
           _id: req.params.id,
           $or: [
-            { recipients: user._id },
+            { recipients: userId },
+            { managerId: userId },
             { recipients: { $size: 0 } }
           ]
         },
-        { $set: { status: 'read' } }
+        { $set: { status: "read" } }
       );
+      
+      console.log('Notification marked as read via fallback');
     }
 
     res.json({ success: true });
@@ -199,22 +266,32 @@ router.post("/notifications/:id/read", ensureAuthenticated, async (req, res) => 
 
 router.post("/notifications/mark-all-read", ensureAuthenticated, async (req, res) => {
   try {
-    const user = req.session.user;
-    
+    const user = req.session.user || req.user;
+    const userId = mongoose.Types.ObjectId.isValid(user._id) 
+      ? new mongoose.Types.ObjectId(user._id) 
+      : user._id;
+
+    console.log('Marking all notifications as read for:', userId);
+
     try {
-      await NotificationManager.markAllAsRead(user._id);
+      await NotificationManager.markAllAsRead(userId);
+      console.log('All notifications marked as read via NotificationManager');
     } catch (error) {
-      console.error("Error with NotificationManager, using direct update:", error);
-      await Notification.updateMany(
-        { 
+      console.error("NotificationManager markAllAsRead error, fallback:", error);
+      
+      const result = await Notification.updateMany(
+        {
           $or: [
-            { recipients: user._id },
+            { recipients: userId },
+            { managerId: userId },
             { recipients: { $size: 0 } }
           ],
-          status: 'unread'
+          status: "unread"
         },
-        { $set: { status: 'read' } }
+        { $set: { status: "read" } }
       );
+      
+      console.log('Fallback: Marked', result.modifiedCount, 'notifications as read');
     }
 
     res.json({ success: true });
@@ -225,6 +302,7 @@ router.post("/notifications/mark-all-read", ensureAuthenticated, async (req, res
 });
 
 // ---------------------- REGISTER (MANAGER ONLY) ----------------------
+
 router.get("/register", ensureAuthenticated, ensureManager, (req, res) => {
   res.render("register", { title: "Register Page" });
 });
@@ -279,7 +357,7 @@ router.post("/register", ensureAuthenticated, ensureManager, upload.single("prof
   }
 });
 
-// ---------------------- OTHER ROUTES (Keep your existing routes) ----------------------
+// ---------------------- REMAINING ROUTES ----------------------
 
 router.get("/noneUser", (req, res) => {
   res.status(404).render("noneUser", { title: "No User Found" });
@@ -339,8 +417,8 @@ router.post("/users/:id", ensureAuthenticated, ensureManager, async (req, res) =
     res.status(500).send("Server error");
   }
 });
-// ... Keep all your other existing routes (manager pages, userlist, edit/delete, settings, etc.)
 
+// ---------------------- LOGOUT ----------------------
 router.get("/logout", (req, res) => {
   res.render("logout", { title: "Confirm Logout" });
 });
@@ -356,154 +434,36 @@ router.post("/logout", (req, res, next) => {
   });
 });
 
-
 // ---------------------- SETTINGS ----------------------
-
-// Render settings page
-router.get("/settings", ensureAuthenticated, ensureManager, async (req, res) => {
-    try {
-        let settings = await Settings.findOne({ user: req.session.user._id });
-        if (!settings) {
-            // Create default settings if none exist
-            settings = await Settings.create({
-                user: req.session.user._id,
-                theme: { primaryColor: "#0b880b", secondaryColor: "#3b82f6", backgroundColor: "#f8fafc", mode: "light" },
-                typography: { fontSize: 16, fontFamily: "'Inter', sans-serif", fontWeight: 400 },
-                invoice: {
-                    companyName: "Mayondo Wood & Furniture Ltd",
-                    companyAddress: "Nairobi, Kenya",
-                    companyPhone: "+254 700 000 000",
-                    companyEmail: "info@mwf.co.ke",
-                    logo: "/images/logo 2.png",
-                    invoiceFormat: "MWF-{year}-{sequence}",
-                    transportFee: 5
-                },
-                system: { autoLogout: 30, dateFormat: "DD/MM/YYYY", language: "en" }
-            });
-        }
-
-        res.render("settings", {
-            title: "MWF - Settings",
-            user: req.session.user,
-            settings: settings.toObject()
-        });
-    } catch (err) {
-        console.error("Error loading settings:", err);
-        res.status(500).send("Failed to load settings");
-    }
-});
-
-// Save updated settings
-router.post("/settings/save", ensureAuthenticated, ensureManager, async (req, res) => {
-    try {
-        const data = req.body;
-        const updates = {
-            theme: {
-                primaryColor: data.primaryColor,
-                secondaryColor: data.secondaryColor,
-                backgroundColor: data.backgroundColor,
-                mode: data.themeMode
-            },
-            typography: {
-                fontSize: parseInt(data.fontSize),
-                fontFamily: data.fontFamily,
-                fontWeight: parseInt(data.fontWeight)
-            },
-            invoice: {
-                companyName: data.companyName,
-                companyAddress: data.companyAddress,
-                companyPhone: data.companyPhone,
-                companyEmail: data.companyEmail,
-                invoiceFormat: data.invoiceFormat,
-                transportFee: parseFloat(data.transportFee),
-                logo: data.logo || "/images/logo 2.png"
-            },
-            system: {
-                autoLogout: parseInt(data.autoLogout),
-                dateFormat: data.dateFormat,
-                language: data.language
-            },
-            updatedAt: Date.now()
-        };
-
-        let settings = await Settings.findOne({ user: req.session.user._id });
-        if (!settings) {
-            settings = new Settings({ user: req.session.user._id, ...updates });
-        } else {
-            Object.assign(settings, updates);
-        }
-        await settings.save();
-
-        res.json({ success: true, message: "Settings saved successfully!" });
-    } catch (err) {
-        console.error("Error saving settings:", err);
-        res.status(500).json({ success: false, message: "Failed to save settings" });
-    }
-});
-
-// Reset settings to defaults
-router.post("/settings/reset", ensureAuthenticated, ensureManager, async (req, res) => {
-    try {
-        const defaults = {
-            theme: { primaryColor: "#0b880b", secondaryColor: "#3b82f6", backgroundColor: "#f8fafc", mode: "light" },
-            typography: { fontSize: 16, fontFamily: "'Inter', sans-serif", fontWeight: 400 },
-            invoice: {
-                companyName: "Mayondo Wood & Furniture Ltd",
-                companyAddress: "Nairobi, Kenya",
-                companyPhone: "+254 700 000 000",
-                companyEmail: "info@mwf.co.ke",
-                logo: "/images/logo 2.png",
-                invoiceFormat: "MWF-{year}-{sequence}",
-                transportFee: 5
-            },
-            system: { autoLogout: 30, dateFormat: "DD/MM/YYYY", language: "en" },
-            updatedAt: Date.now()
-        };
-
-        let settings = await Settings.findOne({ user: req.session.user._id });
-        if (!settings) {
-            settings = new Settings({ user: req.session.user._id, ...defaults });
-        } else {
-            Object.assign(settings, defaults);
-        }
-        await settings.save();
-
-        res.json({ success: true, message: "Settings reset to default!" });
-    } catch (err) {
-        console.error("Error resetting settings:", err);
-        res.status(500).json({ success: false, message: "Failed to reset settings" });
-    }
-});
-
-// Upload logo
 const logoUpload = multer({
-    storage: multer.diskStorage({
-        destination: (req, file, cb) => {
-            const uploadDir = path.join(__dirname, "../public/uploads");
-            if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
-            cb(null, uploadDir);
-        },
-        filename: (req, file, cb) => {
-            const unique = Date.now() + "-" + Math.round(Math.random() * 1e9);
-            cb(null, unique + path.extname(file.originalname));
-        }
-    })
+  storage: multer.diskStorage({
+    destination: (req, file, cb) => {
+      const uploadDir = path.join(__dirname, "../public/uploads");
+      if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
+      cb(null, uploadDir);
+    },
+    filename: (req, file, cb) => {
+      const unique = Date.now() + "-" + Math.round(Math.random() * 1e9);
+      cb(null, unique + path.extname(file.originalname));
+    },
+  }),
 });
 
 router.post("/settings/upload-logo", ensureAuthenticated, ensureManager, logoUpload.single("logo"), async (req, res) => {
-    try {
-        const logoPath = `/uploads/${req.file.filename}`;
-        let settings = await Settings.findOne({ user: req.session.user._id });
-        if (!settings) {
-            settings = new Settings({ user: req.session.user._id, invoice: { logo: logoPath } });
-        } else {
-            settings.invoice.logo = logoPath;
-        }
-        await settings.save();
-        res.json({ success: true, logoUrl: logoPath });
-    } catch (err) {
-        console.error("Logo upload failed:", err);
-        res.status(500).json({ success: false, message: "Logo upload failed" });
+  try {
+    const logoPath = `/uploads/${req.file.filename}`;
+    let settings = await Settings.findOne({ user: req.session.user._id });
+    if (!settings) {
+      settings = new Settings({ user: req.session.user._id, invoice: { logo: logoPath } });
+    } else {
+      settings.invoice.logo = logoPath;
     }
+    await settings.save();
+    res.json({ success: true, logoUrl: logoPath });
+  } catch (err) {
+    console.error("Logo upload failed:", err);
+    res.status(500).json({ success: false, message: "Logo upload failed" });
+  }
 });
+
 module.exports = router;

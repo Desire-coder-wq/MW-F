@@ -7,7 +7,7 @@
 }
 
 body {
-    background: linear-gradient(135deg,   rgb(237, 180, 105), rgb(238, 212, 179));
+   background:#ffff;
   color: #1e293b;
   min-height: 100vh;
   display: flex;
@@ -18,7 +18,7 @@ body {
 .sidebar {
   width: 240px;
   height: 100vh;
-  background: linear-gradient(135deg, rgb(5, 103, 5), rgb(232, 176, 103));
+ background-color: #065f46;
   color: #fff;
   position: fixed;
   top: 0;
@@ -83,7 +83,7 @@ body {
   left: 240px;
   right: 0;
   height: 90px;
-  background: linear-gradient(135deg, rgb(5, 103, 5), rgb(232, 176, 103));
+  background-color: #065f46;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
   display: flex;
   align-items: center;
@@ -101,13 +101,13 @@ body {
 
 .company-info h1 {
   font-size: 22px;
-  color: #0b880b;
+  color: #ffff;
   font-weight: 700;
 }
 
 .company-info h3 {
   font-size: 14px;
-  color: #64748b;
+  color:#ffff;
   font-weight: 500;
 }
 
@@ -138,13 +138,16 @@ body {
 
 /* --- Footer --- */
 footer {
-  background: linear-gradient(135deg, rgb(5, 103, 5), rgb(232, 176, 103));
+  background-color: #065f46;
   border-top: 1px solid #e2e8f0;
   padding: 15px 0;
   text-align: center;
   color: 1px solid #e2e8f0;
   font-size: 14px;
   margin-top: auto;
+}
+footer.content.p{
+color:white
 }
 
 /* --- Main Layout Wrapper --- */
@@ -227,7 +230,7 @@ footer {
   background: linear-gradient(135deg, #3b82f6, #1d4ed8);
 }
 .btn-info {
-  background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+  background: linear-gradient(135deg, #0b880b, #0a6e0a);
 }
 
 .btn-primary:hover,
